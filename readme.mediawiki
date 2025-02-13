@@ -1,0 +1,965 @@
+<!--
+# SPDX-FileCopyrightText: 2024 - 2025 ENCRYPTED SUPPORT LLC <adrelanos@kicksecure.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+-->
+{{Header}}
+{{#seo:
+|description=Boot chain and integrity guarantees. What is Verified Boot, Secure Boot, Trusted Boot, dm-verity? Advantages, restrictions for user freedom, and more.
+|image=Verifiedboot1245.png
+}}
+{{boot_firmware}}
+[[File:Verifiedboot1245.png|thumb|200px]]
+{{intro|
+Boot chain and integrity guarantees. What is Verified Boot, Secure Boot, Trusted Boot, dm-verity? Advantages, restrictions for user freedom, and more.
+}}
+= What is Verified Boot? =
+Verified boot is a security feature.
+
+* '''Purpose''': Verified boot either ensures that a system boots using only authorized and untampered software or provides means for detecting the fact of tampering. In the former case each stage of the boot process verifies the integrity and authenticity of the next stage before it is executed. The goal is to protect against attacks that modify firmware, bootloader, kernel, or other critical parts of the system or at least make a user aware of an ongoing attack.
+* '''Process''': During boot, the system checks cryptographic signatures on firmware and system components like the bootloader, kernel, and drivers. If the signatures don't match or have been tampered with, the boot process can be halted, or recovery measures can be triggered.
+
+In theory, if used right, it improves the security of the user without restricting user freedom. In practice however, for a large part, verified boot is used to enforce user-freedom restrictions.
+
+Let's start with the advantages, and a bit of technical background of verified boot.
+
+{{Quotation
+|quote=
+Verified Boot strives to ensure all executed code comes from a trusted source (usually device OEMs), rather than from an attacker or corruption. It establishes a full chain of trust, starting from a hardware-protected root of trust to the bootloader, to the boot partition and other verified partitions including system, vendor, and optionally oem partitions. During device boot up, each stage verifies the integrity and authenticity of the next stage before handing over execution.
+
+[...] Rollback protection helps to prevent a possible exploit from becoming persistent by ensuring devices only update to newer versions of Android.
+
+In addition to verifying the OS, Verified Boot also allows Android devices to communicate their state of integrity to the user.
+|context=
+[https://web.archive.org/web/20220927012232/https://source.android.com/docs/security/features/verifiedboot Android Verified Boot]
+}}
+
+Articles:
+
+* https://tech.michaelaltfield.net/2023/02/16/evil-maid-heads-pureboot/
+* https://www.solcept.ch/en/blog/critical-systems/secure-boot/
+
+= Ideological Considerations =
+Before discussing the technical implementation details and security it might make sense to lay out one's position on who should have more power. Device owners or vendors.
+
+* Should the operating system obey the user? Yes | No
+* Should the user have ultimate control? Yes | No
+* Should the operating system make guarantees to app developers in case these guarantees are to the disadvantage of the user? Yes | No
+* Does one oppose the war on War on General Purpose Computing? Yes | No
+* Does one support the right to general computing? Yes | No
+
+It is primarily a project goal and policy decision.
+
+Technical excuses are moot. If there's a commitment pro freedom and against anti-features, then there's a way. Security needs to take the backseat if it curtails user freedom. A prison cell is more secure from car accidents but yet we don't want to live in a golden cage. If you want, you will find a way, if you don't want to, you will find reasons.
+
+For example, in case of GrapheneOS non-root enforcement is a project goal and policy decision.
+
+{{Quotation
+|quote=
+It doesn't sound like you want GrapheneOS since you don't care about the core security goals. I recommend using something else.
+|context=
+[https://www.reddit.com/r/GrapheneOS/comments/du23la/rooted_or_root/?sort=old GrapheneOS lead developer] <ref>
+https://archive.ph/94YVQ
+</ref>
+}}
+
+{{Quotation
+|quote=
+GrapheneOS is not aimed at power users or hobbyists aiming to tinker with their devices more than they can via the stock OS or AOSP.
+}}
+
+([[Mobile_Operating_System_Comparison#resign-android-image|resign-android-image]] is a script that attempts to provide root access for GrapheneOS.)
+
+= User Freedom =
+Freedom Software can be compatible with verified boot. No user freedom restrictions required. While verified boot is often used to restrict user freedom, to prevent the user from modifications and installing another operating system, verified boot is not inherently bad.
+
+It depends on the details: who controls the keys used to enforce verified boot (vendor vs. user) and how verified boot is enforced by an operating system (i.e., what operations are disallowed). User-controlled keys are possible.
+
+{{Quotation
+|quote=
+Nexus and Pixel lines support Verified Boot with user-controlled keys
+|context=
+[https://blog.torproject.org/mission-improbable-hardening-android-security-and-privacy Mike Perry, The Tor Project Blog]
+}}
+
+== Comparison of Third-Party Controlled versus User-Controlled ==
+{| class="wikitable"
+! '''Category''' !! '''Vendor-Controlled Verified Boot''' !! '''User-Controlled Verified Boot'''
+|-
+
+! Improves security
+| {{Yes}}
+| {{Yes}}
+|-
+
+! Restricts user freedom
+| {{Yes}}
+| {{No}}
+|-
+
+! Hinders the user auditing system for compromises
+| {{Yes}}
+| {{No}}
+|-
+
+! Synonym 1
+| Tyrant Security
+| Freedom Security
+|-
+
+! Synonym 2
+| Enterprise Security
+| Cypherpunk Security
+|-
+
+! Synonym 3
+| Feudal Security
+| Sovereign Security
+|-
+
+! Empowers
+| Corporates
+| Individuals
+|-
+
+|}
+
+== Compromised Verified Boot Vendor Keys ==
+
+* https://www.schneier.com/blog/archives/2022/12/leaked-signing-keys-are-being-used-to-sign-malware.html
+* https://www.schneier.com/blog/archives/2023/03/blacklotus-malware-hijacks-windows-secure-boot-process.html
+* https://www.binarly.io/blog/leaked-msi-source-code-with-intel-oem-keys-how-does-this-affect-industry-wide-software-supply-chain
+
+= How does Verified Boot work? =
+The verification can be based on digests or digital signatures (i.e., signed digests). Only components with expected digests or those signed with a private key trusted by the device are loaded and executed. Otherwise, the device can refuse to boot.
+
+Lower stage (such as firmware) loads and hands over control to the next element in a boot chain (such as bootloader).  In general, every stage verifies the digital signature of the next one.
+
+The stages look approximately as follows (simplified):
+
+<code>hardware root of trust</code> → <code>firmware</code> → <code>bootloader</code> → <code>kernel</code> → <code>kernel modules</code> → <code>initrd</code> → <code>init</code>
+
+Or specifically on some Linux desktop distributions:
+
+<code>hardware root of trust</code> → <code>firmware</code> → <code>shim</code> -> <code>grub</code> <code>bootloader</code> → <code>Linux kernel</code> → <code>kernel modules</code> → <code>initrd</code> → <code>systemd</code> <code>init</code> and <code>userland</code>
+
+Should the verification fail at any stage, the boot process is aborted.
+
+There is no technical requirement for each stage to be signed with the same key. Each stage can have a dedicated key or even key management system.
+
+= Applicability of Verified Boot =
+
+== What are the advantages of verified boot? ==
+Thanks to the integrity check, unauthorized malware can be eliminated after a reboot (if the device is capable of reverting to a clean backup image) or the device won't boot.
+
+Conceptually, this improves security because the user runs only applications with a valid digital signature. This excludes third-party unauthorized malware which would have to be signed with a valid key while infecting the system to circumvent the checks (possible if a vendor key is leaked or the system is under a targeted attack that got a hold of a key at an earlier stage).
+
+== What are the limitations of verified boot? ==
+Doesn't protect the system from "authorized" malware. For example, the pre-installed Google Play Services on Google Android or a malicious application that successfully passed all appstore checks. See [[Mobile_Phone_Security#Espionage_Data_Harvesting|massive espionage data harvesting on Google Android]]. Verified boot is a security technology that conceptually cannot stop [[malware]] that is built into an operating system by its producer. This does not take away from its useful potential as a security improvement for users.
+
+== Who uses verified boot? ==
+At the time of writing, there was no Freedom Software Linux desktop distribution that implemented full verified boot which means a full chain of verification starting form the hardware root of trust up to all pre-installed applications that come with the Linux distribution. Only kernel module verification is supported. The verified boot for initrd and beyond is not yet implemented. ([[Verified_Boot#Other_Distributions_implementing_Verified_Boot|Other Distributions implementing Verified Boot
+]])
+
+By comparison, for example Android and iOS supports full verified boot.
+
+== What are the dangers of verified boot? ==
+The main risks are mistreatment of users, user software freedom restrictions, taking power away from users and handing it over to operating system and application developers.
+
+As verified boot is currently implemented, for the vast supermajority of users the key is controlled by the operating system vendor. Users enrolling their own keys in the hardware key store or at any later stage of the boot process is often literally impossible <ref>
+Many Android devices come with locked bootloaders. Many Android phones could not have been modded by the modding community because no way to break the verified boot chain and gain full read/write access to their own devices could be found.
+</ref>, undocumented, not well supported, and even discouraged.
+
+Many user-freedom restrictions are enforced using verified boot, locked bootloaders and non-root enforcement. This includes [[Mobile_Operating_System_Comparison#Android_Anti-Features|Android Anti-Features]], prevention of replacing the stock operating system on mobile devices and [[Miscellaneous_Threats_to_User_Freedom#mobile_devices_restrictions|many other mobile devices restrictions]].
+
+== When the verification is over? ==
+
+Potential misconception:
+
+<blockquote>
+Verified boot makes sure that the boot process has not been tampered with, and then from that point on its job is done.
+</blockquote>
+
+Quote https://source.android.com/docs/security/features/verifiedboot/verified-boot
+
+<blockquote>
+verification is a continuous process happening as data is loaded into memory
+</blockquote>
+
+This means if malware manages to modify the <code>/usr/bin/mv</code> program despite immutability, then <code>dm-verity</code> would notice this the next time the user or system is attempting to execute that command.
+
+* https://tgrush.bearblog.dev/android-verified-boot/
+
+= Verified Boot Compatibility with Rooted Phones =
+Yes, verified boot can be compatible with rooted devices.
+
+Verified boot with root support and even with user-locked bootloader would be possible if support for that is built into the boot process (bootloader, recovery image). But how to modify the system partition without breaking verified boot? Modern root solutions such as Magisk support "systemless" root, via file system overlays. It's called "systemless" because Android has a partition <code>/system</code> that remains unmodified when using such rooting method.
+
+Verified boot would be compatible with rooting if an approach similar to that employed by Magisk was built into the bootloader / recovery image prior signing it.
+
+Furthermore, for compatibility with verified boot, user modifications to the system partition could be reset at device reboot boot time from a known signed good image. This is technically very doable because Android already does something similar with its A/B update mechanism. <ref>
+https://source.android.com/docs/core/ota/ab
+</ref> Then how would the user make any system modifications persistent? Via file system overlays and/or automation scripts that run after the boot process. There could even be a boot menu option to boot with or without user system modifications.
+
+Related forum discussion:
+https://forums.whonix.org/t/overview-of-mobile-projects-that-focus-on-either-and-or-security-privacy-anonymity-source-available-freedom-software/4557/46
+
+== Rooted Security versus Non-Rooted Security ==
+Quote <ref>
+https://news.ycombinator.com/item?id=28096914
+</ref>
+
+{{Quotation
+|quote=
+And what the hell? Root with verified boot? That's like having the most secure castle while leaving the door open for anyone, you can't have both worlds.
+|context=
+Anti user freedom viewpoint.
+}}
+
+{{Quotation
+|quote=
+Root doesn't mean you give root permissions to any dumb app. I implied proper permission management and authorization, of course.
+Then it's just like a secure castle where the user can go into all of the rooms, to some with a special key. You don't have to go into those rooms, but you have the option to at any time. And, depending on the implementation, you may change the special room, but if you return after the next reboot, it will be reverted back.
+
+Actually, the castle analogy goes further: Unfortunately, many seem to interpret "verified boot" and "most secure" as "protects the dumbest user from shooting themselves in the foot on purpose by locking them into that castle. That is exactly where the recent apple scandal is coming from: The user is subservient to the OS vendor, and the OS vendor can abuse the user as they please.
+
+Security is very important. Why? In order to not be exploited by strangers (criminals, spys...) against my interests. If security enables exploitation against my interests (by whomever, be it the OS vendor, the movie industry, or the government), it is not the security I want. This one OS is different than all the other evil ones? That's what Apple said before...
+|context=
+Pro user freedom viewpoint.
+}}
+
+{{Quotation
+|quote=
+If you're rooted your security is way lower. Simple as that. Rooting can be used against you, it can lead to exploitation, and likely has been.
+Note: you can have secure boot without root and using your own Android build, such as CalyxOS. Not rooting doesn't imply using the stock firmware, never has been.
+|context=
+Anti user freedom viewpoint.
+}}
+
+{{Quotation
+|quote=
+I honestly don't understand why it should be "Simple as that"? If you have the phone rooted, as long as you don't grant root to any application, why should it be less secure than if you hadn't rooted it? (assumed everything else the same, specifically the rom supporting verified boot with root) Then, by granting root permissions to apps, of course the attack surface gets larger, but this is a thing you control yourself.
+Your note was always understood. Of course not rooting doesn't imply using the stock firmware. It however implies that you are submitting to a different master. Who may be different, and maybe a bit more lenient than Google/Samsung/whoever, but that other master will still enforce any dumb app's will against you.
+|context=
+Pro user freedom viewpoint.
+}}
+
+= coreboot's Measured Boot, TPM, FlashKeeper =
+
+Measured boot is a take on Verified boot that constructs a record of software components (code or data) participating in boot process. The components are hashed ("measured") by code and then passed to Trusted Platform Module (TPM) for storage. The TPM has several PCRs (Platform Configuration Registers), each of which can store measurements. TPM can also store secrets revealed only when PCRs hold a certain value. The idea is that a secret won't be released unless system is in a good state as is indicated by PCRs. It is not possible to set the TPM measurements to a specific value directly from the software level. Instead, individual hashes must be fed into the TPM in a specific order to produce the final measurement.
+
+The boot process of coreboot involves initializing the TPM, measuring the boot block by itself, measuring intermediate stages, and eventually the RAM stage. These measurements collected during boot are passed to TPM and are also recorded in non-authoritative TPM event log. The log is stored in CBMEM, coreboot's memory area, and can be reviewed later (you often do not see the value of what is being extended, only its hash). coreboot also measures blobs and other files included in the firmware image until it reaches payload.
+
+Control is then finally handed over to a payload, which can perform additional measurements directly into the TPM. The accumulated measurements are used to authenticate the system's state to the TPM. If the system can successfully authenticate itself in this way, it can unseal data within the TPM such as a TOTP (Time-based One-Time Password) secret. When the user wants to verify the system's state, whether that is with a TOTP code or remote attestation, this secret is unsealed using the TPM's actual PCR values.
+
+Certain theoretical and practical attack vectors suggest flaws in this approach. For instance, if the boot block is compromised, it can feed any data it wants into the TPM, whether that data is representative of the system's state or not. Malicious firmware may choose to input the measurements of good firmware into the TPM in order to trick it into unsealing attestation data later. This can be prevented with mechanisms such as Intel Boot Guard or on-chip write-protection of flash chip that stores the firmware. However, write-protection is not always available or convenient and Boot Guard is not without issues. The MSI leak and TOCTOU (Time-of-Check to Time-of-Use) issues highlight its vulnerabilities.
+
+== TPM EK - Endorsement Key ==
+
+TPM EK (Endorsement Key) is the identity of a TPM which is used to confirm authenticity of the TPM device (i.e., that it was in fact produced by a known manufacturer). Neither EK nor TPM 2.0 changes compared to TPM 1.2 address the boot block modification issue.
+
+TODO: Find Heads firmware ticket about TPM 2.0 and TPM EK (Endorsement Key).
+
+The core of the problem remains that the boot block is not protected. The common narrative, and the direction the ecosystem seems to be heading with Boot Guard, is that Boot Guard relies on an external party signing the firmware. The chipset/CPU (chipset on Intel platforms, CPU on AMD platforms), using a fused (one-time-programmable) key, becomes the root of trust. In contrast, the EK represents the TPM as the root of trust. However, even without Boot Guard, the boot block must still be protected, and currently, there is no protection for the boot block outside of Boot Guard.
+
+== FlashKeeper ==
+
+This is why the FlashKeeper project was initiated. It aims to provide an external mechanism to verify the system firmware against a user-provided key while the system is actively booting, ensuring that whatever the host boots is trusted by the user. This prevents boot block compromise and other firmware compromises, greatly improving trust in the system. While Boot Guard offers an external authority to sign the firmware state, it creates a new risk: if the signing key is leaked, or the Boot Guard implementation is insecure, it could lead to a false sense of security, potentially causing even greater harm.
+
+More info about FlashKeeper:
+
+* presentation made by the FlashKeeper developer at the Qubes OS Summit 2024: https://www.youtube.com/watch?v=DxFceGi6C0k
+* https://forum.qubes-os.org/t/flashkeeper-the-solution-to-spi-flash-firmware-tampering/28028 (free Qubes forums account required for reading as per Qubes forums policy)
+
+Boot block based attacks have been discussed somewhere here in this gigantic forum thread:
+https://forum.qubes-os.org/t/discussion-on-purism/2627
+
+== Boot Block Based Attacks Against Measured Boot ==
+
+Measured boot can be used in remote attestation. Remote attestation involves using measured boot or another technology to seal and unseal secrets. As of today, all of this relies on the TPM.
+
+A malicious firmware could communicate with a fake TPM. The boot block might report fake measurements expected by the TPM. In such an attack scenario, the measurements - the boot block, the ROM stage, the RAM stage, the payload - would all need to be tampered with so that each part reports the expected measurement of itself, specifically the hash of each component.
+
+Imagine an attacker is able to back up the firmware and extract the boot block, RAM stage, payload, configuration files - everything that is actually measured. If you use CBMEM (e.g., `cbmem -L`), you can see the logs of the TPM trace. Suppose an attacker modifies all these parts so that they report themselves correctly. In that case, the boot block becomes a problem as a Root of Trust because it currently serves that role.
+
+However, when discussing remote attestation, it's not just the boot block but many other components measured inside the TPM. The TPM is passive; it's called upon by software to extend hashes within a PCR. The TPM stores these measurements - the result of the hash chain leading to the actual measurement inside that PCR. When you seal a secret, you specify that certain PCRs are used to lock the sealed secret, and you make the NVRAM region of the TPM depend on those measurements being consistent.
+
+When you try to unseal a secret, you're using the current state of the measurements inside the TPM. If they are all consistent, you can access the secret. This functions like a password used to unseal the secret. You cannot unseal a secret if the request comes from a state that doesn't match the sealed state. For example, the Heads firmware requires sealing and unsealing of secrets plus passwords. It needs the remote attestation state of the firmware, the configuration status inside CBFS, the LUKS header measurements, and the user's passphrase to unseal the disk encryption key.
+
+There is no known proof of concept for this attack yet.
+
+= Qubes Specific =
+In Qubes OS,
+
+* changes made to the <code>/usr</code> directory in App Qubes disappear after every reboot. This is because <code>/usr</code> resides in the root image, which is reset on reboot.
+* bootloader, kernel, initrd, <code>/usr</code> directory could be considered trusted inside App Qubes, because it is provided by the root image.
+
+However, verified boot is designed to detect unauthorized writes to <code>/usr</code> even before a reboot. Verified boot performs continuous verification - it does not only validate the integrity of the system at boot time but also monitors for illegitimate changes throughout runtime.
+
+= Verified Boot Discussion =
+
+== Does Verified Boot Require an Immutable Image? ==
+Does verified boot necessarily require an immutable (read-only) image? Does verified boot make any sense with read-write?
+
+Can verified boot be useful for a general-purpose operating system?
+
+=== Modified Files ===
+<u>Modified files:</u>
+
+* The main problem when attempting to combine verified boot with full read-write access is that the user (or malware) can modify any file in <code>/etc</code> or <code>/usr</code>.
+* Let's consider running a tool that can show modified files in <code>/etc</code> and <code>/usr</code>.
+** {{CodeSelect|code=
+debsums -ce
+}}
+* Sample output might include:
+** <code>/etc/xdg/Thunar/uca.xml</code>
+* This means that configuration file <code>/etc/xdg/Thunar/uca.xml</code> has been modified for some reason. Users have many legitimate reasons to modify files. However, malware might also modify files. Malware might drop a startup unit in <code>/etc/systemd/system/</code>, but so might a desktop user or server system administrator.
+
+=== New or Deleted Files ===
+<u>New or deleted files</u>: On top of that, it would need to be ensured that there aren't any new files or deleted files that could be planted by malware for the purpose of a persistent backdoor. For example, a drop-in into <code>/etc/profile.d</code> or a systemd unit file or drop-in. These can serve many legitimate purposes but can also be abused by malware.
+
+=== Read-Write + Verified Boot Challenges ===
+<u>Read-write + verified boot - the anything changeable issue</u>: The main problem with verified boot without immutability is that both the user and an adversary can change pretty much anything on the hard drive.
+
+== Implementing Verified Boot - Minimal System Partition ==
+One concept to implement verified boot is an immutable, minimal system partition. That, however, is mostly suitable for specialized appliances (such as routers). The disadvantage is a lot of lost user functionality and freedom. It would be a hard and dictatorial decision about what goes into the system partition, which couldn't be modified by the user without building from source code. A long running process that can maybe be speed up and simplified.
+
+== Compromises Between Mutability, Functionality and Security ==
+Using a minimal system partition would force some specific technology on the user (for example, going all in on Flatpak for application installation).
+
+Freedom to modify in-place and security are at odds with each other. Anything that is secured by verified boot becomes immutable.
+
+=== Non-Persistence in Verified Boot ===
+Is it possible to at least get the compromise of non-persistence from verified boot? Maybe, but then one ends up with things like "I rebooted and now all the software I installed is gone." Verified boot with reset after reboot would be similar to live mode. So even if full <code>apt-get install</code> access was permitted, that would be gone after reboot.
+
+=== Persistence of User-Installed Packages ===
+Can user-installed packages using <code>apt-get install</code> persist + verified boot?
+<code>debsums</code> alike functionality? <ref>
+<code>debsums -ce</code>
+
+<code>debsums</code> is not secure yet. It uses insecure checksums. But that might be fixable with an alternative implementation.
+</ref> One would have to trust everything in the apt repository to make that safe, which might be an acceptable assumption, and somehow prevent the user from adding additional repositories or installing deb packages that they built themselves.
+
+== Mutability in Verified Boot Systems ==
+Some verified boot in combination with mutable (read-write) issue:
+
+* Just how mutable? Should systemd units be mutable or immutable? If immutable, many packages won't be installable. If mutable, setting up a persistent backdoor becomes easy. If "live-immutable," software will break after a reboot because the system partition gets reset to vendor defaults.
+* Verified boot with mutability will be too easy to bypass. If someone leaves, for instance, <code>/usr/local/bin</code> mutable because "of course it should be mutable, that's where user-installed software goes", malware might plant a malicious executable there that will now be persistent and override calls to an executable in an immutable <code>/usr/bin</code>.
+* System updates? Verify and copy files to the "fake-immutable" base filesystem after a successful update? What if a non-persistent compromise manages to compromise the updater so it copies malicious files to the base partition?
+
+=== Challenges with Immutable Filesystems ===
+With a real immutable filesystem, updates become hard. It would require system image updates rather than apt packages for the base system, but somehow maintain compatibility with apt packages too.
+
+For real immutability, we would need to invent A/B updates for Debian. Vanilla OS is doing A/B updates with Debian Sid.
+
+== Verified Boot for Specialized Operating Systems ==
+So verified boot can only always be specialized operating systems, not general-purpose operating systems?
+
+Specialized operating systems for example:
+
+* "This is a nice verified boot image, start the browser, reboot, any potential malware compromise will self-heal."
+
+== Minimal Immutable Base Images in combination with chroot ==
+Suppose there is this minimal immutable base image... And then a chroot where the user can do anything? We might not get significant security benefits from that, because for example the browser binary installed inside the chroot would not be covered by verified boot.
+
+todo: https://www.perplexity.ai/search/android-apps-from-play-store-c-uy8M.d48SDSFZGstvSYFVw
+
+It requires an entire ecosystem.
+
+Android app store has apps that fit into this. Debian doesn't.
+
+And the Freedom Software Linux distribution ecosystem doesn't really have verified boot on the radar.
+
+=== Approaches from Other Distributions ===
+The approach Fedora Silverblue takes, only they also allow Flatpak and root filesystem modification via <code>rpm-ostree</code>. TODO: security impact?
+
+== Factory Reset and Verified Boot ==
+With a read-write (rw) image and verified boot, at best maybe what one could get is a simple factory reset in the boot menu. The user could choose factory reset, which resets all changes in the root image. Nice, but not that great of a security feature.
+
+=== Challenges of Using dm-verity ===
+One cannot do <code>dm-verity</code> on a "normal" filesystem. Only on images, block devices. Any changes and it breaks. Quote <code>dm-verity</code> man page:
+
+<blockquote>
+Device-Mapper’s “verity” target provides transparent integrity checking of block devices using a cryptographic digest provided by the kernel crypto API. This target is read-only.
+</blockquote>
+
+One ends up with a read-only filesystem.
+
+todo: use fs-verity for that?
+
+=== Allowing Mutability with dm-verity ===
+To allow this to be mutable, one needs to have some way of applying changes to it, which requires some way of automatically signing those changes, which might exposes the key to malware should it infect the system.
+
+Quote <code>systemd-sysext</code>:
+
+<blockquote>
+Files and directories contained in the extension images outside of the /usr/ and /opt/ hierarchies are not merged, and hence have no effect when included in a system extension image. In particular, files in the /etc/ and /var/ included in a system extension image will not appear in the respective hierarchies after activation.
+</blockquote>
+
+Or <code>systemd-confext</code> for <code>/etc</code>.
+
+== Kicksecure ISO and Verified Boot ==
+How useful would it be to have verified boot for Kicksecure ISO? Since it's read-only anyhow.
+
+=== ISO Considerations ===
+It's hard to modify an ISO read/write. There is no public software available to really mount an ISO read/write. But it's possible in theory. The ISO should be considered read-write for attackers but read-only for the public. There is the Open Source <code>growisofs</code> tool. Also, other attacks are conceivable such as [https://wiki.debian.org/RepackBootableISO repacking the ISO], which is documented in the Debian wiki and much easier than ISO.
+
+=== Verified Boot for USB Installations ===
+Suppose someone writes the ISO to USB. Then the live session is compromised. By clever ISO read/write editing, the ISO compromise is made persistent. Would verified boot be able to come to the rescue here? It might.
+
+== Challenges with Key Management with Secure Boot ==
+The computer needs to have the proper Secure Boot keys somewhere to verify the ISO image and detect if it is compromised. Due to how shim is implemented on Freedom Software Linux distributions, in practical terms, one might need to rely on Microsoft's keys. A lot of this is elaborated on the [[Dev/Secure Boot]] wiki page. This means the attacker must not be able to access a leaked Microsoft key. This is not only a theoretic consideration. Microsoft's signing key has been leaked in the past, see [[Verified_Boot#Compromised_Verified_Boot_Vendor_Key|Compromised Verified Boot Vendor Key]].
+
+Furthermore, any shim signed my Microsoft (such as Debian's shim) would still be bootable along with other maliciously modified operating system parts (part of Debian).
+
+This approach doesn't benefit Freedom Software Linux desktop distributions much since they must use their own key to verify the filesystem image. That image is created by the distribution, so their shim must be signed with Microsoft's key.
+
+One major issue is, that an EFI executable, such as shim, cannot have two signatures. This is an EFI design limitation.
+
+Options for key management:
+
+* '''A)''' <u>Distribution signing key as hardware root of trust</u>: The distribution signs shim, and the user uses the distribution's key in the firmware (BIOS / EFI); <u>or</u>
+* '''B)''' <u>User managed keys</u>: the user manages their own keys (which is even less realistic); <u>or</u>
+* '''C)''' <u>Microsoft key</u>: the distribution relies on the Microsoft key (e.g., the default Debian shim).
+
+=== Microsoft Signing Process ===
+There isn't a single universal shim. Even large distributions like Pop!_OS lack Secure Boot; only major distributions (e.g., Ubuntu, Debian, Fedora, openSUSE) have implemented it.
+
+Microsoft would likely be willing to sign a new Linux distribution shim. The Linux distribution "just" need to fork shim and then go through the shim review process. Many distributions have managed to get their shims signed, though the requirements for doing so are strict (e.g., key storage must be physically secure and require biometric authentication).
+
+This is nice to have for Secure Boot compatibility, which is a lesser goal of at least having a bootable Linux distribution without the user having to disable Secure Boot in their BIOS. {{project_name_short}} is Secure Boot compatible, thanks to Debian's shim, but this relies on appearing as Debian.
+
+It's however not much of a security feature, since:
+
+* The root of trust ultimately resides with Microsoft. Attackers with access to (leaked) Microsoft keys can bypass it.
+* Attackers can also boot anything signed by Microsoft (any other Linux distribution's shim).
+
+If {{project_name_short}} would provide ISO with our own key for signed verified boot images, we would lose compatibility to boot on standard hardware with Secure Boot and Microsoft's default key. The "only one signature allowed on an EFI binary" restriction is preventing that. {{project_name_short}} might need to maintain two different ISO's.
+
+* A) Kicksecure hardware ISO: One ISO signed for hardware sold by {{project_name_short}} that only comes by default only with {{project_name_short}}'s key.
+* B) General Secure Boot hardware ISO: For "normal", non-Kicksecure hardware.
+
+== Hardware Root of Trust Issue ==
+Intel and AMD64
+
+Google Android devices sell hardware
+
+== Alternative Approaches ==
+=== Custom Hardware with Specific Keys ===
+One solution could be selling certified hardware with the project-specific key while removing the Microsoft key. But that is likely unrealistic. Another approach could involve a single ISO with two bootloaders, or separate ISOs for Microsoft-key-compatible and project-specific-key-compatible boot options. However, this adds complexity.
+
+=== Dual Shim Fallback Mechanisms ===
+A potential compromise could be a fallback mechanism with two shims: one based on the Microsoft key and another on the project-specific key. The system could transparently switch to the secondary shim if the primary fails. But implementing this is a significant challenge.
+
+=== Lessons from Preinstalled Systems ===
+When machines certified for other distributions (e.g., Ubuntu) are preinstalled, they include an Ubuntu-specific key from Canonical alongside the Microsoft key. However, relying on Secure Boot for verified boot while keeping compatibility with the Microsoft key poses challenges.
+
+=== Measured Boot vs Secure Boot ===
+It’s possible to design a process where the Microsoft shim loads the kernel, the kernel then determines compatibility with the project-specific key, and the system reboots into a secondary bootloader signed by the project. But this approach requires additional firmware capabilities. Effectively can be compromised with Microsoft leaked key?
+
+Yes. That's where measured boot comes in.
+
+Another consideration is whether removing the Microsoft key is beneficial. While it would lock systems to the Linux distribution's key for Secure Boot, this might restrict compatibility further than Microsoft's own Secure Boot implementation. A firmware option to enable or disable Microsoft or project-specific keys could address this.
+
+[[Measured_boot|Measured Boot]], an alternative to Secure Boot, avoids the Microsoft key issue. While Secure Boot prevents unauthorized code from running, Measured Boot provides tamper evidence, which may be sufficient for many use cases. However, implementing this requires firmware support and careful design.
+
+== Potential Verified Boot Workflow ==
+A feasible workflow might involve Secure Boot launching shim (signed by Microsoft), shim launching a measured boot utility (e.g., <code>stboot</code>), and <code>stboot</code> verifying the kernel and root filesystem. This would provide a chain of trust extending from firmware to userland. However, integrating <code>stboot</code> into this process is complex.
+
+=== Key Management and User Complexity ===
+Ultimately, projects relying on their own key for signing or implementing Secure Boot independently of Microsoft face significant technical and logistical hurdles. While it's possible to use external storage for managing measurements, this increases user complexity and introduces new risks.
+
+= {{project_name_short}} Verified Boot Development Ideas =
+== Verified VM Boot Sequence without Secure Boot ==
+Talking about VMs only in this concept.
+
+We could boot from a virtual, read-only (write-protected) boot medium such as another virtual HDD or ISO. Such a boot medium, which only contains a bootloader (shim or grub?), has the sole task of verifying the bootloader on the main hard drive that contains the bootloader, kernel, and Debian. That boot medium (such as ISO) could be shipped on {{project_name_long}} Host through a <code>deb</code> package: <code>/usr/share/verified-boot/check.iso</code>.
+
+'''Presuppositions'''
+
+* The virtual BIOS cannot be flashed/compromised.
+* Host is not compromised.
+
+'''Boot Sequence'''
+
+VM powered on &rarr; virtual BIOS loads boot DVD ISO (or alternatively another hard drive) (contains a bootloader only) &rarr; this initial bootloader signature is not verified but secure since booting from a read-only medium &rarr; verify bootloader on main hard drive &rarr; bootloader of main hard drive does signature verification of kernel &rarr; continue boot.
+
+'''Requirements'''
+
+* <code>grub-pc</code> (not <code>grub-efi</code>) with signature verification. <ref>
+* https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=939188
+* https://savannah.gnu.org/bugs/index.php?56887
+</ref>
+
+By not booting from that initial boot medium (for testing or if it was broken), users could perform regular boots without verification of the bootloader on the main drive. From the perspective of the main drive, nothing would change, except we'd enable grub signature verification of the kernel on the main drive.
+
+'''Simplification'''
+
+The boot medium should not load the actual kernel for simplicity of implementation. Since it is read-only, it cannot be easily updated. Kernel packages change, and during kernel upgrades, <code>/boot</code> and <code>grub.cfg</code> on the main disk change. If <code>/boot</code> were write-protected, that would fail. Therefore, the initial boot medium is only a simplified alternative to EFI Secure Boot. By making the initial boot medium as simple as possible, i.e., only chainloading the next bootloader, it does not need frequent updates and does not need to be updated when kernel versions change.
+
+If we could make <code>grub-pc</code> (not <code>grub-efi</code>) use <code>check_signatures=enforce</code>, then perhaps we don't need to port to EFI and/or Secure Boot soon or perhaps never.
+
+[https://forums.whonix.org/t/enable-linux-kernel-gpg-verification-in-grub-and-or-enable-secure-boot-by-default/7894/1 enable Linux kernel gpg verification in grub and/or enable Secure Boot by default]
+
+'''Disadvantages'''
+
+* Less secure than dm-verity which does continuous verification.
+* [https://forums.whonix.org/t/enable-linux-kernel-gpg-verification-in-grub-and-or-enable-secure-boot-by-default/7894/30 initrd could still be compromised because at time of writing it is not signed yet by any Freedom Software Linux desktop distribution].
+
+== Hash Check all Files at Boot ==
+Higher security level than Secure Boot.
+
+This concept applies only to virtual machines (VMs).
+
+We could boot from a virtual, read-only (write-protected) boot medium, such as another virtual HDD or ISO. Such a boot medium could run a minimal Linux distribution, which then compares against checksums from the Debian repository on the main boot drive:
+
+* The MBR (Master Boot Record)
+* The VBR (Volume Boot Record)
+* [A] The bootloader
+* [B] The partition table
+* [C] The kernel
+* [D] The initrd
+* [E] All files shipped by all packages
+
+There are tools that can help with checking all files on the hard drive, such as <code>debsums</code>. However, <code>debsums</code>, while more popular, is unsuitable. <ref>
+Quote https://www.elstel.org/debcheckroot/
+
+<blockquote>
+Usage of debsums instead of Debian-checkroot is strongly discouraged because debsums uses locally stored md5sums which can be modified by an attacker along with the files themselves. It has been meant for integrity checking, not for security issues! Debsums furthermore does not provide an output as clean and neatly structured as checkroot and does not spot files additionally added to your system by someone else.
+</blockquote>
+</ref>
+
+A tool such as [https://www.elstel.org/debcheckroot/ debcheckroot] might be more suitable for this task.
+
+During the development of [[Verifiable Builds]], experience was gained in verifying the MBR, VBR, bootloader, partition table, kernel, and initrd. Source code was created to analyze such files. <ref>
+https://github.com/{{project_name_short}}/derivative-maker/blob/master/build-steps.d/5100_create-report
+</ref>
+
+Extraneous files would be reported, with options to delete them, move them to quarantine, and/or view them.
+
+The initrd, by default in Debian, is auto-generated on the local system. Hence, there is nothing to compare it with from the Debian repository. However, after verifying everything (all files from all packages), it would be secure to chroot into the verified system and re-generate the initrd, then compare both versions. This step might not be required if the initrd can be extracted and compared against files on the root disk.
+
+The boot medium (such as ISO) containing such verification suite could be shipped on the {{project_name_short}} Host through a <code>deb</code> package located at <code>/usr/share/verified-boot/check.iso</code>.
+
+A disadvantage of this concept is that it might be slower than dm-verity. On the other hand, an advantage of this concept is that it does not require an OEM image. Additionally, it might be more secure since it does not verify against an OEM image but instead verifies the individual files. Another advantage is that users are free to install any package and are not limited by a read-only root image. Users do not have to wait for the vendor to update the OEM image.
+
+== dm-verity - system versus user partition ==
+Once the boot chain is verified, the kernel should verify the rest of the OS with a mechanism similar to dm-verity. Verified boot that covers only the boot chain is mostly useless, with some exceptions. <ref>
+For example, {{project_name_short}} loads apparmor.d from the initramfs, which it will cover.
+</ref>
+
+We can implement two separate partitions: one for the base system and another for user-installed applications. The base system partition can be mounted as read-only and verified with dm-verity. The apps partition can be mounted as <code>/apps</code>, and <code>chroot</code> into it. The apps partition, however, will not be verified.
+
+For example:
+
+{{CodeSelect|code=
+mount /path/to/unverified_image /apps
+
+for dir in bin sbin usr lib lib64 var etc
+do
+  mkdir "/apps/${dir}"
+  mount -o bind "/${dir}" "/apps/${dir}"
+done
+
+mkdir /apps/{proc,sys,dev}
+mount proc /apps/proc -t proc
+mount sysfs /apps/sys -t sysfs
+mount devtmpfs /apps/dev -t devtmpfs
+mount devpts /apps/dev/pts -t devpts
+
+apt install -o Dir=/apps $program
+chroot /apps $program
+}}
+
+== Verified Boot for User but not for Admin ==
+This idea integrates well with [[Dev/user-sysmaint-split|Role-Based Boot Modes (user versus admin) for Enhanced Security]] and [[noexec]].
+
+* When booting into user <code>user</code>, enable verified boot by default.
+** User <code>user</code> will not be able to modify <code>/etc</code>, <code>/usr</code>.
+** Therefore the user will not have the ability to successfully execute <code>sudo apt install package-name</code>.
+* When booting into user <code>admin</code>, disable verified boot by default.
+** After booting into admin mode, admin can run <code>sudo apt install package-name</code> etc.
+** Based on dpkg trigger or shutdown, a new dm-verity hash tree will be created, that will be used next time booting into user mode.
+
+== Notes ==
+* minimal firmware
+* infrequent firmware updates required
+* feature freeze
+* SeaBIOS based possible?
+* stage 1 (boot block), 2, 3
+* simple reporting
+* legacy boot based simpler, safer?
+* keep parts using secure boot minimal
+* measured boot
+* double LED indicator?
+** double green light: (official firmware + user)
+** vs single green light: user customized firmware + relocked to user key
+** red light: tampering detected
+* randomart, photo image, htop, totp, stick
+* Any design without flashkeeper possible?
+* goal: invent "THE" reference design
+* warning fatigue, bugs versus unbootable, attackers
+** Remote attacker versus local attacker + remote attacker
+* TPM reliability
+** Discrete TPMs can have their communication channel sniffed, https://www.youtube.com/watch?v=wTl4vEednkQ
+** Attacks against fTPMs have occurred in the past, though hopefully modern CPUs will have taken steps to avoid these: https://arxiv.org/pdf/2304.14717
+* possibilities without flashkeeper?
+* flashkeeper issues writedown, video defective
+* market interest in flashkeeper?
+* key handling
+** stage 1: firmware developer
+* distribution controls key for operating system signing
+* user uses own keys versus usability. user realistically won't do intel boot guard fusing.
+* supply chain attacks key setup before user sets up keys
+* how does android implement relock bootloader with user custom keys?
+** See https://android.googlesource.com/platform/external/avb/+/master/README.md
+** "In the context of AVB, the LOCKED state means that verification errors are fatal whereas in UNLOCKED state they are not."
+** Users with a device that supports a user-settable root of trust can unlock the bootloader, install their own key into a virtual partition called "avb_custom_key", then relock the bootloader. Verified Boot will now trust both the OEM's keys and the user-provided keys as trusted and will boot an OS signed with either of them, although it will show a warning about a custom OS when booting an OS signed with the user-provided key.
+** trust the android hardcoded bootloader
+** https://android.stackexchange.com/questions/238980/why-is-it-possible-to-re-lock-the-bootloader-after-installing-a-custom-rom-on-s
+** [https://source.android.com/docs/security/features/verifiedboot/device-state#user-settable-root-of-trust Android: User-settable root of trust]
+** [https://source.android.com/docs/security/features/verifiedboot/boot-flow Android: Boot Flow]
+** [https://source.android.com/static/docs/security/images/verified-boot-flow.png Android: Figure 1. Verified boot flow.]
+** Design something similar?
+*** Differences:
+**** No embedded (OEM) keys as much as possible. (With the exception, of perhaps the boot block only, which would be the handled by the firmware developer.)
+**** User-settable root of trust only.
+**** Considering user-settable root of trust as being "green" (good) and "normal".
+
+* https://github.com/osresearch/safeboot/blob/master/sbin/safeboot
+* https://github.com/chipsalliance/Caliptra
+* Boot Guard itself isn't great. Major issues:
+*** Key leaks risk.
+** Keys are hardcoded, which makes it an inflexible design, unfixable once deployed.
+* https://eclypsium.com/research/trickbot-now-offers-trickboot-persist-brick-profit/
+
+TPM proxied attack?
+
+MOK?
+
+Kernel modules?
+
+Piggybacking on distribution signed kernels (Debian) might be a good default. Debian is already signing kernels. Signature could be verified using Debian's UEFI public key.
+
+Verify Debian EFI signatures without using EFI.
+
+== Firmware and Device Requirements ==
+It's unclear how much effort it is to implement this or how practical it is, however much of it is based upon how Android hardware works so it should be feasible, even if somewhat tricky.
+
+* Anti-Bricking: Some part of the firmware might need to be a true ROM, read-only that cannot be rewritten from software. Otherwise, users might brick their hardware.
+
+There are four goals that should be achieved with a firmware and device implementation here, in order of importance:
+
+* Whatever OS the user boots needs to be an OS the *user* trusts. Not Microsoft, not 3mdeb, not Kicksecure or anyone else. The user must be the ultimate authority of what does and doesn't boot. Operating systems that are untrusted must be rejected, operating systems that are trusted must be bootable without requiring further confirmation or authentication.
+* As much as is possible, the firmware needs to be low-maintenance. The user should not need to undertake technically difficult tasks in order to operate the firmware in a reasonably secure fashion. In particular:
+** The firmware needs to be able to be pre-installed on the machine in an authenticatable state. Solutions that require the user to install the firmware themselves with special keys (such as what FlashKeeper is intended to require) won't work.
+** If it is at all avoidable, devices along the lines of the Librem Key need to not be involved in the boot process unless the user specifically wants them. The user should be able to verify the authenticity of the firmware locally without needing to have a special USB device (though it might be acceptable for the user to use their phone for authenticating the device).
+** The firmware needs to be able to run mainstream Linux-based operating systems without requiring complex gymnastics. (The ability to do a bare-metal installation of Windows is not considered a requirement and would even potentially be an anti-feature, so it can be ignored in considerations about OS compatibility.)
+* The user and firmware must be able to mutually authenticate each other for privileged operations. The user needs to be able to know that the firmware on the machine is not tampered with, and that any communications they make to the machine are being made to the machine they expect to be communicating with. The firmware needs to know that the user issuing security-sensitive commands is the user who owns the device or has been authorized by the device owner.
+* The device must provide some sort of tamper-proof, increment-only counter that can be used to allow individual operating systems to implement rollback protection. Non-volatile counters of TPMs can probably be used. Or is some kind of append-only storage required or an HSM?
+
+With this in mind, a device and firmware with Verified Boot support should meet the following requirements. None of these are set in stone, alternate ways of implementing the above goals are fine. These are just ideas for how to implement the above goals effectively.
+
+* The firmware must be UEFI-based.
+** '''Rationale:''' There are three major boot "techniques" used by modern boot firmware, those being legacy BIOS boot, UEFI boot, and direct kernel boot. Legacy BIOS boot is inherently insecure because of the lack of a clearly defined bootloader - you have to execute an arbitrary half-kilobyte of code to even *find* the rest of the bootloader, and then there's no guarantee the "rest of the bootloader" pointed to by the boot sector will be contiguous or complete. It's nearly impossible to find what you want to verify before executing it, so BIOS isn't acceptable. Direct kernel boot on the other hand is a problem because it is not easily compatible with mainstream Linux distros - the firmware would have to work as a bootloader too, which requires doing things like parsing GRUB configuration or the config for other bootloaders. This has too much potential to go wrong and requires a large amount of technical skill to operate correctly. UEFI is all that's left, and it conveniently takes care of both the security and usability issues by providing very well-defined bootloaders and allowing the boot process to be handed off to an OS-specific bootloader.
+* The firmware must support user-provided Secure Boot keys, and should make the functionality for installing these keys as easily accessible as possible.
+** '''Rationale:''' This is needed to allow the user to decide exactly what OSes they do and don't want to trust. Many users will be installing their own keys, so it is of paramount importance that key installation be safe, easy, and accessible.
+** (As a side-note, this isn't really a firmware requirement half so much as a general device requirement, but no option ROMs can be present in the system, since those require that they be signed with a vendor-provided Secure Boot key, and we cannot rely on any vendor-provided key being preserved by the end-user.)
+* The firmware **MUST NOT** rely on Microsoft's Secure Boot key as a root of trust by default.
+** '''Rationale:''' Microsoft's Secure Boot key essentially puts Microsoft in direct control of what operating systems will and won't load by default. This set of operating systems is very large, and Microsoft's key may eventually leak (if it hasn't already).
+* The firmware must embed the Secure Boot keys of several major Linux distros into its configuration by default, and allow the user to switch these keys on and off independently.
+** '''Rationale:''' Users should not have to configure Secure Boot keys just to attempt booting an OS. When the user receives a device, they should be able to unpack it, boot it from a USB, install their Linux distro of choice, and then use it. At the same time, Secure Boot should be enabled by default to provide some degree of security before the user sets up their own keys. The user should also have the power to restrict what OSes the system will boot even without installing their own keys, thus the choice of whether or not to use these keys needs to be configurable. To begin with, it is probably suitable to provide the keys for Debian, Ubuntu, and Fedora. Other major Linux distros with Secure Boot signatures may be considered, even if those distros do not yet have a Microsoft-signed shim (since we're not using Microsoft's keys anyway).
+* The firmware must be upgradable from within a trusted OS.
+** '''Rationale:''' People need to be able to install firmware updates without having to open the device and fiddle with chip clips. This is part of being low-maintenance.
+* The firmware must require the user to set up some form of authentication (BIOS password, HSM, or similar) before they can take any action in the firmware settings that affects the system's security, such as installing custom Secure Boot keys, turning Secure Boot off, etc. Once an authentication method has been set up, it is mandatory that the user use that authentication method any time they attempt to change the settings again later.
+** '''Rationale:''' Turning off Secure Boot or installing user-specific keys is similar to unlocking the bootloader on an Android phone and then installing keys into a user-settable root of trust. The firmware needs to trust that the user taking these actions is who they say they are, which requires some form of authentication. Furthermore, the user should be able to use Secure Boot as a form of anti-theft, where a thief will be unable to boot any OS on the stolen device other than one which the owner has signed, and they will be unable to change the keys because they cannot authenticate to the firmware. (A determined attacker may be able to change the UEFI variables containing the Secure Boot keys by using external flashing hardware, but for now we might consider this out of scope since we don't want to have to integrate an entire additional secure chip of some sort just to provide anti-theft, unless a potential customer really wants that feature.)
+* The firmware needs to be able to prove to the user that it is authentic via a timed, high-speed challenge-response authentication routine, using authentication data that is unpredictable ''or'' encrypting the connection between the device and the authenticator. The UEFI variables should be taken into account in this proof.
+** '''Rationale:''' The ability to prove the authenticity of the firmware is a core goal. The CPU needs to verify the firmware using hardware-based root of trust (Intel Boot Guard or AMD Platform Secure Boot), and the firmware needs to measure itself into the TPM, unsealing a secret that allows passing some form of authentication challenge. Assuming the system uses an fTPM, the combination of the TPM and Boot hardware RoT (root of trust) should ensure that an attacker cannot modify firmware without flunking either hardware RoT or an authentication attempt. If authentication passes, the user knows that the CPU in use is the CPU their machine used (since the fTPM is part of the CPU itself on a suitable CPU and the machine wouldn't be able to unseal the authentication secret without the correct CPU), thus the user knows that hardware RoT was used to verify the firmware. This allows them to trust that the firmware measured itself into the TPM accurately, so they can trust the results of the authentication routine. The routine needs to not be vulnerable to replay attacks, which is why the authentication data needs to be unpredictable or the connection between the device and authenticator needs to be encrypted. The routine also needs to not be vulnerable to relay attacks, which is why the routine has to be high-speed and timed. That way the authenticator can time how long it takes for an authentication request to be satisfied, and if it takes longer than the amount of time it usually takes, a relay attack can be assumed to be occurring. This delay would be treated as authentication failure.  The UEFI variables should also be measured into the TPM (or at least some of them, specifically those that are Secure Boot related) so that an attacker can't modify the Secure Boot configuration or other UEFI settings without causing the firmware to flunk authentication. The user should have to reseal their key into the TPM if the variables change, and this resealing should '''not''' be something the firmware can do on its own without the user being present to either authenticate themselves, or provide the secret for firmware authentication after the settings are changed. For how exactly to implement this, it may be possible to use something based on signed random data, or it may be possible to use HOTP with an encrypted link. The actual authenticator device could be a physical hardware device, or it could be an Android app potentially.
+* The firmware needs to verify that it has not been downgraded.
+** '''Rationale:''' Avoids rollback attacks, this is part of the firmware being able to authenticate to the user. Can this potentially be done with the help of the TPM?
+* The device needs to provide features required for an OS to implement rollback protection.
+** '''Rationale:''' Allows robust protection against attacks that rely on vulnerabilities in an older OS, can the TPM be used for this?
+* Security-sensitive code that is anticipated to be difficult to change or catastrophic if a vulnerability is found may be worth formally verifying.
+** '''Rationale:''' Avoids an implementation being secure in theory but insecure in practice. This may not be practical.
+
+=== Firmware authentication, avoiding relay attacks ===
+{{quotation
+|quote=
+'''Relay attack'''
+
+While the TOTP solution cleverly solves the replay attack, it’s still vulnerable to a relay attack.
+
+An attacker could steal your laptop and leave behind an identical-looking malicious laptop. When you (unknowingly) boot the malicious relay laptop, it communicates out to your real laptop — which relays the 6-digit OTP code down to the malicious laptop. You verify that the 6-digit OTP is correct and type your FDE decryption password — which is relayed out to the attacker with your real laptop.
+|context=[https://tech.michaelaltfield.net/2023/02/16/evil-maid-heads-pureboot/ Trusted Boot (Anti-Evil-Maid, Heads, and PureBoot)]
+}}
+
+Authentication is not a new concept at all in computing. Many of the things we do on a daily basis, such as posting on forums, reading emails, and accessing work resources, require us to authenticate to a machine to prove we are who we say we are. Interestingly though, the reverse is rarely done machines rarely authenticate themselves to users. The machine refuses to trust the user until they prove that they are who they say they are, but the user blindly trusts that the machine is who it says it is and inputs sensitive login credentials to that machine. Most of the time, the machine is who it says it is, and so everything is fine, but every so often, you can end up with one machine pretending to be some other machine (for instance, if you click a link in a phishing email). If you provide login credentials to the wrong machine, the machine may be able to authenticate to the real machine as if it were you, providing the operator of the fake machine with access to your data or identity. To avoid this, it's of paramount importance that users have some way to authenticate the machine they are talking to before authenticating to it in return.
+
+The primary scenario we are concerned with here is firmware authentication, although the principles here can apply to any authentication scenario. The primary question is, how can a user know that the machine they are using is running firmware they trust, and how can they know that they are actually using the machine they think they are?
+
+First, we have to establish the threat model. We assume that the user is in a potentially hostile environment. They have to leave a device unattended for some duration of time and intend to continue using the device after they return. During the time they are away, an attacker has unrestricted physical access to the device, where they can freely read or modify any components on the system that can be read or modified, including the firmware. The user needs to be able to establish trust in the device when they return, so they can continue using the device safely after the attacker has had access to it. If the attacker has modified the system's state, they must be able to reliably verify that their machine is corrupted so they can discard it.
+
+In this scenario, how can the user know that the firmware is uncorrupted? A simple way would be to open the machine, read the firmware off the chip, and compare it to a known-good version. However, this is a very difficult task, requires access to a substantial amount of equipment, and consumes a large amount of time. It's analogous to a website owner driving to your house and looking at your ID before instructing their website to provide you access to your account; it's just not practical. Thus, we need some way for the firmware to be able to tell the user, "I am who you think I am," in a reliable fashion.
+
+In order for this to work, we need the firmware to have some sort of shared secret with the user, which the user can verify the firmware has without having to actually transmit that secret over an insecure connection. (For avoidance of doubt, we are considering the machine's display to be an insecure connection, since the attacker can easily view it while tampering with the machine in the user's absence.) The easiest way to do this is via TOTP. The user can have a TOTP secret stored in their phone, and the firmware can have access to that same secret. The user can then compare the TOTP code generated by the firmware with the TOTP code on their phone, and verify that the device is authentic. We can't just embed the TOTP secret into the firmware or store it in a UEFI variable though, because the attacker may be able to read either of those. If they can steal the TOTP secret, they can swap the authentic machine for a fake replacement that can authenticate itself to the user.
+
+To avoid this, it's of paramount importance that users have some way to authenticate the machine they are talking to before authenticating to it in return.
+
+The primary scenario we are concerned with here is firmware authentication, although the principles here can apply to any authentication scenario. The primary question is, how can a user know that the machine they are using is running firmware they trust, and how can they know that they are actually using the machine they think they are?
+
+First, we have to establish the threat model. We assume that the user is in a potentially hostile environment. They have to leave a device unattended for some duration of time and intend to continue using the device after they return. During the time they are away, an attacker has unrestricted physical access to the device, where they can freely read or modify any components on the system that can be read or modified, including the firmware. The user needs to be able to establish trust in the device when they return, so they can continue using the device safely after the attacker has had access to it. If the attacker has modified the system's state, they must be able to reliably verify that their machine is corrupted so they can discard it.
+
+In this scenario, how can the user know that the firmware is uncorrupted? A simple way would be to open the machine, read the firmware off the chip, and compare it to a known-good version. However, this is a very difficult task, requires access to a substantial amount of equipment, and consumes a large amount of time. It's analogous to a website owner driving to your house and looking at your ID before instructing their website to provide you access to your account; it's just not practical. Thus, we need some way for the firmware to be able to tell the user, "I am who you think I am," in a reliable fashion.
+
+In order for this to work, we need the firmware to have some sort of shared secret with the user, which the user can verify the firmware has without having to actually transmit that secret over an insecure connection. (For avoidance of doubt, we are considering the machine's display to be an insecure connection, since the attacker can easily view it while tampering with the machine in the user's absence.) The easiest way to do this is via TOTP. The user can have a TOTP secret stored in their phone, and the firmware can have access to that same secret. The user can then compare the TOTP code generated by the firmware with the TOTP code on their phone, and verify that the device is authentic. We can't just embed the TOTP secret into the firmware or store it in a UEFI variable though, because the attacker may be able to read either of those. If they can steal the TOTP secret, they can swap the authentic machine for a fake replacement that can authenticate itself to the user.
+
+To avoid this, the TOTP secret needs to only be accessible if the firmware is unmodified. The firmware can be proven to be unmodified if a cryptographic hash of it matches the cryptographic hash of trusted firmware, but we can't use this fingerprint as an authentication mechanism directly because it could easily be saved by an attacker and displayed to the user fraudulently (i.e., the firmware could show the user any hash it wants, it doesn't have to share its own hash). We need something other than the firmware that can verify the firmware, something the attacker cannot control.
+
+Before we get to that point, let's just assume that we have something that can verify the firmware that is external to the firmware. This external verifier is then able to access a TOTP secret because of the firmware's validity, and it can prove to us that the firmware is unmodified by showing us a TOTP token generated from the secret. Our job is done, right? Well, not exactly, because the attacker has another nifty trick available to them, a relay attack. In essence, how do you *know* that the machine you're typing into is the machine that is receiving your keystrokes? How do you *know* the output you're looking at on the computer screen is actually coming from the computer? You don't, you just assume it. This is a major problem since it means the attacker can steal your computer, put a fake one in its place, and then relay messages between the two. When you boot the malicious computer, it can then send a signal to the real computer to generate a TOTP code. The original computer does so, and dutifully sends it to the malicious computer as if it were trying to authenticate to the user. The malicious computer then displays the TOTP code on the screen, thus fooling the user into thinking that the machine they're using is authentic. So that's another thing we need to grapple with, but first, we need to figure out how to verify the firmware externally.
+
+On the surface, one might think that a hardware solution like Intel Boot Guard can work for firmware verification. This is basically Secure Boot for system firmware; it verifies signatures on firmware and only allows it to boot if it is authentic. Boot Guard is implemented on the CPU itself, in firmware that the attacker cannot read or modify. Because of its immutable and secret nature, Boot Guard can be assumed to be trusted (so long as the user trusts Intel), and so if it reports that the firmware is good, we can believe it. There's a bit more work that needs to be done to make sure the firmware is not only trusted by the machine, but is also the firmware the user expects. However, we don't need to go that far, since there's a major problem here. How do you know that Intel Boot Guard is actually being used? What if the attacker has swapped your CPU for some other x86_64 implementation that doesn't have Boot Guard at all, or that has a Boot Guard implementation with attacker-controlled keys? You could require the CPU to send you some signed random data that you can then verify the signature of, but now you have a relay attack to worry about (the malicious CPU could forward your request for identity verification to an authentic CPU, which would then send back the verification information to the malicious CPU, which would then present it as if it were an authentic reply). So this isn't going to work.
+
+If you stop and think about it, this relay attack possibility is a big problem because every interface in the computer could theoretically just be a relay. Even the firmware itself could just be relayed, meaning the firmware chip might present itself to a verification routine one way and then present malicious code when it came time to actually execute it. Because the relay attack involves the transfer of actual, authentic data, the only hint the user has that they may be experiencing a relay attack is *positional* information. If the device they're talking to is not in the same location as the device they're receiving responses from, a relay attack is occurring. Because of the pervasive threat relay attacks pose, we need to temporarily change our goal in authentication. We don't need to verify the device's identity half so much as we need to verify the device's location.
+
+The first question to ask ourselves is, what information can we send in order to verify the location of the device we're talking to? GPS coordinates are one option, but they require that the entirety of the GPS system (including the GPS receiver used by the user's authentic device) is trustworthy, accurate, precise, and functional. We can't prove that GPS is trustworthy, and it's easy for it to be inaccurate, imprecise, or non-functional if our authentic machine's GPS receiver is broken or we're in a location where GPS doesn't work at all (underground, for instance). It also can only pinpoint the location of a device on the surface of the earth, which is a severe problem if the authentic device is *under* a malicious device. So this isn't something we can use. Instead, we can use the same technique that is used by GPS for calculating location, which is observing time discrepancies between when a message is sent and when it is received.
+
+When you send a message to a device, it takes some time for that device to respond to that message. The exact amount of time can vary, but it is usually measurable, especially when dealing with individual silicon chips with strict timing limits. If a device's response to a particular message is static or predictable, it's vulnerable to a replay attack, but if the response is dynamic, you can be sure that your message got all the way to the device you're querying, the device actually processed it, and then the response got all the way back to you. You can then time how long this entire cycle takes when you're talking to a device directly. Now imagine you have a relay in between you and the device you're querying. The message has to be transmitted to the relay, then to the device you're actually talking to, and then the response has to go through the relay to get back to you. No matter how short the distances involved are or how fast the equipment you're using is, this is going to add *some* delay that isn't present when querying the device directly. How much delay depends on the speed and location of the components in the relay and the device you're querying, but the delay *will* be longer than normal. (This is ignoring signal integrity and error correction concerns, both of which are irrelevant here because of the short distances and high reliability of communication when using a physical machine in-person. Signal integrity complicates things because if the two devices are far from each other, signals may be corrupted or lost in transit, requiring retransmission to correct. In this scenario, a relay can actually speed up the connection, because the signal between each device and the relay is more reliable than the signal between the two devices directly. WiFi extenders are good examples of this.)
+
+Because of the behavior of delays here, we can use timing to authenticate a device's location. Send a signal, get the response, calculate the delay. A short delay indicates there is no unexpected relay, a not-short delay indicates there is an unexpected relay. What exactly "short" is depends on the device and the situation, and is something that would probably have to be calculated on a per-device basis. Not-short is anything significantly longer than short, where again "significantly longer" may vary from situation to situation and from device to device.
+
+The nice thing about time-based location authentication is that we can combine it with traditional identity authentication. Send an authentication challenge, receive the response, time how long it took for the response to show up. If the response is invalid, or if it took too long to show up, authentication fails. Not only can you combine these two forms of authentication, you actually have to. Otherwise a malicious machine could authenticate its own position to you, but then relay the identity authentication challenge to the real machine. We now have an idea of how a relay-attack-proof authentication model would work.
+
+The primary issue with this form of relay attack prevention is that modern electronics operate too quickly for this to be practical without specialized equipment. A human will generally miss a delay of 50ms or less, and if they're not paying extremely close attention they will almost certainly miss an 80 or even 100ms delay. I can type on my Bluetooth keyboard and see characters show up effectively instantly on my screen, despite there being a wireless link, a Bluetooth card, some chipset circuitry, the CPU and RAM, and a rather long DisplayPort cable in between the keyboard and the screen. All of these are acting as relays, yet despite the relay multitude I don't notice the delay. (It might be barely perceptible if I'm paying extremely close attention, but otherwise I never see it, and even when I do see it, it's so short that I doubt whether I see it or not.) Thus time-based location authentication is not suitable if you're trying to authenticate location without the need for specialized hardware. For now, we'll accept that this is the case, and continue on regardless.
+
+So now, we can authenticate that the device we're talking to is where we think it is. Picking up where we left off before, we need some device that is immutable that is able to read the system's firmware and verify it, and this device needs to have a secret that cannot be read by an attacker, which can be used to verify its authenticity. Intel Boot Guard uses effectively immutable code (the code that the CPU runs is either baked into the chip in ROM or is signed by Intel so the chip can trust it when executing it). However, verifying the authenticity of an Intel CPU is not all that easy - you can do it with Intel TDX, but there isn't any feature in an Intel CPU to my awareness that can be used to verify the authenticity of the CPU very early in the boot process, before system firmware is even loaded. Thus Intel Boot Guard isn't really a good solution here.
+
+There's a deeper problem here too, which is that unless we physically open the device and verify it looks like what we expect it to, it's entirely possible that the device we're verifying is not the device we're about to use. For instance, an attacker could give us a replacement computer with two motherboards, one with an authentic CPU and BIOS that would pass our location and identity authentication attempts, and another one connected to the I/O ports, mouse, keyboard, and screen that would steal our data as we did things. This is not easy to prevent without requiring an extreme amount of effort on the part of the user, and a large amount of code in our BIOS verification engine. The user would have to somehow authenticate the BIOS using a mechanism that ensured the BIOS being verified was in control of the mouse, keyboard, all I/O ports, and screen, and even then a malicious device could "take over" after authentication was complete. Requiring the user to authenticate the system twice, once during boot and once after boot, it a major pain, and dealing with all of the different ports and the screen and input devices just isn't practical. At this point we can say that it's highly impractical to keep a computer reliably secure with the threat model defined earlier.
+
+Instead of this, we need to protect the hardware and firmware from being tampered with in the first place, using authentication routines only to verify that the device is genuine. There are solutions for this (Design Shift's ORWL computer is a good example, and glitter nail polish can be used to prevent laptop screws from being removed without leaving evidence of tampering). This makes it reasonable to assume that preventing tampering at the outset is feasible. Now we can adjust our threat model. We assume the user is in a potentially hostile environment and must leave their device unattended for some duration. They plan to continue using the device upon their return. During their absence, an attacker has unrestricted physical access to the device but cannot open the device's case. The attacker can only interact with the device via its I/O ports, screen, and input devices. Ideally, the attacker would be unable to boot an operating system from a USB drive. However, for simplicity and to maintain defense-in-depth, we assume the attacker *can* boot the system using an OS of their choice, which enables them to read and write the firmware. Consequently, we cannot store a secret in the firmware itself or assume the firmware will remain unaltered. Nevertheless, we can store a secret in the TPM, and we assume that an external verification device of some sort will function correctly. Additionally, we can embed a secret within the verification device or seal it in a TPM.
+
+At this point, assuming Intel and AMD do not allow malicious firmware to be signed, we can rely on Intel Boot Guard or AMD Platform Secure Boot to prevent malicious firmware from being installed, provided it is properly implemented. Under these conditions, we can trust the firmware to measure itself into the TPM, enabling the unsealing of a TOTP secret or another secret that can be used to authenticate the device to the user. (Why not blindly trust the firmware at this point? Because we are authenticating the ''device'' to the user, not merely the firmware. If authentication passes, it indicates that we have the device we think we have. Assuming our device has Boot Guard functioning correctly, we can infer that the device's firmware has been authenticated by Boot Guard.) With this in place, we can utilize a high-speed device, connected via a serial or perhaps USB interface, to manage authentication. This device can send an authentication challenge, receive a response, measure its timing, and verify it. If the response is both valid and received quickly enough, we can trust that the device and its firmware are authentic.
+
+To make this process user-friendly, an OEM can embed an authentication secret into the TPM during hardware manufacturing and provide the secret to the user over a secure channel (e.g., via a GPG-encrypted email). The user can then program this secret into their phone or another hardware device, which can subsequently be used to authenticate their computer.
+
+Android has a different solution to avoiding relay attacks called "key provenance attestation", which appears to let you verify that a particular device is also in possession of a non-exportable encryption key that is used for establishing a connection to a remote service. Basically this means that not only is the device's ID verifiable, it's also possible to verify that the device itself is the device being used to take privileged actions. This is useful for avoiding relay attacks in a remote access scenario (even if there is a relay, all it can do is shuttle encrypted data back and forth, it therefore becomes benign), but is unsuitable for a local scenario. This is because it would require all communication between the user interface devices (mouse, keyboard, I/O ports, screen) and the machine in possession of the authentication secret to be encrypted. Additionally, the user would have to remain in possession of all of those I/O devices and not leave them unattended, so they could remain trusted. That doesn't seem at all practical.
+
+Further reading and discussion:
+
+* https://github.com/linuxboot/heads/issues/1881
+* https://mjg59.dreamwidth.org/70630.html
+
+TODO: So how do we verify the firmware externally? Flashkeeper shows some promise here, but it has issues we would prefer to avoid. What other options do we have? Do we need custom silicon for this? The device will need to handle a challenge-response process via high-speed signature or TOTP verification. It must then verify the firmware, which, in turn, must pass a high-speed signature or TOTP verification using a secret unsealed by the TPM. Or... perhaps the verification engine and the firmware chip could be combined into a single component? The firmware chip could include a verification engine that authenticates the firmware first. If the firmware is confirmed authentic, the chip would respond positively to a high-speed identity challenge; otherwise, it would respond negatively. Such a device would need to be resistant to TOCTOU (Time of Check to Time of Use) attacks. This means it must verify the firmware as the system boots it, not merely before the system begins booting.
+
+TODO: Are there CPU features in Intel or AMD hardware that can be used to verify the authenticity of the CPU in a cryptographically secure way before the first instruction is executed?
+
+TODO: Would it be possible to verify the firmware via an external port? Then the location authentication could be done by measuring the speed of reading the firmware from the external port, and the device doing the measuring would be physically held by the user and thus trusted. It would check the firmware signature and display a notification about whether it passed or not. The problem with this though is that an attacker can swap in a malicious device with the authentic firmware connected to the verification port, and the malicious firmware on a different chip that the system actually boots from. This defeats the security entirely. This same kind of attack could even defeat a scheme that solved all the problems above - ship two motherboards in one device, one with authentic firmware and hardware that authenticates itself to the user, one with malicious firmware that is connected to the keyboard, screen, and storage drives. Need to figure out some way around that.
+
+TODO: Is there some other way of authenticating location without having to use time? It's very frustrating to require a dedicated piece of hardware for this. GPS isn't a good choice, but maybe something else would work. Alternatively, could a phone be able to handle the time measurements with sufficient precision and accuracy to be usable without needing a special authentication key?
+
+TODO: The 3mdeb founder seems to think D-RTM can help with relay attacks: https://tech.michaelaltfield.net/2023/02/16/evil-maid-heads-pureboot/#comment-43489 It's not totally clear to me how that would work though, it might allow attesting the OS but how would it allow verifying the security of the firmware? Or is the point that the security of the firmware no longer matters at that point because D-RTM has forced everything to a secure state?
+
+TODO: Does heads firmware mitigate this? Heads firmware feature request: [https://github.com/linuxboot/heads/issues/1881 mitigate relay attacks #1881]
+
+TODO: Does the Librem key have measures to avoid relay attacks? How does it work? (I would guess it probably just times the response.)
+
+= Hardware Keystore - HSM =
+* Is a HSM required for factory reset protection, theft protection?
+
+= Theft Protection =
+* offline
+* online - remote locking
+
+Doable?
+
+= Remote Attestation =
+* In how far is verified boot related to remote attestation?
+** Measurements taken during verified boot can be part of the information used for attestation.
+* If buying a cloud server, how can the user ever be sure to talk to a real TPM without MiTM?
+** The only solutions are either sending own hardware to the cloud provider or TOFU?
+** At least some TPM commands support parameter encryption which is related to TPM's EK and thus can provide some level of trust in TPM communications. A cloud provider can still be able to eavesdrop on the key used by the client.
+** Maybe solvable if the cloud vendor reveals TPM endorsement key (EK) fingerprint beforehand?
+*** Not sufficient. The TPM can be fooled by firmware if Boot Guard isn't in use, and the user can't be sure that Boot Guard is in use unless they can either remotely verify the authenticity of the CPU (likely not possible unless using Intel TDX or AMD SEV) or they can verify it locally.
+* The following are kinda related, similar issues:
+
+<pre>
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+</pre>
+
+<pre>
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+6e:45:f9:a8:af:38:3d:a1:a5:c7:76:1d:02:f8:77:00.
+Please contact your system administrator.
+Add correct host key in /home/hostname /.ssh/known_hosts to get rid of this message.
+Offending RSA key in /var/lib/sss/pubconf/known_hosts:4
+RSA host key for pong has changed and you have requested strict checking.
+Host key verification failed.
+</pre>
+
+= misc =
+* https://blog.osfw.foundation/a-comparison-between-open-source-host-firmware-solutions-and-closed-source-uefi/
+* remote attestation
+** https://keylime.dev/blog/2024/02/07/remote-attestation-blog-part1.html
+*** https://github.com/keylime/keylime/issues/1712
+
+= Write Protection =
+
+Does activating the BIOS write protection jumper enforce physical write protection, or is it purely a software mechanism that blocks write operations? Depends on a specific implementation: a jumper could be connected to chip's #WP signal, it could be tested by something in a chipset that mediates access to the chip and enforces read-only policy or it can be a flag for firmware to set up flash protection from boot until power off.
+
+How do traditional floppy disk write-protect mechanisms work, and do they rely solely on hardware enforcement, or is the prevention of write operations dependent on the drive's firmware or software honoring the signal?
+
+* https://en.m.wikipedia.org/wiki/Write_protection
+* https://security.stackexchange.com/questions/265582/why-did-they-stop-adding-physical-write-protect-mechanism
+
+The thread clarifies that traditional floppy disk write-protection mechanisms were not entirely physical but relied on the disk drive to honor the setting. While the write-protect tab physically signaled the drive, it was ultimately the drive's responsibility to enforce write prevention. Similarly, modern SD card write-protect switches serve as advisory signals to software, which can choose to ignore them. This shift away from hardware-enforced write protection reflects cost-saving priorities and consumer demand, with specialized devices available for users needing robust protection. You can read the full discussion here:
+
+* https://www.reddit.com/r/vintagecomputing/comments/1b9ycts/bypass_525_disks_write_protection_when_there_is/
+* https://www.lemon64.com/forum/viewtopic.php?t=67989
+* https://www.kb.cert.org/vuls/id/766164/
+* https://www.techspot.com/news/61596-bios-write-protection-flaw-discovered-here-everything-you.html
+* https://eclypsium.com/blog/firmware-security-realizations-part-3-spi-write-protections/
+* [https://watchmysys.com/blog/2017/06/cve-2017-8083-compulab-intensepc-lacks-bios-wp/ CVE-2017-8083: Intense PC lacks BIOS Write Protection]
+* https://www.arrow.com/en/research-and-events/articles/what-is-rom-types-of-rom-explained
+* https://www.vogons.org/viewtopic.php?t=56217
+* https://en.wikipedia.org/wiki/Read-only_memory#Factory-programmed
+
+= Status =
+* Help welcome to implement [[Verified_Boot#Verified_Boot_for_User_but_not_for_Admin|Verified Boot for User but not for Admin]].
+* [[Dev/user-sysmaint-split|Role-Based Boot Modes (user versus admin) for Enhanced Security]] (and maybe [[noexec]]) will be implemented first.
+
+= Other Distributions implementing Verified Boot =
+* https://source.android.com/security/verifiedboot/
+* https://www.chromium.org/chromium-os/chromiumos-design-docs/verified-boot
+* https://blogs.oracle.com/solaris/post/solaris-verified-boot
+* https://web.archive.org/web/20201126091953/https://coreos.com/blog/verifying-os-at-runtime.html
+* https://blog.verbum.org/2017/06/12/on-dm-verity-and-operating-systems/
+* https://fedoraproject.org/wiki/Changes/FsVerityRPM
+* https://0pointer.net/blog/brave-new-trusted-boot-world.html
+* https://0pointer.net/blog/fitting-everything-together.html
+
+{{quotation
+|quote=No default keys are supported (e.g., Microsoft keys) thus you will need to generate you own Secure Boot signing keys and use them during the build process. Those keys must then be enrolled in hardware.
+|context=https://docs.clip-os.org/clipos/boot_integrity.html
+}}
+
+= Immutable Linux Distributions =
+* https://vanillaos.org/
+** https://github.com/vanilla-os
+** [https://github.com/Vanilla-OS/ABRoot ABRoot]
+
+{{Quotation
+|quote=
+Vanilla OS, an immutable desktop Linux distribution designed for developers and advanced users,
+|context=https://lwn.net/Articles/989629/
+}}
+
+* https://ubuntu.com/core
+
+= Forum Discussion =
+* https://forums.whonix.org/t/enable-linux-kernel-gpg-verification-in-grub-and-or-enable-secure-boot-by-default/7894
+* https://forums.whonix.org/t/fs-verity-in-linux-5-4/8911
+* https://www.phoronix.com/forums/forum/phoronix/general-discussion/1354003-lennart-poettering-talks-up-a-brave-new-trusted-boot-world-for-linux
+
+= See Also =
+{{boot_firmware}}
+
+* [http://darkmentor.com/timeline.html Low Level Desktop and Server Attack and Defense Timeline, Timeline of low-level security talks on attack/defense topics such as firmware, BIOS, UEFI, SMM, Virtualization, etc]
+* https://gitlab.com/XenoKovah/low-level_security_timeline
+
+= Detailed ideas for implementing Verified Boot through hardware and software =
+=== High-Level Goals ===
+* usability: At least as good or better than some Android phones that support user-custom keys.
+** Better than heads firmware. Not bothering user to manually sign boot files.
+* security: At least as good or better than some Android phones that support user-custom keys.
+
+=== Older ===
+Older ideas and concepts that are partially or entirely obsolete.
+
+==== Part 1 - Hardware and Firmware ====
+
+Secure Boot and measured boot currently work to solve two different problems. Secure Boot is designed to prevent the device from even booting an untrusted OS. Measured boot, on the other hand, traditionally "just loads" the OS but relies on the TPM detecting the tampering of the OS to prevent it from releasing a secret, such as a disk encryption key. This means that the OS boots but is denied access to sensitive data.
+
+The traditional measured boot approach comes with a host of problems in my opinion:
+
+* The firmware most likely does not "scream very loudly" when the booted OS turns out to be untrusted. Indeed, it may not "scream" at all it will likely just boot whatever malicious garbage is provided to it, with the caveat that when said malicious garbage tries to unseal secrets from the TPM, it fails. This means a user might boot an infected OS and not even know, meaning that any secrets the user provides without the TPM involved will be compromised. Think FDE passphrases, banking and location information, etc.
+** One might think that this could be prevented using full disk encryption with a TPM-sealed key. This, however, assumes that the attacker doesn't modify or even dispose of the system's encrypted volume and replace it with one of its own. A user might think that all of their data vanishing and apps being reset could be the result of a severe bug in the OS that triggered some sort of "security wipe." Alternatively, if the disk is configured with a recovery key to prevent locking the user out permanently, the malicious OS replacement could just prompt for the recovery key. Most users would probably not think twice about providing their recovery key in this scenario.
+* The firmware won't prevent untrusted code from running, so an attacker can run arbitrary code on the system with kernel-level privileges, potentially allowing it to exploit hardware or firmware flaws to gain persistence. Then even a trusted OS won't be safe.
+* If booted into a malicious OS, a frustrated or otherwise careless user could think, "Crud, all my hardware-bound secrets are gone, let's just rotate them all out," thus providing them to the malicious OS. The user would probably end up marking the malicious OS as trusted, which would be a total compromise of the system.
+
+In summary, whatever approach we take really should *entirely refuse to boot an untrusted OS, or at the very least warn the user to be very scared if the OS is coming back as untrusted when they didn't expect it to be.*
+
+The question then becomes what constitutes a trusted OS. Traditionally this has been an OS trusted by the manufacturer (i.e., Microsoft Windows), but history has shown that users in the Linux world will very frequently trust code that the manufacturer does not (namely, whatever Linux distro they want to boot). The manufacturer has no right telling the user what they are going to trust or not (though they may reasonably provide advice to the user about what to trust or not trust), but ultimately the boot security implementation needs to make sure that code doesn't run if the *user* doesn't trust it. That means pushing the "to trust or not to trust" question to the user in some fashion.
+
+Once we push the decision to trust an OS to the user, we need to be very careful to not allow an attacker to override the user's choice. If the "trust this OS?" prompt is a simple yes/no dialog provided by the firmware, an evil maid will be able to trivially provide a malicious OS, instruct the firmware to trust it, and then leave, subverting the security mechanism entirely. Thus, the choice of whether or not to trust an OS needs to require the end-user to authenticate themselves to the firmware in some fashion. The firmware can boot a trusted OS unattended and without authentication, but booting a new OS must require user interaction, and the user must be able to identify themselves before the decision of trust is made.
+
+Once we require some form of authentication, it becomes clear that trusted boot is most suitable here. If we require authentication in the form of a passphrase, HSM, or even a USB drive with a random keyfile, we can easily use that authentication info to sign bootable images. With Heads (which is Linux), we can probably even do this signing from within the firmware itself. Detach-signing can be used so that the image doesn't have to be modified to be trusted; it will just have a `.asc` file alongside it that the firmware can use to authenticate it. This would give us something closer to Secure Boot. On the other hand, this kind of model doesn't fit well with measured boot at all - there's no specific secret that needs to be hidden from the OS. The sealed secret would be nothing more than a "this OS is trusted" marker, and that's far better done by a GPG signature.
+
+The question now is how does the firmware identify the user? Some form of writable storage could be used for this, such as the TPM, but it may also work for the firmware to have the user's public key embedded into the firmware image itself. The user would install the firmware on their own hardware, embedding their key into it at installation time. (FlashKeeper is actually intended to work this way, and from my understanding the manufacturer actually *can't* sign the firmware in this context, since the user has to sign the firmware themselves. This makes user-installed firmware a rather convenient way of doing things.) Then it's just a matter of verifying signed data.
+
+With all this in place, the firmware now knows how to trust the user and whatever operating systems the user chooses to trust. But now we need to verify the reverse how does the user trust the firmware? Currently Heads does this by using a TOTP secret embedded into the system's TPM. The boot block and possibly some other parts of the firmware are verified by Intel Boot Guard or AMD PSB, then the firmware is measured at boot time by itself, and that measurement is used to unseal the TOTP secret. If the secret is unsealed, the firmware is able to identify itself using a TOTP code, which the user can then verify manually using something like Google Authenticator, or automatically using something like the Librem Key. As long as the processor can be implicitly trusted, the user can trust the firmware at this point... except...
+
+There have been vulnerabilities found in Intel Boot Guard previously, such as a TOCTOU vulnerability that allowed running arbitrary code with firmware-level privileges without the TPM noticing. Also, sometimes manufacturers just "forget" to protect parts of the firmware with Boot Guard at all. For this reason, some sort of stronger protection beyond Boot Guard is needed to ensure the firmware isn't tampered with. The TPM can still be used to attest to the user that the firmware is authentic, but something further is needed to ensure that the firmware really *is* authentic. One approach to this is Design Shift's ORWL anti-tampering mechanism. The entire device motherboard would be protected by a shield, and any attempt to defeat that shield or put the system into an unnatural state (i.e., a sudden and dramatic temperature drop) would result in all data on the system being wiped (hard drive contents or encryption keys, RAM contents, firmware, TPM contents, etc.). If tampering occurred, the user would have to reinstall their firmware in order to recover, ensuring that the firmware on the machine is authentic and has the user's public authentication key embedded. (Since the user has to install their own firmware in order to be able to authenticate themselves to it anyway, this shouldn't be that difficult of a procedure.) This would conveniently prevent cold-boot attacks and frustrate physical attacks on confidential computing as well.
+
+Another approach, probably superior in the short-term, is to use the firmware verification features provided by FlashKeeper. Currently the plan is that FlashKeeper will somehow beep if the system firmware is tampered with. Ideally though it should entirely block boot or provide some way of remotely attesting that the firmware is good. This might not be possible.
+
+The last concern is how to remotely attest the system. The TPM can be used for remote attestation, and only the user's remote machine can successfully attest itself in this way, but that doesn't keep an attacker from simply sending all commands intended for the machine to an attacker-controlled server rather than to the user's actual machine. The machine would just be used to make remote attestation work. At this point, it becomes necessary to have some way to ensure that one can establish a secure remote connection that cannot be MITM'd, that depends on the firmware somehow. This requires some degree of OS interaction, since the OS is ultimately what the user is talking to when they establish a connection to their machine.
+
+The best firmware to use for our purposes is probably Heads. It can already do so much of what we want here, including using a GPG-based signing solution rather than relying on the almost hopelessly flawed Secure Boot system.
+
+==== Part 2: Firmware and OS ====
+
+The OS is *signed*. The firmware, on the other hand, is *measured*. With this in mind, we can define how the OS should work in order to ensure security. The firmware should be able to boot any signed Linux-based OS, but an OS that will leverage the firmware's capabilities to the fullest extent should probably work something like this.
+
+Rather than using a separate kernel and initramfs, the OS should use a Unified Kernel Image (UKI). This ensures the initramfs is verified along with the kernel and also removes the need for an additional bootloader. The firmware can simply `kexec` the kernel image, which contains the kernel, initramfs, and kernel command line all in one convenient bundle. The UKI is signed by the user, as discussed earlier, so it is trusted in its entirety. This UKI will be booted *directly*, not using an intermediate bootloader such as GRUB. (Why? Because it removes complexity in the boot process, and it is unclear if Heads can boot GRUB since it uses `kexec` to boot the filesystem.)
+
+The OS should have at least two partitions, *both of which* should be encrypted. One of these is the boot partition, which stores the UKIs and signatures. This partition is encrypted with a key stored in the TPM, which can be unsealed if and only if the firmware measurements come back as authentic. The other is the userland partition, which is encrypted by a passphrase known only to the user. On boot, the firmware will unseal the boot encryption key, decrypt the boot partition, and load the UKI. This is important because it allows the UKI to embed secrets that only authentic firmware will be able to read.
+
+(One potential worry here is that an attacker could simply take the TPM, install it on some other system, feed into it an authentic firmware, then unseal the secret and decrypt the boot partition. This isn't a concern due to the tamper protection described earlier - any attempt to "get at" the TPM or firmware will result in the system wiping itself, TPM, firmware, and all.)
+
+Inside the UKI, an SSH host key should be embedded. This performs two functions: First, it allows the user to establish a secure connection to their machine to decrypt the primary disk. Second, because it can only be accessed if the firmware is authentic (thanks to being located on the encrypted /boot partition), the user's mere ability to SSH into the system at all remotely attests it. The user can be sure they are talking to *their* machine, and that the connection cannot be intercepted or otherwise tampered with.
+
+Aside from the UKI and the user's home directory (or other directories they choose to "split out" for persistence's sake), the entire OS will be contained in a `dm-verity` image. This image's hash tree is embedded into the kernel image, along with the roothash (which is embedded into the kernel command line, which is embedded into the UKI). The UKI is signed, so if the `dm-verity` hashes are correct, trust can be safely extended to the entire rest of the operating system. In addition to being protected in this way, the `dm-verity` image will be located on the encrypted userland partition, thus keeping its contents private (useful to prevent a cloud vendor from knowing what applications you're running).
+
+`dm-verity` images are read-only, but Linux typically requires at least parts of the root filesystem to be writable to boot into a usable state. While the entire filesystem could be made writable using `overlayfs`, that might allow temporary compromises to persist. Instead, the entire filesystem should *default* to read-only, and only specific directories will be overlayed to enable the operating system to function (for instance, /var). A configuration file should be used to define what directories should be writable and whether they should be persistent or overlayed. This configuration file would require root privileges to modify.
+
+When the user first logs into their machine via SSH, they will be inside an initramfs prompt. From here, they will unlock their primary drive. Once the drive is unlocked, they will then choose what mode to boot the system in: Persistent User, Live User, or Persistent Admin.
+
+* In **Persistent User** mode, it is impossible to gain root privileges (sudoless), and the user's home directory will be writable.
+* In **Live User** mode, root privileges will be denied, and any changes to the home directory will vanish on reboot.
+* In **Persistent Admin** mode, '''the `dm-verity` volume will be writable''', and root access will be permitted. This allows for OS updates and the like to be installed. The whole system is mutable in this mode, and the user must exercise extreme caution to avoid a compromise while in this vulnerable state. During a Persistent Admin boot, before the system pivots out of the initramfs and into the true root filesystem, the OS will copy the existing UKI and `dm-verity` image to a backup location to prevent bricking the system while in Persistent Admin mode.
+
+During shutdown, the system will return to the initramfs. If the user was booted into Persistent Admin mode, the initramfs will regenerate the UKI and prompt the user to authenticate themselves using their signing key. This will allow the firmware to trust the new operating system. **If the user does not authenticate themselves at this point, the kernel and root image will be unusable.** The user will have to boot into their backup kernel and image and either restore it (deleting the modified image) or sign the newer image from there.
+
+==== Part 3: OS and VMs ====
+
+While all of the above mechanisms should provide very good security for the host, a defense-in-depth approach should be taken to ensure that if the above measures are defeated, the user's most sensitive data remains safe. This can be achieved with the help of confidential VMs, using existing technologies such as Intel TDX or AMD SEV. These are natively supported by `libvirt`, which works on most major distributions nowadays, and since the user has full control over the host hardware, there is nowhere near as much to worry about security-wise. The primary reasons to use encrypted VMs are two-fold:
+
+* If malware infects the host, it is far more difficult for that malware to affect the user's most sensitive data stored inside the secure VMs.
+* If the cloud provider attempts to attack the user's hardware in a cold-boot attack, they will have an extremely hard time with it since the machine will be actively wiping itself the moment tampering starts. Any data they manage to extract from a RAM chip will be encrypted. Since the machine will wipe itself, firmware and all, the cloud provider only gets one shot at an attack of this kind. If the attack fails, they will have to send the entire machine back to the owner for reprovisioning, which will almost certainly result in the customer finding another vendor to serve them.
+** We don't have to worry about attacks involving DDR interposers or similar techniques, since attempting to open the machine will wipe it, causing the same issue as with attempting a cold-boot attack.
+
+==== Part 4: Miscellaneous Hardware Considerations ====
+
+* A cold boot attack should be hard enough with this design, but using surface-mount soldered RAM would make the attack an order of magnitude harder than it already would be. Attaching to the RAM chip would be impossible without heating it, and heating it will totally destroy any hope of recovering data from it.
+* No BMC or similar firmware-level remote access mechanism should be made available. It would be pretty much useless anyway due to the possibility of MITM attacks (unless the user embedded an access key for that into the firmware too, which they could theoretically do), and it introduces more attack surface.
+* Should remote firmware updates be possible? It should be possible to implement this in a secure fashion, and it might be necessary for good security to avoid firmware-level vulnerabilities becoming a problem.
+
+= Attribution =
+{{sdebian
+|text=Setting /usr read-only
+|link=https://www.debian.org/doc/manuals/securing-debian-manual/ch04s10.en.html#idm1115
+}}
+
+= Footnotes=
+<references/>
+
+{{Footer}}
+
+[[Category: Design]]
+[[Category: Development]]
