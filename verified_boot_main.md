@@ -14,7 +14,7 @@
 
 #### RTS(storage)
 
-### The difference between secure boot and measured boot 
+### The difference between secure boot and measured boot
 
 ### Integrity vs authenticity, digest vs signature
 
@@ -26,7 +26,7 @@
 
 ### Non-functional requirements
 
-## 3. Firmware 
+## 3. Firmware
 
 ### Legacy / UEFI / Heads
 
@@ -40,12 +40,35 @@
 
 ### Role-based boot modes
 
+* 574-582: "Verified Boot for User but not for Admin" - also
+  linked in `### dm-verity` as it mentions it
+
 ### Read-only/discardable-file-systems
+
+* 291-295: "Qubes Specific" - /usr reset on reboot
+* 301-400: "Verified Boot Discussion" - approaches to
+  immutability
 
 ### Checksum verification
 
+* 509-544: "Hash Check all Files at Boot"
+* 343-354: "Mutability in Verified Boot Systems" - related, it was suggested to
+  move the section here entirely. Also linked in `###Read-only/discardable-file-systems`
+
 ### dm-verity
+
+* 546-: "dm-verity - system versus user partition"
+* 574-582: "Verified Boot for User but not for Admin" - mentions dm-verity, also
+  linked in `### Role-based boot modes`
 
 ### ISOs
 
+* 401-440: "Kicksecure ISO and Verified Boot", "Challenges with Key Management with Secure Boot"
+
 ### VMs
+
+* 472-507: "{{project_name_short}} Verified Boot Development Ideas" - Not sure
+  if it fits here. Should the section rather talk about QubesOS?
+* 509-544: "Hash Check all Files at Boot" - also linked in
+  `### Checksum verification`, but it says that "This concept applies only to
+  virtual machines"
