@@ -38,6 +38,11 @@
 
 ## 4. OS-level approaches at limiting system modification
 
+* 836-849: "Other Distributions implementing Verified Boot"
+* 864-867: "Forum Discussion"
+* 915-937: "Part 2: Firmware and OS" - also linked in `### 3. Firmare`
+  as it touches both topics
+
 ### Role-based boot modes
 
 * 574-582: "Verified Boot for User but not for Admin" - also
@@ -48,6 +53,7 @@
 * 291-295: "Qubes Specific" - /usr reset on reboot
 * 301-400: "Verified Boot Discussion" - approaches to
   immutability
+* 851-862:"Immutable Linux Distributions"
 
 ### Checksum verification
 
@@ -72,3 +78,4 @@
 * 509-544: "Hash Check all Files at Boot" - also linked in
   `### Checksum verification`, but it says that "This concept applies only to
   virtual machines"
+* 939-945: "Part 3: OS and VMs"
