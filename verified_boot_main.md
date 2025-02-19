@@ -28,13 +28,19 @@
 
 ## 3. Firmware
 
+* 915-937: "Part 2: Firmware and OS" - also linked in `### 4. OS...`
+  as it touches both topics
+
 ### Legacy / UEFI / Heads
 
 * 417-440: "Challenges with Key Management with Secure Boot" - about EFI
+* 766: "Hardware Keystore - HSM" - empty section, maybe worth filling
 
 ### Firmware protections against changing settings in it's UI
 
 ### Firmware protections against changing firmare's flash chip
+
+*  811-830: "Write Protection"
 
 ### Intel Boot Guard / AMD Platform Secure Boot
 
