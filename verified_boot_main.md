@@ -14,7 +14,7 @@
 
 #### RTS(storage)
 
-### The difference between secure boot and measured boot 
+### The difference between secure boot and measured boot
 
 ### Integrity vs authenticity, digest vs signature
 
@@ -26,15 +26,20 @@
 
 ### Non-functional requirements
 
-## 3. Firmware 
+## 3. Firmware
 
 ### Legacy / UEFI / Heads
 
-### Firmware protections against changings settings in its UI
+* 417-440: "Challenges with Key Management with Secure Boot" - about EFI
 
-### Firmware protections against
+### Firmware protections against changing settings in it's UI
+
+### Firmware protections against changing firmare's flash chip
 
 ### Intel Boot Guard / AMD Platform Secure Boot
+
+* 255, 263, 267: "coreboot's Measured Boot, TPM, FlashKeeper" - some
+  pros/cons of Boot Guard
 
 ## 4. OS-level approaches at limiting system modification
 
