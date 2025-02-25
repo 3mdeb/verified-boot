@@ -1,4 +1,4 @@
-# Verified Boot Dasharo
+# Verified Boot
 
 ## 1. Introduction
 - 16-41 "What is Verified Boot?
