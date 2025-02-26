@@ -13,7 +13,7 @@
 
 ### Categorization of chains/roots of trust
 
-#### RTM(measurements)
+#### RTM (Root of Trust for Measurements)
 
 #### RTV(verification)
 
@@ -21,14 +21,14 @@
 
 #### RTS(storage)
 
-### The difference between secure boot and measured boot 
+### The difference between verified boot and measured boot
 - 457-465    "Measured Boot vs Secure Boot"
 
-### Integrity vs authenticity, digest vs signature
+### Difference between integrity and authenticity verification
 - 448-450 "Custom Hardware with Specific Keys"
 - 574-583 "Verified Boot for User but not for Admin"
 
-## 2. Defining the structure
+## 2. Definition of requirements
 - 584-645    "Notes"
 - 869-874    "See Also"
 
@@ -44,7 +44,7 @@
 - 915-938    "Part 2: Firmware and OS"
 ### Legacy / UEFI / Heads
 
-### Firmware protections against changings settings in its UI
+### Firmware protections against changing settings in its UI
 
 ### Firmware protections against changing firmware's flash chip
 - 811-831    "Write Protection"
