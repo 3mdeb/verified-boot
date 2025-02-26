@@ -42,7 +42,14 @@
 ## 3. Firmware 
 - 884-914    "Part 1 - Hardware and Firmware"
 - 915-938    "Part 2: Firmware and OS"
-### Legacy / UEFI / Heads
+
+### Implementations of verified boot
+
+#### Legacy 
+
+#### UEFI 
+
+#### Heads
 
 ### Firmware protections against changing settings in its UI
 
