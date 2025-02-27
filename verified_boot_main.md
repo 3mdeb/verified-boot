@@ -158,6 +158,7 @@ the RoT for measurement to be reestablished dynamically
 merly described as “Core Root of Trust for Measurement”. Code Root of
 Trust for Measurement is the preferred expansion.] This acronym expansion
 is preferred.
+<!-- by whom is it preferred? By TCG? They say like it's a universal truth -->
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
@@ -224,7 +225,70 @@ before control is passed to it.
 
 ~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320]
 
+### The difference between verified boot and measured boot
+- 457-465    "Measured Boot vs Secure Boot"
 
+
+
+### Difference between integrity and authenticity verification
+- 448-450 "Custom Hardware with Specific Keys"
+- 574-583 "Verified Boot for User but not for Admin"
+
+#### Integrity
+
+> A property whereby data has not been altered in an
+unauthorized manner since it was created, transmitted, or
+stored.
+
+~ NIST SP 800-152, Appendix B Glossary [^NIST_sp800-152]
+
+Data integrity is most of the time assured using digests
+of the data, which are sent alongside it. To verify the integrity of the data,
+the digest has to be calculated once more and compared againt the one received. When creating digests using a strong hash function, even the
+smallest change to the data will result in a completely different value
+of the digest.
+
+Only verifying integrity does not guarantee the origin of the data is
+genuine. A bad actor can modify both the data and the digest if not
+protected.
+
+#### Authenticity
+
+> The property of being genuine and being able to be verified and trusted; confidence in the validity of a transmission, a message, or message originator.
+
+~ NIST SP 800-137, Appendix B Glossary [^NIST_sp800-137]
+
+Verifying authenticity is verifying the identity of an entity.
+It is performed using asymetric cryptography and the term identity can
+generally be reduced to the asymetric key pair used by the entity.
+
+The simplest way an entity can prove it's identity is to encrypt some
+data with it's private key. If decrypting the data using it's public
+key yields the same data, then it must have been encrypted using the
+private key.
+
+Authenticity itself does not guarantee the integrity of data.
+
+##### Non repudiation
+
+> A service that is used to provide assurance of the integrity and origin of data in such a way that the integrity and origin can be verified and validated by a third party as having originated from a specific entity in possession of the private key (i.e., the signatory).
+
+~ NIST FIPS 186-5 [^NIST_fips186-5]
+
+Non repudiation is a term used to describe a data, of which both the
+integrity and the authenticity of some entity responsible for it
+can be verified.
+Non repudiation is generally achieved using some form of digital
+signature.
+
+Digital Signature
+> An asymmetric key operation where the private key is used to digitally sign data and the public key is used to verify the signature. Digital signatures provide authenticity protection, integrity protection, and non-repudiation, but not confidentiality protection.
+
+~ NIST SP 800-63, Appendix A - Deifinitions and Abbreviations [^NIST_sp800-63]
+
+
+[^NIST_sp800-63]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
+[^NIST_sp800-137]: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
 [^NIST_sp800-152]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-152.pdf
 [^NIST_sp800-155]: https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
 [^NIST_sp800-172]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-172.pdf
@@ -232,13 +296,7 @@ before control is passed to it.
 [^NIST_sp800-193]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-193.pdf
 [^TCG_glossary]: https://trustedcomputinggroup.org/wp-content/uploads/TCG-Glossary-V1.1-Rev-1.0.pdf
 [^NIST_ir8320]: https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
-
-### The difference between verified boot and measured boot
-- 457-465    "Measured Boot vs Secure Boot"
-
-### Difference between integrity and authenticity verification
-- 448-450 "Custom Hardware with Specific Keys"
-- 574-583 "Verified Boot for User but not for Admin"
+[^NIST_fips186-5]: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
 
 ## 2. Definition of requirements
 - 584-645    "Notes"
