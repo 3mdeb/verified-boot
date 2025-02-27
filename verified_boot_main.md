@@ -15,11 +15,11 @@
 
 #### RTM (Root of Trust for Measurements)
 
-#### RTR(Root of Trust for Reporting)
+#### RTR (Root of Trust for Reporting)
 
-#### RTS(Root of Trust for Storage)
+#### RTS (Root of Trust for Storage)
 
-#### RTV(Root of Trust for Verification)
+#### RTV (Root of Trust for Verification)
 
 ### The difference between verified boot and measured boot
 - 457-465    "Measured Boot vs Secure Boot"
