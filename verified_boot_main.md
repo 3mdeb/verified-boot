@@ -97,8 +97,7 @@ these normally would not be detectable in the higher layers.
 #### RTM (Root of Trust for Measurements)
 
 > An RoT that makes the initial integrity measurement, and adds it to a tam-
-per-resistant log. Note: A PCR in a TPM is normally used to provide tamper
-evidence because the log is not in a shielded location.
+per-resistant log.
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
@@ -110,10 +109,10 @@ integrity measurements. The RTM is the root of the chain of transitive trust for
 The Root of Trust for Measurements is a broad concept that is often separated
 into smaller entities like:
 - Static Root of Trust for Measurements (S-RTM)
+- Dynamic Root of Trust for Measurements (D-RTM)
 - Code Root of Trust for Measurements (CRTM)
 <!-- TODO sometimes called "Core RTM". Definitely needs an explanation
    -->
-- Dynamic Root of Trust for Measurements (D-RTM)
 - Hardware Root of Trust for Measurements (HRTM)
 
 ##### S-RTM (Static Root of Trust for Measurements)
@@ -124,12 +123,31 @@ tialized without a platform reset.
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
+
+##### D-RTM (Dynamic Root of Trust for Measurements)
+
+> A platform-dependent function that initializes the state of the platform and
+provides a new instance of a root of trust for measurement without rebooting
+the platform. The initial state establishes a minimal Trusted Computing
+Base.
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+> The D-RTM, if supported by the platform, may start at
+any point after boot by initializing the state of the platform without requiring
+a reboot. In general, the D-RTM launches after an S-RTM, but the trust-chains
+anchored in each RTM are independent,
+
+~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
+Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
+
 ##### CRTM (Core Root of Trust for Measurements)
 
 > The first piece of BIOS code that executes on the main
-processor during the boot process. On a system with a Trusted Platform Module the CRTM is implicitly
-trusted to bootstrap the process of building a measurement chain for subsequent attestation of other
-firmware and software that is executed on the computer system
+processor during the boot process. On a system with a Trusted Platform Module
+the CRTM is implicitly trusted to bootstrap the process of building a
+measurement chain for subsequent attestation of other firmware and software
+that is executed on the computer system
 
 ~ NIST SP 800-147, Appendix B Glossary
 
@@ -138,16 +156,16 @@ The Core Root of Trust for Measurements can be divided into two parts:
 ###### SCRTM (Static Core Root of Trust for Measurements)
 
 > The SCRTM is composed of
-elements that measure firmware at system boot time, creating an unchanging set of
-measurements that will remain consistent across reboots except for volatile attributes like date
-and time.
+elements that measure firmware at system boot time, creating an unchanging
+set of measurements that will remain consistent across reboots except for
+volatile attributes like date and time.
 
 ~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320]
 
 ###### DCRTM (Dynamic Core Root of Trust for Measurements)
 
-> The DCRTM allows a CoT to be established without rebooting the system, permitting
-the RoT for measurement to be reestablished dynamically
+> The DCRTM allows a CoT to be established without rebooting the system,
+permitting the RoT for measurement to be reestablished dynamically
 
 ~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320]
 
@@ -162,35 +180,33 @@ is preferred.
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
-##### D-RTM (Dynamic Root of Trust for Measurements)
-
-> A platform-dependent function that initializes the state of the platform and
-provides a new instance of a root of trust for measurement without rebooting
-the platform. The initial state establishes a minimal Trusted Computing
-Base.
-
-~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
-
 ##### HRTM (Hardware Root of Trust for Measurements)
 
 > An RTM where hardware performs the initial measurement.
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
-> Security should extend across all tiers of the container technology. The current way of
-accomplishing this is to base security on a hardware root of trust, such as the industry standard
-Trusted Platform Module (TPM). Within the hardware root of trust are stored measurements of
-the host’s firmware, software, and configuration data.
+> Security should extend across all tiers of the container technology. The
+current way of accomplishing this is to base security on a hardware root of
+trust, such as the industry standard Trusted Platform Module (TPM). Within the
+hardware root of trust are stored measurements of the host’s firmware, software,
+and configuration data.
 
 ~ NIST SP800-190 [^NIST_sp800-190]
 <!-- There seems to be no definition from NIST -->
 #### RTR (Root of Trust for Reporting)
 
-> An RoT that reliably provides authenticity and non-repudiation services for
-the purposes of attesting to the origin and integrity of platform characteris-
-tics.
+> The RoT for Reporting (RTR) is a RoT that reliably provides authenticity and
+non-repudiation services for the purpose of attesting to the origin and
+integrity of platform characteristics. It necessarily leverages the RTM and
+RTS. A principal function of the RTR is to provide an unambiguous identity,
+statistically unique for the endpoint in the form of an Attestation Key (AK).
+The AK may be persistent or temporary. A typical usage of the AK in this
+instance involves a TPM2_Quote of the TPM PCRs signed by the AK that may be
+accompanied by a certificate.
 
-~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
+Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
 > A computing engine capable of reliably reporting information
 provided by the RTM and its measurement agent(s) or held by the RTS.
@@ -204,15 +220,19 @@ summary of integrity measurement values and the sequence of those measurements.
 
 ~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
 
-> The combination of an RTC and an RTI
+> TCG defines the RoT for Storage (RTS) as the combination of a
+RoT for Confidentiality (RTC) and a RoT for Integrity (RTI). The RTS provides
+for confidentiality and integrity of data stored in TPM shielded locations.
+In the context of this specification, the RTS maintains a tamper-evident
+summary of the integrity measurement values and the sequence of those
+measurements. It does not include the details of the sequence of integrity
+measurements, but rather holds cumulative integrity results for those sequences.
+These cumulative integrity values can either be used to verify the integrity of
+a log containing the integrity measurement values and the sequence of those
+measurements, or it can be used as a proxy for that log.
 
-> RTC (Root of Trust for Confidentiality)
-An RoT providing confidentiality for data stored in TPM Shielded Locations.
-
-> RTI (Root of Trust for Integrity)
-An RoT providing integrity for data stored in TPM Shielded Locations
-
-~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
+Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
 #### RTV (Root of Trust for Verification)
 
