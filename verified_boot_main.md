@@ -39,7 +39,10 @@ as expected.
 inherent, unprovable, and serves as the core or basis upon which security
 mechanisms are built.
 
-> Highly reliable hardware, firmware, and software components that perform specific, critical security functions. Because roots of trust are inherently trusted, they must be secure by design. Roots of trust provide a firm foundation from which to build security and trust.
+> Highly reliable hardware, firmware, and software components that perform
+specific, critical security functions. Because roots of trust are inherently
+trusted, they must be secure by design. Roots of trust provide a firm foundation
+from which to build security and trust.
 
 ~ NIST SP 800-172, Appendix A, under "roots of trust" [^NIST_sp800-172]
 
@@ -94,6 +97,12 @@ these normally would not be detectable in the higher layers.
 
 ~ NIST IR 8320, Appendix A, section 2, Hardware Root of Trust: Intel TXT and Trusted Platform Module (TPM) [^NIST_sp800-193]
 
+More than the three roots of trust from the citation above can be distinguished.
+The list nor the definitions are not strict and depend on the context of the
+conversation and the desired level of abstraction over the mechanisms occuring
+ing the boot process. The most commonly used ones are described below.
+<!-- TODO my personal observation. Review and remove/modify to make more sense-->
+
 #### RTM (Root of Trust for Measurements)
 
 > An RoT that makes the initial integrity measurement, and adds it to a tam-
@@ -106,14 +115,22 @@ integrity measurements. The RTM is the root of the chain of transitive trust for
 
 ~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
 
+The Root of Trust for Measurements is the core element in the process of
+`measured boot`, which is described in more detail in the section
+"The difference between verified boot and measured boot".
+<!-- TODO use a link instead if possible later -->
+
 The Root of Trust for Measurements is a broad concept that is often separated
-into smaller entities like:
+into smaller parts like:
 - Static Root of Trust for Measurements (S-RTM)
 - Dynamic Root of Trust for Measurements (D-RTM)
 - Code Root of Trust for Measurements (CRTM)
-<!-- TODO sometimes called "Core RTM". Definitely needs an explanation
+<!-- TODO sometimes called "Core RTM". Definitely needs an explanation to help
+   with making sense of documents which use different names
    -->
 - Hardware Root of Trust for Measurements (HRTM)
+<!-- TODO I can't say more about the parts of RTM for now.
+Need to read the documents in detail -->
 
 ##### S-RTM (Static Root of Trust for Measurements)
 
@@ -122,7 +139,6 @@ The S-RTM is static because the PCRs associated with it cannot be re-ini-
 tialized without a platform reset.
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
-
 
 ##### D-RTM (Dynamic Root of Trust for Measurements)
 
@@ -193,7 +209,7 @@ hardware root of trust are stored measurements of the host’s firmware, softwar
 and configuration data.
 
 ~ NIST SP800-190 [^NIST_sp800-190]
-<!-- There seems to be no definition from NIST -->
+
 #### RTR (Root of Trust for Reporting)
 
 > The RoT for Reporting (RTR) is a RoT that reliably provides authenticity and
@@ -212,6 +228,9 @@ Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 provided by the RTM and its measurement agent(s) or held by the RTS.
 
 ~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
+
+<!-- TODO I can't say more for now. Need to read the documents in detail to know
+what exactly it is. Some code to verify integrity&authenticity and/or key store?-->
 
 #### RTS (Root of Trust for Storage)
 
@@ -234,6 +253,9 @@ measurements, or it can be used as a proxy for that log.
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
+<!-- TODO I can't say more for now. Need to read the documents in detail
+Is it just an encrypted data store?-->
+
 #### RTV (Root of Trust for Verification)
 
 > An RoT that verifies an integrity measurement against a policy
@@ -245,10 +267,23 @@ component before control is passed to it.
 
 ~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320]
 
+<!-- TODO I can't say more for now. Need to read the documents in detail
+RTC seems to be similar to RTR.
+RTR - Integrity+authenticity of data
+RTC - Integrity+authenticity of software components-->
+
 ### The difference between verified boot and measured boot
 - 457-465    "Measured Boot vs Secure Boot"
 
+<!--
+I can't seem to find definitions from NIST or TCG. This section might require
+more than giving a couple citations.
 
+verified boot - Verifying the signatures of software components using some trusted public keys
+measured boot - extending the digests (in PCRs) with every launched software component.
+Does not really protect anything on it's own. The values in PCRs can be compared to some
+known and expected values at any point. If they differ then the code executed
+up to this point was different than expected and may suggest a threat -->
 
 ### Difference between integrity and authenticity verification
 - 448-450 "Custom Hardware with Specific Keys"
@@ -301,8 +336,9 @@ confidence in the validity of a transmission, a message, or message originator.
 ~ NIST SP 800-137, Appendix B Glossary [^NIST_sp800-137]
 
 Verifying authenticity is verifying the identity of an entity.
-It is performed using asymetric cryptography and the term identity can
-generally be reduced to the asymetric key pair used by the entity.
+It is performed using asymetric cryptography. The private key of an asymmetric
+cryptography keypair is often called the `identity`. In this context, proving
+an identity is proving to be in possession of the private key.
 
 The simplest way an entity can prove it's identity is to encrypt a well known
 data using it's private key. If decrypting the data with a public
@@ -311,7 +347,7 @@ corresponding private key.
 
 Verifying authenticity requires one to be in posession of a public key, that
 is trusted to correspond to the private key of the to bo authenticated entity.
-<!-- TODO? tell about how it is solved? key stores in UEFI / PKI? -->
+<!-- TODO? tell about how it is solved? certificate stores in UEFI / PKI? -->
 
 Authenticity itself does not guarantee the integrity of data.
 
