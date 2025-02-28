@@ -128,23 +128,20 @@ these normally would not be detectable in the higher layers.
 
 #### RTM (Root of Trust for Measurements)
 
-> An RoT that makes the initial integrity measurement, and adds it to a tam-
-per-resistant log.
+The **Root of Trust for Measurements (RTM)** is the first hardware, firmware, or
+software component able to measure the integrity of other components, and to
+document the history of the measurements.[^TCG_glossary] [^NIST_sp800-155]
+It is the **Root of Trust** for the **Chain of Trust** of all the components
+performing integrity measurements.
+The history of measurements and the digests of the measured components
+need to be saved in a tamper-resistant log, the integrity and authenticity of
+which can be verified.
 
-~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+The **Root of Trust for Measurements** is the most important component for
+performing the process of **measured boot**.
 
-> A computing engine capable of making inherently reliable
-integrity measurements. The RTM is the root of the chain of transitive trust for subsequent measurement agents.
-
-~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
-
-The Root of Trust for Measurements is the core element in the process of
-`measured boot`, which is described in more detail in the section
-"The difference between verified boot and measured boot".
-<!-- TODO use a link instead if possible later -->
-
-The Root of Trust for Measurements is a broad concept that is often separated
-into smaller parts like:
+The **Root of Trust for Measurements** is a broad component that is often
+logically separated into smaller parts like:
 - Static Root of Trust for Measurements (S-RTM)
 - Dynamic Root of Trust for Measurements (D-RTM)
 - Code Root of Trust for Measurements (CRTM)
@@ -155,7 +152,23 @@ into smaller parts like:
 <!-- TODO I can't say more about the parts of RTM for now.
 Need to read the documents in detail -->
 
+<!--
+Based on:
+
+> An RoT that makes the initial integrity measurement, and adds it to a tam-
+per-resistant log.
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+> A computing engine capable of making inherently reliable
+integrity measurements. The RTM is the root of the chain of transitive trust for subsequent measurement agents.
+
+~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155] -->
+
 ##### S-RTM (Static Root of Trust for Measurements)
+
+The **Static Root of Trust for Measurements (S-RTM)** is the root of trust
+for
 
 > An RTM where the initial integrity measurement occurs at platform reset.
 The S-RTM is static because the PCRs associated with it cannot be re-ini-
