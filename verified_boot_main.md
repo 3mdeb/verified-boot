@@ -9,24 +9,447 @@
 - 175-192 "When the Verification is over?"
 - 869-874 "See Also
 
+The purpose of this section is to define the fundamental concepts and key
+terminology that will be utilized throughout the document.
+A clear understanding of them is essential for ensuring consistency and
+precision throughout the document.
+
 ### Trust, chain of trust, root of trust
+
+#### Trust
+
+> A characteristic of an entity that indicates its ability to perform certain
+functions or services correctly, fairly and impartially, along with assurance
+that the entity and its identifier are genuine.
+
+~ NIST SP 800-152, Appendix B, Glossary [^NIST_sp800-152]:
+
+> The confidence one element has in another that the second element will behave
+as expected.
+
+~ NISTIR 8320, section 1.2 Terminology, under "Trust" [^NIST_ir8320]
+
+#### Root of Trust (RoT)
+
+The **Root of Trust (RoT)**  is a hardware, firmware, or software component, that is
+trusted inherently, implicitly and undeniably. The trust towards the
+**Root of Trust** cannot be proven. Otherwise the software, hardware, or person
+proving, that the **Root of Trust** can be relied on, would be the actual
+**Root of Trust**. The security of the whole system
+depends on the **Root of Trust** and compromising it makes all the subsequent
+security measures ineffective. The main purpose of the **Root of Trust** is to
+verify if the next hardware, firmware, or software component to which control
+is to be passed can be trusted.[^NIST_ir8320] [^NIST_sp800-172] [^NIST_sp800-193] [^NIST_sp800-155]
+
+
+<!-- Based on:
+
+> A starting point that is implicitly trusted.
+
+~ NIST IR 8320, Appendix H - Glossary, under "root of trust" [^NIST_ir8320]
+
+> Highly reliable hardware, firmware, and software components that perform
+specific, critical security functions. Because roots of trust are inherently
+trusted, they must be secure by design. Roots of trust provide a firm foundation
+from which to build security and trust.
+
+~ NIST SP 800-172, Appendix A, under "roots of trust" [^NIST_sp800-172]
+
+> An element that forms the basis of providing one or more security-
+specific functions, such as measurement, storage, reporting,
+recovery, verification, update, etc. A RoT is trusted to always
+behave in the expected manner because its misbehavior cannot be
+detected and because its proper functioning is essential to providing
+its security-specific functions
+
+~ NIST SP 800-193, Appendix B - Glossary, under "Root of Trust (RoT)" [^NIST_sp800-193]
+
+> A component (software, hardware, or hybrid) and a computing engine that
+constitute a set of unconditionally trusted functions. An RoT must always behave in an expected manner
+because its misbehavior cannot be detected.
+
+~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
+ -->
+
+#### Chain of Trust (CoT)
+
+A **Chain of Trust (CoT)** is a sequence of hardware, firmware, or software
+components, where every component in the sequence is verified to be trusted by
+the previous component in the chain. The only exception is the **Root of Trust**
+, which is the first link in the chain, and the first component that is able
+to verify the trust to some other component. A **Chain of Trust** is not
+a physical construct kept in memory, but a history of trust transitioning during
+the lifetime of a computer system. Once a trusted component passes control to
+one that is not verified to be trusted, the **Chain of Trust** ends. [^NIST_sp800-193] [^NIST_ir8320]
+
+
+<!-- Based on:
+> A Chain of Trust (CoT) is a sequence of cooperative elements which
+are anchored in a Root of Trust (RoT) that extend the trust boundary
+of the current element by conveying the same trust properties to the
+next element when it passes it control. The result is both elements
+are equally able to fulfill the trusted function as though they were a
+single trusted element. This process can be continued, further
+extending the chain of trust. Once control is passed to code which is
+not, or cannot be, verified then the Chain of Trust has ended. This is
+also referred to as passing control to a non-cooperative element.
+
+~ NIST SP 800-193, Appendix B - Glossary, under "Chain of Trust (CoT)" [^NIST_sp800-193]
+
+> A method for maintaining valid trust boundaries by
+applying a principle of transitive trust, where each
+software module in a system boot process is required
+to measure the next module before transitioning
+control.
+
+~ NIST IR 8320, Appendix H - Glossary, under "Chain of Trust (CoT)" [^NIST_ir8320] -->
 
 ### Categorization of chains/roots of trust
 
+Multiple **Chains** and **Roots** of trust can be distinguished depending on the
+context of the conversation, the desired level of abstraction over the
+mechanisms of the boot process, and the recognised functionalities of firmware.
+
+The list and the definitions are not strict and some documents and
+implementations may call and group the trusted components in different ways.
+The most frequently recognized **Chains** and **Roots** of trust are described
+in this section. [^NIST_sp800-193]
+<!-- TODO my personal observation. Review and remove/modify to make more sense-->
+
+<!--
+Based on:
+> There are three roots of trust in a trusted platform: root of trust for measurement (RTM), root of
+trust for reporting (RTR), and root of trust for storage (RTS). They are the foundational elements
+of a single platform. These are the system elements that must be trusted because misbehavior in
+these normally would not be detectable in the higher layers.
+
+~ NIST IR 8320, Appendix A, section 2, Hardware Root of Trust: Intel TXT and Trusted Platform Module (TPM) [^NIST_sp800-193] -->
+
+
 #### RTM (Root of Trust for Measurements)
+
+The **Root of Trust for Measurements (RTM)** is the first hardware, firmware, or
+software component able to measure the integrity of other components, and to
+document the history of the measurements.[^TCG_glossary] [^NIST_sp800-155]
+It is the **Root of Trust** for the **Chain of Trust** of all the components
+performing integrity measurements.
+The history of measurements and the digests of the measured components
+need to be saved in a tamper-resistant log, the integrity and authenticity of
+which can be verified.
+
+The **Root of Trust for Measurements** is the most important component for
+performing the process of **measured boot**.
+
+The **Root of Trust for Measurements** is a broad component that is often
+logically separated into smaller parts like:
+- Static Root of Trust for Measurements (S-RTM)
+- Dynamic Root of Trust for Measurements (D-RTM)
+- Code Root of Trust for Measurements (CRTM)
+<!-- TODO sometimes called "Core RTM". Definitely needs an explanation to help
+   with making sense of documents which use different names
+   -->
+- Hardware Root of Trust for Measurements (HRTM)
+<!-- TODO I can't say more about the parts of RTM for now.
+Need to read the documents in detail -->
+
+<!--
+Based on:
+
+> An RoT that makes the initial integrity measurement, and adds it to a tam-
+per-resistant log.
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+> A computing engine capable of making inherently reliable
+integrity measurements. The RTM is the root of the chain of transitive trust for subsequent measurement agents.
+
+~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155] -->
+
+##### S-RTM (Static Root of Trust for Measurements)
+
+The **Static Root of Trust for Measurements (S-RTM)** is the root of trust
+for
+
+> An RTM where the initial integrity measurement occurs at platform reset.
+The S-RTM is static because the PCRs associated with it cannot be re-ini-
+tialized without a platform reset.
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+##### D-RTM (Dynamic Root of Trust for Measurements)
+
+> A platform-dependent function that initializes the state of the platform and
+provides a new instance of a root of trust for measurement without rebooting
+the platform. The initial state establishes a minimal Trusted Computing
+Base.
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+> The D-RTM, if supported by the platform, may start at
+any point after boot by initializing the state of the platform without requiring
+a reboot. In general, the D-RTM launches after an S-RTM, but the trust-chains
+anchored in each RTM are independent,
+
+~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
+Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
+
+##### CRTM (Core Root of Trust for Measurements)
+
+> The first piece of BIOS code that executes on the main
+processor during the boot process. On a system with a Trusted Platform Module
+the CRTM is implicitly trusted to bootstrap the process of building a
+measurement chain for subsequent attestation of other firmware and software
+that is executed on the computer system
+
+~ NIST SP 800-147, Appendix B Glossary
+
+The Core Root of Trust for Measurements can be divided into two parts:
+
+###### SCRTM (Static Core Root of Trust for Measurements)
+
+> The SCRTM is composed of
+elements that measure firmware at system boot time, creating an unchanging
+set of measurements that will remain consistent across reboots except for
+volatile attributes like date and time.
+
+~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320]
+
+###### DCRTM (Dynamic Core Root of Trust for Measurements)
+
+> The DCRTM allows a CoT to be established without rebooting the system,
+permitting the RoT for measurement to be reestablished dynamically
+
+~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320]
+
+<!-- TODO Core RTM or Code RTM? -->
+##### CRTM (Code Root of Trust for Measurements)
+
+> The instructions executed by the platform when it acts as the RTM. [For-
+merly described as “Core Root of Trust for Measurement”. Code Root of
+Trust for Measurement is the preferred expansion.] This acronym expansion
+is preferred.
+<!-- by whom is it preferred? By TCG? They say like it's a universal truth -->
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+##### HRTM (Hardware Root of Trust for Measurements)
+
+> An RTM where hardware performs the initial measurement.
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+> Security should extend across all tiers of the container technology. The
+current way of accomplishing this is to base security on a hardware root of
+trust, such as the industry standard Trusted Platform Module (TPM). Within the
+hardware root of trust are stored measurements of the host’s firmware, software,
+and configuration data.
+
+~ NIST SP800-190 [^NIST_sp800-190]
 
 #### RTR (Root of Trust for Reporting)
 
+> The RoT for Reporting (RTR) is a RoT that reliably provides authenticity and
+non-repudiation services for the purpose of attesting to the origin and
+integrity of platform characteristics. It necessarily leverages the RTM and
+RTS. A principal function of the RTR is to provide an unambiguous identity,
+statistically unique for the endpoint in the form of an Attestation Key (AK).
+The AK may be persistent or temporary. A typical usage of the AK in this
+instance involves a TPM2_Quote of the TPM PCRs signed by the AK that may be
+accompanied by a certificate.
+
+~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
+Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
+
+> A computing engine capable of reliably reporting information
+provided by the RTM and its measurement agent(s) or held by the RTS.
+
+~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
+
+<!-- TODO I can't say more for now. Need to read the documents in detail to know
+what exactly it is. Some code to verify integrity&authenticity and/or key store?-->
+
 #### RTS (Root of Trust for Storage)
+
+> A computing engine capable of maintaining a tamper-evident
+summary of integrity measurement values and the sequence of those measurements.
+
+~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
+
+> TCG defines the RoT for Storage (RTS) as the combination of a
+RoT for Confidentiality (RTC) and a RoT for Integrity (RTI). The RTS provides
+for confidentiality and integrity of data stored in TPM shielded locations.
+In the context of this specification, the RTS maintains a tamper-evident
+summary of the integrity measurement values and the sequence of those
+measurements. It does not include the details of the sequence of integrity
+measurements, but rather holds cumulative integrity results for those sequences.
+These cumulative integrity values can either be used to verify the integrity of
+a log containing the integrity measurement values and the sequence of those
+measurements, or it can be used as a proxy for that log.
+
+~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
+Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
+
+<!-- TODO I can't say more for now. Need to read the documents in detail
+Is it just an encrypted data store?-->
 
 #### RTV (Root of Trust for Verification)
 
-### The difference between verified boot and measured boot
-- 457-465    "Measured Boot vs Secure Boot"
+> An RoT that verifies an integrity measurement against a policy
+
+~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
+
+> The core RoT for verification (CRTV) is responsible for verifying the first
+component before control is passed to it.
+
+~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320]
+
+<!-- TODO I can't say more for now. Need to read the documents in detail
+RTC seems to be similar to RTR.
+RTR - Integrity+authenticity of data
+RTC - Integrity+authenticity of software components-->
 
 ### Difference between integrity and authenticity verification
 - 448-450 "Custom Hardware with Specific Keys"
 - 574-583 "Verified Boot for User but not for Admin"
+
+#### Integrity Verification
+
+Integrity:
+> A property whereby data has not been altered in an
+unauthorized manner since it was created, transmitted, or
+stored.
+
+~ NIST SP 800-152, Appendix B Glossary [^NIST_sp800-152]
+
+Data integrity is most of the time assured using hash digests
+of the data, which are sent or stored alongside it. Hash digests are often
+just called `digests` in the context of data integrity.
+
+Digest:
+> The output of a hash function (e.g., hash(data) = digest).
+Also known as a message digest, digest or harsh value.
+
+~ NIST IR 8202, Appendix B -- Glossary [^NIST_ir8202]
+
+Hash function:
+> A function that maps a bit string of arbitrary length to a fixed-length bit
+string. Approved hash functions satisfy the following properties: 1. One-way –
+It is computationally infeasible to find any input that maps to any
+pre-specified output. 2. Collision resistant – It is computationally
+infeasible to find any two distinct inputs that map to the same output.
+
+~ NIST SP 800-175, section 1.5 Terms and Definitions [^NIST_sp800-175]
+
+To verify the integrity of the data, the digest has to be calculated once
+more and compared against the one received.
+When creating digests using a strong hash function, even the
+smallest change to the data will result in a completely different value
+of the digest and chaning the data in such a way that won't change the
+digest is not feasible computationally.
+
+Only verifying integrity does not guarantee the origin of the data is
+genuine. A bad actor could modify both the data and the digest if the digest
+is not protected or already known from a different source.
+
+#### Authenticity
+
+> The property of being genuine and being able to be verified and trusted;
+confidence in the validity of a transmission, a message, or message originator.
+
+~ NIST SP 800-137, Appendix B Glossary [^NIST_sp800-137]
+
+Verifying authenticity is verifying the identity of an entity.
+It is performed using asymetric cryptography. The private key of an asymmetric
+cryptography keypair is often called the `identity`. In this context, proving
+an identity is proving to be in possession of the private key.
+
+The simplest way an entity can prove it's identity is to encrypt a well known
+data using it's private key. If decrypting the data with a public
+key yields the same data, then it must have been encrypted using the
+corresponding private key.
+
+Verifying authenticity requires one to be in posession of a public key, that
+is trusted to correspond to the private key of the to bo authenticated entity.
+<!-- TODO? tell about how it is solved? certificate stores in UEFI / PKI? -->
+
+Authenticity itself does not guarantee the integrity of data.
+
+##### Non repudiation
+
+> A service that is used to provide assurance of the integrity and origin of data in such a way that the integrity and origin can be verified and validated by a third party as having originated from a specific entity in possession of the private key (i.e., the signatory).
+
+~ NIST FIPS 186-5 [^NIST_fips186-5]
+
+Non repudiation is a term used to describe a data, of which both the
+integrity and the authenticity of some entity responsible for it
+can be verified.
+Non repudiation is generally achieved using some form of digital
+signature.
+
+Digital Signature
+>  A cryptographic technique that utilizes asymmetric-keys to determine
+authenticity (i.e., users can verify that the message was signed with a private
+key corresponding to the specified public key), non-repudiation (a user cannot
+deny having sent a message) and integrity (that the message was not altered
+during transmission).
+
+~ NIST SP 800-63, Appendix A - Deifinitions and Abbreviations [^NIST_sp800-63]
+
+A basic digital signature is a digest of data, that has been encrypted using the
+private key of some entity.
+Verifying a signature requires:
+- The data in plaintext
+- The digital signature of the data
+- The public key corresponding to the private key of the signer
+- Knowledge of the hash function used to calculate the digest and the type of
+assymetric keys used by the signer
+
+<!-- TODO? digest is not necesarry, it just saves some time if the data is large, because asym. crypt. is slow -->
+
+The process consists of:
+- calculating the digest using the same hash function as used by the signer
+- decrypting the signature using signer's public key to receive the digest in
+  plaintext
+- comparing the two values
+
+The verification of the signature succeeds if both digests are exactly the same.
+If the verification succeeds then:
+- Integrity is verified. The received digest is the same as the one
+calculated from the datum. The data did not change
+<!-- TODO? only if the used hash function is safe? -->
+- Authenticity is verified. Only the one in possession of the corresponding
+private key could have encrypted the digest so that it can be decrypted using
+the public key
+
+### The difference between verified boot and measured boot
+- 457-465    "Measured Boot vs Secure Boot"
+
+#### Verified Boot
+
+
+
+<!--
+I can't seem to find definitions from NIST or TCG. This section might require
+more than giving a couple citations.
+
+verified boot - Verifying the signatures of software components using some trusted public keys
+measured boot - extending the digests (in PCRs) with every launched software component.
+Does not really protect anything on it's own. The values in PCRs can be compared to some
+known and expected values at any point. If they differ then the code executed
+up to this point was different than expected and may suggest a threat -->
+
+[^NIST_sp800-63]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
+[^NIST_sp800-137]: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
+[^NIST_sp800-152]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-152.pdf
+[^NIST_sp800-155]: https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
+[^NIST_sp800-172]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-172.pdf
+[^NIST_sp800-175]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175Br1.pdf
+[^NIST_sp800-190]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf
+[^NIST_sp800-193]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-193.pdf
+[^TCG_glossary]: https://trustedcomputinggroup.org/wp-content/uploads/TCG-Glossary-V1.1-Rev-1.0.pdf
+[^NIST_ir8202]: https://nvlpubs.nist.gov/nistpubs/ir/2018/NIST.IR.8202.pdf
+[^NIST_ir8320]: https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
+[^NIST_fips186-5]: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
 
 ## 2. Definition of requirements
 - 584-645    "Notes"
@@ -39,15 +462,15 @@
 
 ### Non-functional requirements
 
-## 3. Firmware 
+## 3. Firmware
 - 884-914    "Part 1 - Hardware and Firmware"
 - 915-938    "Part 2: Firmware and OS"
 
 ### Implementations of verified boot
 
-#### Legacy 
+#### Legacy
 
-#### UEFI 
+#### UEFI
 
 #### Heads
 
