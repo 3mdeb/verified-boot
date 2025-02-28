@@ -240,8 +240,8 @@ Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
-> The core RoT for verification (CRTV) is responsible for verifying the first component
-before control is passed to it.
+> The core RoT for verification (CRTV) is responsible for verifying the first
+component before control is passed to it.
 
 ~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320]
 
@@ -254,27 +254,49 @@ before control is passed to it.
 - 448-450 "Custom Hardware with Specific Keys"
 - 574-583 "Verified Boot for User but not for Admin"
 
-#### Integrity
+#### Integrity Verification
 
+Integrity:
 > A property whereby data has not been altered in an
 unauthorized manner since it was created, transmitted, or
 stored.
 
 ~ NIST SP 800-152, Appendix B Glossary [^NIST_sp800-152]
 
-Data integrity is most of the time assured using digests
-of the data, which are sent alongside it. To verify the integrity of the data,
-the digest has to be calculated once more and compared againt the one received. When creating digests using a strong hash function, even the
+Data integrity is most of the time assured using hash digests
+of the data, which are sent or stored alongside it. Hash digests are often
+just called `digests` in the context of data integrity.
+
+Digest:
+> The output of a hash function (e.g., hash(data) = digest).
+Also known as a message digest, digest or harsh value.
+
+~ NIST IR 8202, Appendix B -- Glossary [^NIST_ir8202]
+
+Hash function:
+> A function that maps a bit string of arbitrary length to a fixed-length bit
+string. Approved hash functions satisfy the following properties: 1. One-way –
+It is computationally infeasible to find any input that maps to any
+pre-specified output. 2. Collision resistant – It is computationally
+infeasible to find any two distinct inputs that map to the same output.
+
+~ NIST SP 800-175, section 1.5 Terms and Definitions [^NIST_sp800-175]
+
+To verify the integrity of the data, the digest has to be calculated once
+more and compared against the one received.
+When creating digests using a strong hash function, even the
 smallest change to the data will result in a completely different value
-of the digest.
+of the digest and chaning the data in such a way that won't change the
+digest is not feasible computationally.
 
 Only verifying integrity does not guarantee the origin of the data is
-genuine. A bad actor can modify both the data and the digest if not
-protected.
+genuine. A bad actor could modify both the data and the digest if the digest
+is not protected or already known from a different source.
 
 #### Authenticity
 
-> The property of being genuine and being able to be verified and trusted; confidence in the validity of a transmission, a message, or message originator.
+> The property of being genuine and being able to be verified and trusted;
+confidence in the validity of a transmission, a message, or message originator.
 
 ~ NIST SP 800-137, Appendix B Glossary [^NIST_sp800-137]
 
@@ -282,10 +304,14 @@ Verifying authenticity is verifying the identity of an entity.
 It is performed using asymetric cryptography and the term identity can
 generally be reduced to the asymetric key pair used by the entity.
 
-The simplest way an entity can prove it's identity is to encrypt some
-data with it's private key. If decrypting the data using it's public
+The simplest way an entity can prove it's identity is to encrypt a well known
+data using it's private key. If decrypting the data with a public
 key yields the same data, then it must have been encrypted using the
-private key.
+corresponding private key.
+
+Verifying authenticity requires one to be in posession of a public key, that
+is trusted to correspond to the private key of the to bo authenticated entity.
+<!-- TODO? tell about how it is solved? key stores in UEFI / PKI? -->
 
 Authenticity itself does not guarantee the integrity of data.
 
@@ -302,19 +328,50 @@ Non repudiation is generally achieved using some form of digital
 signature.
 
 Digital Signature
-> An asymmetric key operation where the private key is used to digitally sign data and the public key is used to verify the signature. Digital signatures provide authenticity protection, integrity protection, and non-repudiation, but not confidentiality protection.
+>  A cryptographic technique that utilizes asymmetric-keys to determine
+authenticity (i.e., users can verify that the message was signed with a private
+key corresponding to the specified public key), non-repudiation (a user cannot
+deny having sent a message) and integrity (that the message was not altered
+during transmission).
 
 ~ NIST SP 800-63, Appendix A - Deifinitions and Abbreviations [^NIST_sp800-63]
 
+A basic digital signature is a digest of data, that has been encrypted using the
+private key of some entity.
+Verifying a signature requires:
+- The data in plaintext
+- The digital signature of the data
+- The public key corresponding to the private key of the signer
+- Knowledge of the hash function used to calculate the digest and the type of
+assymetric keys used by the signer
+
+<!-- TODO? digest is not necesarry, it just saves some time if the data is large, because asym. crypt. is slow -->
+
+The process consists of:
+- calculating the digest using the same hash function as used by the signer
+- decrypting the signature using signer's public key to receive the digest in
+  plaintext
+- comparing the two values
+
+The verification of the signature succeeds if both digests are exactly the same.
+If the verification succeeds then:
+- Integrity is verified. The received digest is the same as the one
+calculated from the datum. The data did not change
+<!-- TODO? only if the used hash function is safe? -->
+- Authenticity is verified. Only the one in possession of the corresponding
+private key could have encrypted the digest so that it can be decrypted using
+the public key
 
 [^NIST_sp800-63]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
 [^NIST_sp800-137]: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
 [^NIST_sp800-152]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-152.pdf
 [^NIST_sp800-155]: https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
 [^NIST_sp800-172]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-172.pdf
+[^NIST_sp800-175]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175Br1.pdf
 [^NIST_sp800-190]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf
 [^NIST_sp800-193]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-193.pdf
 [^TCG_glossary]: https://trustedcomputinggroup.org/wp-content/uploads/TCG-Glossary-V1.1-Rev-1.0.pdf
+[^NIST_ir8202]: https://nvlpubs.nist.gov/nistpubs/ir/2018/NIST.IR.8202.pdf
 [^NIST_ir8320]: https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
 [^NIST_fips186-5]: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
 
