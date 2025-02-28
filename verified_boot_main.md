@@ -31,13 +31,22 @@ as expected.
 
 #### Root of Trust (RoT)
 
+The **Root of Trust (RoT)**  is a hardware, firmware, or software component, that is
+trusted inherently, implicitly and undeniably. The trust towards the
+**Root of Trust** cannot be proven. Otherwise the software, hardware, or person
+proving, that the **Root of Trust** can be relied on, would be the actual
+**Root of Trust**. The security of the whole system
+depends on the **Root of Trust** and compromising it makes all the subsequent
+security measures ineffective. The main purpose of the **Root of Trust** is to
+verify if the next hardware, firmware, or software component to which control
+is to be passed can be trusted.[^NIST_ir8320] [^NIST_sp800-172] [^NIST_sp800-193] [^NIST_sp800-155]
+
+
+<!-- Based on:
+
 > A starting point that is implicitly trusted.
 
 ~ NIST IR 8320, Appendix H - Glossary, under "root of trust" [^NIST_ir8320]
-
-*Implicitly trusted* means, that the trust towards the **Root of Trust**
-inherent, unprovable, and serves as the core or basis upon which security
-mechanisms are built.
 
 > Highly reliable hardware, firmware, and software components that perform
 specific, critical security functions. Because roots of trust are inherently
@@ -60,14 +69,21 @@ constitute a set of unconditionally trusted functions. An RoT must always behave
 because its misbehavior cannot be detected.
 
 ~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
-
-
-The trust towards the **Root of Trust** is undeniable and it cannot be proven.
-Otherwise the software, hardware, or person proving, that the
-**Root of Trust** can be relied on, would be the actual **Root of Trust**.
+ -->
 
 #### Chain of Trust (CoT)
 
+A **Chain of Trust (CoT)** is a sequence of hardware, firmware, or software
+components, where every component in the sequence is verified to be trusted by
+the previous component in the chain. The only exception is the **Root of Trust**
+, which is the first link in the chain, and the first component that is able
+to verify the trust to some other component. A **Chain of Trust** is not
+a physical construct kept in memory, but a history of trust transitioning during
+the lifetime of a computer system. Once a trusted component passes control to
+one that is not verified to be trusted, the **Chain of Trust** ends. [^NIST_sp800-193] [^NIST_ir8320]
+
+
+<!-- Based on:
 > A Chain of Trust (CoT) is a sequence of cooperative elements which
 are anchored in a Root of Trust (RoT) that extend the trust boundary
 of the current element by conveying the same trust properties to the
@@ -86,22 +102,29 @@ software module in a system boot process is required
 to measure the next module before transitioning
 control.
 
-~ NIST IR 8320, Appendix H - Glossary, under "Chain of Trust (CoT)" [^NIST_ir8320]
+~ NIST IR 8320, Appendix H - Glossary, under "Chain of Trust (CoT)" [^NIST_ir8320] -->
 
 ### Categorization of chains/roots of trust
 
+Multiple **Chains** and **Roots** of trust can be distinguished depending on the
+context of the conversation, the desired level of abstraction over the
+mechanisms of the boot process, and the recognised functionalities of firmware.
+
+The list and the definitions are not strict and some documents and
+implementations may call and group the trusted components in different ways.
+The most frequently recognized **Chains** and **Roots** of trust are described
+in this section. [^NIST_sp800-193]
+<!-- TODO my personal observation. Review and remove/modify to make more sense-->
+
+<!--
+Based on:
 > There are three roots of trust in a trusted platform: root of trust for measurement (RTM), root of
 trust for reporting (RTR), and root of trust for storage (RTS). They are the foundational elements
 of a single platform. These are the system elements that must be trusted because misbehavior in
 these normally would not be detectable in the higher layers.
 
-~ NIST IR 8320, Appendix A, section 2, Hardware Root of Trust: Intel TXT and Trusted Platform Module (TPM) [^NIST_sp800-193]
+~ NIST IR 8320, Appendix A, section 2, Hardware Root of Trust: Intel TXT and Trusted Platform Module (TPM) [^NIST_sp800-193] -->
 
-More than the three roots of trust from the citation above can be distinguished.
-The list nor the definitions are not strict and depend on the context of the
-conversation and the desired level of abstraction over the mechanisms occuring
-ing the boot process. The most commonly used ones are described below.
-<!-- TODO my personal observation. Review and remove/modify to make more sense-->
 
 #### RTM (Root of Trust for Measurements)
 
@@ -387,6 +410,10 @@ the public key
 
 ### The difference between verified boot and measured boot
 - 457-465    "Measured Boot vs Secure Boot"
+
+#### Verified Boot
+
+
 
 <!--
 I can't seem to find definitions from NIST or TCG. This section might require
