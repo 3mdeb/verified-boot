@@ -272,19 +272,6 @@ RTC seems to be similar to RTR.
 RTR - Integrity+authenticity of data
 RTC - Integrity+authenticity of software components-->
 
-### The difference between verified boot and measured boot
-- 457-465    "Measured Boot vs Secure Boot"
-
-<!--
-I can't seem to find definitions from NIST or TCG. This section might require
-more than giving a couple citations.
-
-verified boot - Verifying the signatures of software components using some trusted public keys
-measured boot - extending the digests (in PCRs) with every launched software component.
-Does not really protect anything on it's own. The values in PCRs can be compared to some
-known and expected values at any point. If they differ then the code executed
-up to this point was different than expected and may suggest a threat -->
-
 ### Difference between integrity and authenticity verification
 - 448-450 "Custom Hardware with Specific Keys"
 - 574-583 "Verified Boot for User but not for Admin"
@@ -397,6 +384,19 @@ calculated from the datum. The data did not change
 - Authenticity is verified. Only the one in possession of the corresponding
 private key could have encrypted the digest so that it can be decrypted using
 the public key
+
+### The difference between verified boot and measured boot
+- 457-465    "Measured Boot vs Secure Boot"
+
+<!--
+I can't seem to find definitions from NIST or TCG. This section might require
+more than giving a couple citations.
+
+verified boot - Verifying the signatures of software components using some trusted public keys
+measured boot - extending the digests (in PCRs) with every launched software component.
+Does not really protect anything on it's own. The values in PCRs can be compared to some
+known and expected values at any point. If they differ then the code executed
+up to this point was different than expected and may suggest a threat -->
 
 [^NIST_sp800-63]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
 [^NIST_sp800-137]: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
