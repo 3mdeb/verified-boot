@@ -5,7 +5,7 @@
 The purpose of this section is to define the fundamental concepts and key
 terminology that will be utilized throughout the document.
 A clear understanding of them is essential for ensuring consistency and
-precision throughout the document.
+precision.
 
 ### Trust, chain of trust, root of trust
 
