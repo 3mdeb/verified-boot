@@ -70,17 +70,11 @@ which can be verified.
 The **Root of Trust for Measurements** is the most important component for
 performing the process of **measured boot**.
 
-The **Root of Trust for Measurements** is a broad component that is often
-logically separated into smaller parts like:
+The **Root of Trust for Measurements** is the most important component for
+performing the process of **measured boot**. Depending on the time of
+initialization, we can differentiate:
 - Static Root of Trust for Measurements (S-RTM)
 - Dynamic Root of Trust for Measurements (D-RTM)
-- Code Root of Trust for Measurements (CRTM)
-<!-- TODO sometimes called "Core RTM". Definitely needs an explanation to help
-   with making sense of documents which use different names
-   -->
-- Hardware Root of Trust for Measurements (HRTM)
-<!-- TODO I can't say more about the parts of RTM for now.
-Need to read the documents in detail -->
 
 ##### S-RTM (Static Root of Trust for Measurements)
 
@@ -106,30 +100,6 @@ anchored in each RTM are independent.
 
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
-
-##### CRTM (Code Root of Trust for Measurements)
-
-> The instructions executed by the platform when it acts as the RTM. [For-
-merly described as “Core Root of Trust for Measurement”. Code Root of
-Trust for Measurement is the preferred expansion.] This acronym expansion
-is preferred.
-<!-- by whom is it preferred? By TCG? They say like it's a universal truth -->
-
-~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
-
-##### HRTM (Hardware Root of Trust for Measurements)
-
-> An RTM where hardware performs the initial measurement.
-
-~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
-
-> Security should extend across all tiers of the container technology. The
-current way of accomplishing this is to base security on a hardware root of
-trust, such as the industry standard Trusted Platform Module (TPM). Within the
-hardware root of trust are stored measurements of the host’s firmware, software,
-and configuration data.
-
-~ NIST SP800-190 [^NIST_sp800-190]
 
 #### RTR (Root of Trust for Reporting)
 
