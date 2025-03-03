@@ -46,6 +46,32 @@ the lifetime of a computer system. Once a trusted component passes control to
 one that is not verified to be trusted, the **Chain of Trust** ends.
 [^NIST_sp800-193_glossary] [^NIST_ir8320_glossary]
 
+#### Trusted Computing Base (TCB)
+
+> Totality of protection mechanisms within a computer
+system, including hardware, firmware, and software, the
+combination responsible for enforcing a security policy.
+
+~ CNSSI 4009, Commitee on National Security Systems (CNSS) Glossary [^CNSSI_4009]
+
+The meaning of the Trusted Computing Base is different from a Chain of Trust,
+in that a Chain of Trust means a sequence of components, that transition their
+trust onto each other without necesarilly specifying the role of the components.
+The Trusted Computing Base, on the other hand, refers to all of the hardware,
+firmware and software components that play a crucial role in the system's
+security, without specifying any relations between them.
+
+The components belonging to the Trusted Computing Group include a number of the
+initial elements of all the Chains of Trust in a system, and the Roots of Trust
+in particular - the elements which form the "Base" for providing security
+functionalities.
+
+A bug or a vulnerability of a part of the Trusted Computing Base impacts the
+security of the system, while a flaw of a component from outside the TCB
+does not. Because of that the size and complexity of the TCB should be minimal
+to reduce the risk of undetected vulnerabilities and make it easier to perform
+security audits.
+
 ### Categorization of chains/roots of trust
 
 Multiple **Chains** and **Roots** of trust can be distinguished based on the
