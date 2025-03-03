@@ -133,10 +133,7 @@ Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 non-repudiation services for the purpose of attesting to the origin and
 integrity of platform characteristics. It necessarily leverages the RTM and
 RTS. A principal function of the RTR is to provide an unambiguous identity,
-statistically unique for the endpoint in the form of an Attestation Key (AK).
-The AK may be persistent or temporary. A typical usage of the AK in this
-instance involves a TPM2_Quote of the TPM PCRs signed by the AK that may be
-accompanied by a certificate.
+statistically unique for the endpoint.
 
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
