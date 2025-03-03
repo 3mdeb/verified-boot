@@ -235,7 +235,8 @@ confidence in the validity of a transmission, a message, or message originator.
 ~ NIST SP 800-137, Appendix B Glossary [^NIST_sp800-137]
 
 Verifying authenticity is verifying the identity of an entity.
-It is performed using asymetric cryptography. The private key of an asymmetric
+It is performed by comparing the digest against a known one, or by using
+asymmetric cryptography. The private key of an asymmetric
 cryptography keypair is often called the `identity`. In this context, proving
 an identity is proving to be in possession of the private key.
 
@@ -245,10 +246,17 @@ key yields the same data, then it must have been encrypted using the
 corresponding private key.
 
 Verifying authenticity requires one to be in posession of a public key, that
-is trusted to correspond to the private key of the to bo authenticated entity.
+is trusted to correspond to the private key of the to-be authenticated entity.
 <!-- TODO? tell about how it is solved? certificate stores in UEFI / PKI? -->
 
 Authenticity itself does not guarantee the integrity of data.
+
+The authenticity of data can be verified without using asymmetric cryptography
+by comparing the digest to a well known one. The well-known digest must be
+known in advance and stored in a tamper resistant or tamper evident store.
+If only a trusted entity is able to add or alter the well-known digest, then
+by verifying the integrity against it, the data can be verified to be
+authentic by the trusted entity.
 
 ##### Non repudiation
 
