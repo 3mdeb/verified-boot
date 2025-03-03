@@ -108,35 +108,6 @@ anchored in each RTM are independent.
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
-##### CRTM (Core Root of Trust for Measurements)
-
-> The first piece of BIOS code that executes on the main
-processor during the boot process. On a system with a Trusted Platform Module
-the CRTM is implicitly trusted to bootstrap the process of building a
-measurement chain for subsequent attestation of other firmware and software
-that is executed on the computer system
-
-~ NIST SP 800-147, Appendix B Glossary [^NIST_sp800-147_glossary]
-
-The Core Root of Trust for Measurements can be divided into two parts:
-
-###### SCRTM (Static Core Root of Trust for Measurements)
-
-> The SCRTM is composed of
-elements that measure firmware at system boot time, creating an unchanging
-set of measurements that will remain consistent across reboots except for
-volatile attributes like date and time.
-
-~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320_3-2]
-
-###### DCRTM (Dynamic Core Root of Trust for Measurements)
-
-> The DCRTM allows a CoT to be established without rebooting the system,
-permitting the RoT for measurement to be reestablished dynamically
-
-~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320_3-2]
-
-<!-- TODO Core RTM or Code RTM? -->
 ##### CRTM (Code Root of Trust for Measurements)
 
 > The instructions executed by the platform when it acts as the RTM. [For-
