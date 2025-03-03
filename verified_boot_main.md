@@ -103,7 +103,7 @@ Base.
 > The D-RTM, if supported by the platform, may start at
 any point after boot by initializing the state of the platform without requiring
 a reboot. In general, the D-RTM launches after an S-RTM, but the trust-chains
-anchored in each RTM are independent,
+anchored in each RTM are independent.
 
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
