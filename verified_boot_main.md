@@ -129,6 +129,11 @@ Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
 #### RTR (Root of Trust for Reporting)
 
+> A computing engine capable of reliably reporting information
+provided by the RTM and its measurement agent(s) or held by the RTS.
+
+~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155_glossary]
+
 > The RoT for Reporting (RTR) is a RoT that reliably provides authenticity and
 non-repudiation services for the purpose of attesting to the origin and
 integrity of platform characteristics. It necessarily leverages the RTM and
@@ -137,11 +142,6 @@ statistically unique for the endpoint.
 
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
-
-> A computing engine capable of reliably reporting information
-provided by the RTM and its measurement agent(s) or held by the RTS.
-
-~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155_glossary]
 
 <!-- TODO I can't say more for now. Need to read the documents in detail to know
 what exactly it is. Some code to verify integrity&authenticity and/or key store?-->
