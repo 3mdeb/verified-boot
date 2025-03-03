@@ -1,13 +1,6 @@
 # Verified Boot
 
 ## 1. Introduction
-- 16-41 "What is Verified Boot?
-- 133-149 "How does Verified Boot work?"
-- 150-159 "Applicability of Verified Boot"
-- 160-165 "Who uses Verified Boot?"
-- 166-174 "What are the dangers of Verified Boot?"
-- 175-192 "When the Verification is over?"
-- 869-874 "See Also
 
 The purpose of this section is to define the fundamental concepts and key
 terminology that will be utilized throughout the document.
@@ -39,37 +32,7 @@ proving, that the **Root of Trust** can be relied on, would be the actual
 depends on the **Root of Trust** and compromising it makes all the subsequent
 security measures ineffective. The main purpose of the **Root of Trust** is to
 verify if the next hardware, firmware, or software component to which control
-is to be passed can be trusted.[^NIST_ir8320] [^NIST_sp800-172] [^NIST_sp800-193] [^NIST_sp800-155]
-
-
-<!-- Based on:
-
-> A starting point that is implicitly trusted.
-
-~ NIST IR 8320, Appendix H - Glossary, under "root of trust" [^NIST_ir8320]
-
-> Highly reliable hardware, firmware, and software components that perform
-specific, critical security functions. Because roots of trust are inherently
-trusted, they must be secure by design. Roots of trust provide a firm foundation
-from which to build security and trust.
-
-~ NIST SP 800-172, Appendix A, under "roots of trust" [^NIST_sp800-172]
-
-> An element that forms the basis of providing one or more security-
-specific functions, such as measurement, storage, reporting,
-recovery, verification, update, etc. A RoT is trusted to always
-behave in the expected manner because its misbehavior cannot be
-detected and because its proper functioning is essential to providing
-its security-specific functions
-
-~ NIST SP 800-193, Appendix B - Glossary, under "Root of Trust (RoT)" [^NIST_sp800-193]
-
-> A component (software, hardware, or hybrid) and a computing engine that
-constitute a set of unconditionally trusted functions. An RoT must always behave in an expected manner
-because its misbehavior cannot be detected.
-
-~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
- -->
+is to be passed can be trusted.[^NIST_ir8320_glossary] [^NIST_sp800-172_A] [^NIST_sp800-193_glossary] [^NIST_sp800-155_glossary]
 
 #### Chain of Trust (CoT)
 
@@ -80,29 +43,8 @@ the previous component in the chain. The only exception is the **Root of Trust**
 to verify the trust to some other component. A **Chain of Trust** is not
 a physical construct kept in memory, but a history of trust transitioning during
 the lifetime of a computer system. Once a trusted component passes control to
-one that is not verified to be trusted, the **Chain of Trust** ends. [^NIST_sp800-193] [^NIST_ir8320]
-
-
-<!-- Based on:
-> A Chain of Trust (CoT) is a sequence of cooperative elements which
-are anchored in a Root of Trust (RoT) that extend the trust boundary
-of the current element by conveying the same trust properties to the
-next element when it passes it control. The result is both elements
-are equally able to fulfill the trusted function as though they were a
-single trusted element. This process can be continued, further
-extending the chain of trust. Once control is passed to code which is
-not, or cannot be, verified then the Chain of Trust has ended. This is
-also referred to as passing control to a non-cooperative element.
-
-~ NIST SP 800-193, Appendix B - Glossary, under "Chain of Trust (CoT)" [^NIST_sp800-193]
-
-> A method for maintaining valid trust boundaries by
-applying a principle of transitive trust, where each
-software module in a system boot process is required
-to measure the next module before transitioning
-control.
-
-~ NIST IR 8320, Appendix H - Glossary, under "Chain of Trust (CoT)" [^NIST_ir8320] -->
+one that is not verified to be trusted, the **Chain of Trust** ends.
+[^NIST_sp800-193_glossary] [^NIST_ir8320_glossary]
 
 ### Categorization of chains/roots of trust
 
@@ -113,24 +55,13 @@ mechanisms of the boot process, and the recognised functionalities of firmware.
 The list and the definitions are not strict and some documents and
 implementations may call and group the trusted components in different ways.
 The most frequently recognized **Chains** and **Roots** of trust are described
-in this section. [^NIST_sp800-193]
-<!-- TODO my personal observation. Review and remove/modify to make more sense-->
-
-<!--
-Based on:
-> There are three roots of trust in a trusted platform: root of trust for measurement (RTM), root of
-trust for reporting (RTR), and root of trust for storage (RTS). They are the foundational elements
-of a single platform. These are the system elements that must be trusted because misbehavior in
-these normally would not be detectable in the higher layers.
-
-~ NIST IR 8320, Appendix A, section 2, Hardware Root of Trust: Intel TXT and Trusted Platform Module (TPM) [^NIST_sp800-193] -->
-
+in this section. [^NIST_ir8320_a2]
 
 #### RTM (Root of Trust for Measurements)
 
 The **Root of Trust for Measurements (RTM)** is the first hardware, firmware, or
 software component able to measure the integrity of other components, and to
-document the history of the measurements.[^TCG_glossary] [^NIST_sp800-155]
+document the history of the measurements.[^TCG_glossary] [^NIST_sp800-155_glossary]
 It is the **Root of Trust** for the **Chain of Trust** of all the components
 performing integrity measurements.
 The history of measurements and the digests of the measured components
@@ -152,23 +83,7 @@ logically separated into smaller parts like:
 <!-- TODO I can't say more about the parts of RTM for now.
 Need to read the documents in detail -->
 
-<!--
-Based on:
-
-> An RoT that makes the initial integrity measurement, and adds it to a tam-
-per-resistant log.
-
-~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
-
-> A computing engine capable of making inherently reliable
-integrity measurements. The RTM is the root of the chain of transitive trust for subsequent measurement agents.
-
-~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155] -->
-
 ##### S-RTM (Static Root of Trust for Measurements)
-
-The **Static Root of Trust for Measurements (S-RTM)** is the root of trust
-for
 
 > An RTM where the initial integrity measurement occurs at platform reset.
 The S-RTM is static because the PCRs associated with it cannot be re-ini-
@@ -201,7 +116,7 @@ the CRTM is implicitly trusted to bootstrap the process of building a
 measurement chain for subsequent attestation of other firmware and software
 that is executed on the computer system
 
-~ NIST SP 800-147, Appendix B Glossary
+~ NIST SP 800-147, Appendix B Glossary [^NIST_sp800-147_glossary]
 
 The Core Root of Trust for Measurements can be divided into two parts:
 
@@ -212,14 +127,14 @@ elements that measure firmware at system boot time, creating an unchanging
 set of measurements that will remain consistent across reboots except for
 volatile attributes like date and time.
 
-~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320]
+~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320_3-2]
 
 ###### DCRTM (Dynamic Core Root of Trust for Measurements)
 
 > The DCRTM allows a CoT to be established without rebooting the system,
 permitting the RoT for measurement to be reestablished dynamically
 
-~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320]
+~ NIST IR8320, section 3.2 - The Chain of Trust (CoT) [^NIST_ir8320_3-2]
 
 <!-- TODO Core RTM or Code RTM? -->
 ##### CRTM (Code Root of Trust for Measurements)
@@ -263,7 +178,7 @@ Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 > A computing engine capable of reliably reporting information
 provided by the RTM and its measurement agent(s) or held by the RTS.
 
-~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155]
+~ NIST SP800-155, section 3.6.4, Appendix B - Glossary [^NIST_sp800-155_glossary]
 
 <!-- TODO I can't say more for now. Need to read the documents in detail to know
 what exactly it is. Some code to verify integrity&authenticity and/or key store?-->
@@ -309,8 +224,6 @@ RTR - Integrity+authenticity of data
 RTC - Integrity+authenticity of software components-->
 
 ### Difference between integrity and authenticity verification
-- 448-450 "Custom Hardware with Specific Keys"
-- 574-583 "Verified Boot for User but not for Admin"
 
 #### Integrity Verification
 
@@ -422,7 +335,11 @@ private key could have encrypted the digest so that it can be decrypted using
 the public key
 
 ### The difference between verified boot and measured boot
-- 457-465    "Measured Boot vs Secure Boot"
+<!-- - 457-465    "Measured Boot vs Secure Boot" -->
+
+Verified boot and measured boot are two fundamentally different concepts, which
+serve different purposes in a computer system.
+
 
 #### Verified Boot
 
@@ -438,18 +355,22 @@ Does not really protect anything on it's own. The values in PCRs can be compared
 known and expected values at any point. If they differ then the code executed
 up to this point was different than expected and may suggest a threat -->
 
-[^NIST_sp800-63]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
-[^NIST_sp800-137]: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
-[^NIST_sp800-152]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-152.pdf
-[^NIST_sp800-155]: https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
-[^NIST_sp800-172]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-172.pdf
-[^NIST_sp800-175]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175Br1.pdf
-[^NIST_sp800-190]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf
-[^NIST_sp800-193]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-193.pdf
-[^TCG_glossary]: https://trustedcomputinggroup.org/wp-content/uploads/TCG-Glossary-V1.1-Rev-1.0.pdf
-[^NIST_ir8202]: https://nvlpubs.nist.gov/nistpubs/ir/2018/NIST.IR.8202.pdf
-[^NIST_ir8320]: https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
-[^NIST_fips186-5]: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+[^NIST_sp800-63]: NIST SP 800-63, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
+[^NIST_sp800-137]: NIST SP 800-137, https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
+[^NIST_sp800-147_glossary]: NIST SP 800-147 Appendix B — Glossary, https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-147.pdf
+[^NIST_sp800-152]: NIST SP 800-152, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-152.pdf
+[^NIST_sp800-155]: NIST SP 800-155, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
+[^NIST_sp800-155_glossary]: NIST SP 800-155, section 3.6.4, Appendix B — Glossary and Abbreviations, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
+[^NIST_sp_800-172_A]: NIST SP 800-172, Appendix A, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-172.pdf
+[^NIST_sp800-175]: NIST SP 800-175, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175Br1.pdf
+[^NIST_sp800-190]: NIST SP 800-175, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-190.pdf
+[^NIST_sp800-193_glossary]: NIST SP 800-193, Appendix B — Glossary, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-193.pdf
+[^TCG_glossary]: TCG Glossary, https://trustedcomputinggroup.org/wp-content/uploads/TCG-Glossary-V1.1-Rev-1.0.pdf
+[^NIST_ir8202]: NIST IR 8202, https://nvlpubs.nist.gov/nistpubs/ir/2018/NIST.IR.8202.pdf
+[^NIST_ir8320_glossary]: NIST IR 8320, Appendix H — Glossary, https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
+[^NIST_ir8320_a2]: NIST IR 8320, Appendix A, section 2, Hardware Root of Trust: Intel TXT and Trusted Platform Module (TPM), https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
+[^NIST_ir8320_3-2]: NIST IR 8320, section 3.2 - The Chain of Trust (CoT), https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
+[^NIST_fips186-5]: NIST FIPS 186-5, https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
 
 ## 2. Definition of requirements
 - 584-645    "Notes"
