@@ -48,9 +48,8 @@ one that is not verified to be trusted, the **Chain of Trust** ends.
 
 ### Categorization of chains/roots of trust
 
-Multiple **Chains** and **Roots** of trust can be distinguished depending on the
-context of the conversation, the desired level of abstraction over the
-mechanisms of the boot process, and the recognised functionalities of firmware.
+Multiple **Chains** and **Roots** of trust can be distinguished based on the
+used mechanisms and type of integrity assurances provided by them.
 
 The list and the definitions are not strict and some documents and
 implementations may call and group the trusted components in different ways.
