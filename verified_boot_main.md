@@ -150,8 +150,12 @@ statistically unique for the endpoint.
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
-<!-- TODO I can't say more for now. Need to read the documents in detail to know
-what exactly it is. Some code to verify integrity&authenticity and/or key store?-->
+The role of the Root of Trust for Reporting is to provide the functionality
+to reliably present the data from the Root of Trust for Storage protected
+medium. It has to verify the integrity and authenticity of the data and
+make sure that the data is only presented to authorized entities. The
+reports received from the RTR can be used to decide if a threat was detected
+in the process of measured boot.
 
 #### RTS (Root of Trust for Storage)
 
