@@ -178,6 +178,14 @@ measurements, or it can be used as a proxy for that log.
 ~ Trusted Computing Group, TCG PC Client Platform Firmware Integrity
 Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
+These definitions are exhaustive. The role of the RTS is to
+maintain the summary and the history of integrity measurements [^NIST_sp800-155_3222]
+while keeping it's integrity, confidentiality and protecting it from
+modifications other than by performing further measurements.
+The measurement history might be a list of digests of measured
+components and a cumulative hash of all the measured components, which can be
+used to verify if the reported sequence of measurements is valid.
+
 <!-- TODO I can't say more for now. Need to read the documents in detail
 Is it just an encrypted data store?-->
 
@@ -346,6 +354,7 @@ up to this point was different than expected and may suggest a threat -->
 [^NIST_sp800-147_glossary]: NIST SP 800-147 Appendix B — Glossary, https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-147.pdf
 [^NIST_sp800-152]: NIST SP 800-152, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-152.pdf
 [^NIST_sp800-155]: NIST SP 800-155, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
+[^NIST_sp800-155_3222]: NIST SP 800-155, section 3.2.2.2 BIOS Integrity Measurement Registers, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
 [^NIST_sp800-155_glossary]: NIST SP 800-155, section 3.6.4, Appendix B — Glossary and Abbreviations, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
 [^NIST_sp_800-172_A]: NIST SP 800-172, Appendix A, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-172.pdf
 [^NIST_sp800-175]: NIST SP 800-175, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-175Br1.pdf
