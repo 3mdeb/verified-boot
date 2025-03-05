@@ -345,25 +345,41 @@ the public key
 <!-- - 457-465    "Measured Boot vs Secure Boot" -->
 
 Verified boot and measured boot are two fundamentally different concepts, which
-serve different purposes in a computer system.
+serve different purposes in a computer system and are not mutually exclusive.
 
 #### Verified Boot
 
-<!--
-I can't seem to find definitions from NIST or TCG. This section might require
-more than giving a couple citations.
+Verified Boot can be used to ensure that no unverified components are executed
+during boot. This is done by verifying the authenticity of the components using
+signatures and cerfiticates or by comparing their digests to a list of expected
+and trusted values.
 
-verified boot - Verifying the signatures of software components using some trusted public keys
-measured boot - extending the digests (in PCRs) with every launched software component.
-Does not really protect anything on it's own. The values in PCRs can be compared to some
-known and expected values at any point. If they differ then the code executed
-up to this point was different than expected and may suggest a threat -->
+To verify if a code should be executed, Verified Boot depends on the RTM to
+calculate digests and the RTV to verify and decide whether they should be
+executed or not.
+
+#### Measured Boot
+
+The purpose of Meaured Boot is not to decide whether to execute the firmware or
+software components, but to perform the process of BIOS Integrity Measurements,[^NIST_sp800-155]
+to document the process, and to allow to analyze it for unexpected events
+after the fact.
+
+Measured Boot depends on the RTM to calculate the digests of executed
+components and the RTS for storing the measurements and their summary.
+The RTR can then be used to inspect what software components were executed
+during the boot process and decide whether the sequence is expected or
+if a potential security threat happened.
+
+<!--
+TODO find good definitions or sources to support the claims
+-->
 
 [^NIST_sp800-63]: NIST SP 800-63, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
 [^NIST_sp800-137]: NIST SP 800-137, https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
 [^NIST_sp800-147_glossary]: NIST SP 800-147 Appendix B — Glossary, https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-147.pdf
 [^NIST_sp800-152]: NIST SP 800-152, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-152.pdf
-[^NIST_sp800-155]: NIST SP 800-155, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
+[^NIST_sp800-155]: NIST SP 800-155, BIOS Integrity Measurement Guidelines, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
 [^NIST_sp800-155_3222]: NIST SP 800-155, section 3.2.2.2 BIOS Integrity Measurement Registers, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
 [^NIST_sp800-155_glossary]: NIST SP 800-155, section 3.6.4, Appendix B — Glossary and Abbreviations, https://csrc.nist.gov/files/pubs/sp/800/155/ipd/docs/draft-SP800-155_Dec2011.pdf
 [^NIST_sp_800-172_A]: NIST SP 800-172, Appendix A, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-172.pdf
