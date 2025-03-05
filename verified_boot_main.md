@@ -99,6 +99,7 @@ performing the process of **measured boot**.
 The **Root of Trust for Measurements** is the most important component for
 performing the process of **measured boot**. Depending on the time of
 initialization, we can differentiate:
+
 - Static Root of Trust for Measurements (S-RTM)
 - Dynamic Root of Trust for Measurements (D-RTM)
 
@@ -191,6 +192,7 @@ RTC - Integrity+authenticity of software components-->
 #### Integrity Verification
 
 Integrity:
+
 > A property whereby data has not been altered in an
 unauthorized manner since it was created, transmitted, or
 stored.
@@ -202,12 +204,14 @@ of the data, which are sent or stored alongside it. Hash digests are often
 just called `digests` in the context of data integrity.
 
 Digest:
+
 > The output of a hash function (e.g., hash(data) = digest).
 Also known as a message digest, digest or harsh value.
 
 ~ NIST IR 8202, Appendix B -- Glossary [^NIST_ir8202]
 
 Hash function:
+
 > A function that maps a bit string of arbitrary length to a fixed-length bit
 string. Approved hash functions satisfy the following properties: 1. One-way –
 It is computationally infeasible to find any input that maps to any
@@ -270,7 +274,8 @@ can be verified.
 Non repudiation is generally achieved using some form of digital
 signature.
 
-Digital Signature
+Digital Signature:
+
 >  A cryptographic technique that utilizes asymmetric-keys to determine
 authenticity (i.e., users can verify that the message was signed with a private
 key corresponding to the specified public key), non-repudiation (a user cannot
@@ -282,6 +287,7 @@ during transmission).
 A basic digital signature is a digest of data, that has been encrypted using the
 private key of some entity.
 Verifying a signature requires:
+
 - The data in plaintext
 - The digital signature of the data
 - The public key corresponding to the private key of the signer
@@ -291,6 +297,7 @@ assymetric keys used by the signer
 <!-- TODO? digest is not necesarry, it just saves some time if the data is large, because asym. crypt. is slow -->
 
 The process consists of:
+
 - calculating the digest using the same hash function as used by the signer
 - decrypting the signature using signer's public key to receive the digest in
   plaintext
@@ -298,6 +305,7 @@ The process consists of:
 
 The verification of the signature succeeds if both digests are exactly the same.
 If the verification succeeds then:
+
 - Integrity is verified. The received digest is the same as the one
 calculated from the datum. The data did not change
 <!-- TODO? only if the used hash function is safe? -->
@@ -311,10 +319,7 @@ the public key
 Verified boot and measured boot are two fundamentally different concepts, which
 serve different purposes in a computer system.
 
-
 #### Verified Boot
-
-
 
 <!--
 I can't seem to find definitions from NIST or TCG. This section might require
