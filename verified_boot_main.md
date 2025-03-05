@@ -200,10 +200,20 @@ component before control is passed to it.
 
 ~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320]
 
-<!-- TODO I can't say more for now. Need to read the documents in detail
-RTC seems to be similar to RTR.
-RTR - Integrity+authenticity of data
-RTC - Integrity+authenticity of software components-->
+The Root of Trust for Verification is responsible for verifying components and
+enforcing the security policies depending on the results of the verification.
+
+The verification consists of calculating the digest of a component and
+verifying it using a certificate, or comparing it against an expected value.
+The process of verification requires for the RTV to include a secure database
+of trusted certificate issuers and/or trusted digests, which can be extended
+by additional components added later to the Chain of Trust for Verification.
+Depending on the result of the verification and the used policies, the RTV
+might authorize the component being verified to be executed, or not. This
+may result in stoping the process of booting the device.
+
+<!--TODO find some sources to these claims and possibly change them once
+a good source is found-->
 
 ### Difference between integrity and authenticity verification
 
