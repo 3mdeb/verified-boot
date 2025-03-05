@@ -22,6 +22,12 @@ as expected.
 
 ~ NISTIR 8320, section 1.2 Terminology, under "Trust" [^NIST_ir8320]
 
+It's worth noting that the "element" or "entity" in these definitions might
+not only be a software or hadware component, but also a person or an organization
+as well. A person using their computer **Trusts** the its hardware, software,
+firmware, the UEFI Secure Boot certificate issuers, the PKI
+Certificate Authorities and more.
+
 #### Root of Trust (RoT)
 
 The **Root of Trust (RoT)**  is a hardware, firmware, or software component, that is
