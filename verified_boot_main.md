@@ -20,7 +20,7 @@ that the entity and its identifier are genuine.
 > The confidence one element has in another that the second element will behave
 as expected.
 
-~ NISTIR 8320, section 1.2 Terminology, under "Trust" [^NIST_ir8320]
+~ NISTIR 8320, section 1.2 Terminology, under "Trust" [^NIST_ir8320A_1-2]
 
 It's worth noting that the "element" or "entity" in these definitions might
 not only be a software or hadware component, but also a person or an organization
@@ -38,7 +38,7 @@ proving, that the **Root of Trust** can be relied on, would be the actual
 depends on the **Root of Trust** and compromising it makes all the subsequent
 security measures ineffective. The main purpose of the **Root of Trust** is to
 verify if the next hardware, firmware, or software component to which control
-is to be passed can be trusted.[^NIST_ir8320_glossary] [^NIST_sp800-172_A] [^NIST_sp800-193_glossary] [^NIST_sp800-155_glossary]
+is to be passed can be trusted. [^NIST_ir8320_glossary] [^NIST_sp_800-172_A] [^NIST_sp800-193_glossary] [^NIST_sp800-155_glossary]
 
 #### Chain of Trust (CoT)
 
@@ -92,7 +92,7 @@ in this section. [^NIST_ir8320_a2]
 
 The **Root of Trust for Measurements (RTM)** is the first hardware, firmware, or
 software component able to measure the integrity of other components, and to
-document the history of the measurements.[^TCG_glossary] [^NIST_sp800-155_glossary]
+document the history of the measurements. [^TCG_glossary] [^NIST_sp800-155_glossary]
 It is the **Root of Trust** for the **Chain of Trust** of all the components
 performing integrity measurements.
 The history of measurements and the digests of the measured components
@@ -198,7 +198,7 @@ Is it just an encrypted data store?-->
 > The core RoT for verification (CRTV) is responsible for verifying the first
 component before control is passed to it.
 
-~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320]
+~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320_3-2]
 
 The Root of Trust for Verification is responsible for verifying components and
 enforcing the security policies depending on the results of the verification.
@@ -252,7 +252,7 @@ if a potential security threat happened.
 |Short description|Verifies code signatures before passing execution|Documents what code was executed|
 |Security benefits|Only verified software will be executed|It can be determined if something unexpected and potentially dangerous was already executed|
 |Requred RoTs and CoTs|Verification|Measurement, Storage and Reporting|
-|Support|supported on almost every device|to function properly requires CPU functionality not always available on consumer level devices|
+|Support|supported on almost every device|to function properly requires CPU functionality not always available on consumer level devices[^intel_txt]|
 <!-- better name for the "Popularity" criterion?-->
 
 #### Cross references
@@ -407,8 +407,11 @@ TODO find good definitions or sources to support the claims
 [^NIST_ir8202]: NIST IR 8202, https://nvlpubs.nist.gov/nistpubs/ir/2018/NIST.IR.8202.pdf
 [^NIST_ir8320_glossary]: NIST IR 8320, Appendix H — Glossary, https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
 [^NIST_ir8320_a2]: NIST IR 8320, Appendix A, section 2, Hardware Root of Trust: Intel TXT and Trusted Platform Module (TPM), https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
+[^NIST_ir8320A_1-2]: NIST IR 8320A, section 1.2 - Terminology, https://nvlpubs.nist.gov/nistpubs/ir/2021/NIST.IR.8320A.pdf
 [^NIST_ir8320_3-2]: NIST IR 8320, section 3.2 - The Chain of Trust (CoT), https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
 [^NIST_fips186-5]: NIST FIPS 186-5, https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+[^CNSSI_4009]: COmmitee on National Security Systems (CNSS) Glossary, https://rmf.org/wp-content/uploads/2017/10/CNSSI-4009.pdf
+[^intel_txt]: Intel Trusted Execution Technology Overview, https://www.intel.com/content/www/us/en/developer/articles/tool/intel-trusted-execution-technology.html
 
 ## 2. Definition of requirements
 - 584-645    "Notes"
