@@ -23,7 +23,7 @@ as expected.
 ~ NISTIR 8320, section 1.2 Terminology, under "Trust" [^NIST_ir8320A_1-2]
 
 It's worth noting that the "element" or "entity" in these definitions might
-not only be a software or hadware component, but also a person or an organization
+not only be a software or hardware component, but also a person or an organization
 as well. A person using their computer **Trusts** its hardware, software,
 firmware, the UEFI Secure Boot certificate issuers, the PKI
 Certificate Authorities and more.
@@ -58,12 +58,12 @@ one that is not verified to be trusted, the **Chain of Trust** ends.
 system, including hardware, firmware, and software, the
 combination responsible for enforcing a security policy.
 
-~ CNSSI 4009, Commitee on National Security Systems (CNSS) Glossary [^CNSSI_4009]
+~ CNSSI 4009, Committee on National Security Systems (CNSS) Glossary [^CNSSI_4009]
 
 The meaning of the Trusted Computing Base is different from a Chain of Trust,
 in that a Chain of Trust means a sequence of components, that transition their
-trust onto each other without necesarilly specifying the role of the components.
-The Trusted Computing Base, on the other hand, refers to all of the hardware,
+trust onto each other without necesarily specifying the role of the components.
+The Trusted Computing Base, on the other hand, refers to all the hardware,
 firmware and software components that play a crucial role in the system's
 security, without specifying any relations between them.
 
@@ -112,7 +112,7 @@ initialization, we can differentiate:
 ##### S-RTM (Static Root of Trust for Measurements)
 
 > An RTM where the initial integrity measurement occurs at platform reset.
-The S-RTM is static because the PCRs associated with it cannot be re-ini-
+The S-RTM is static because the PCRs associated with it cannot be reini
 tialized without a platform reset.
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
@@ -180,14 +180,11 @@ Measurement, V1.0, rev 43, 3.1.2 Overview of Roots of Trust
 
 These definitions are exhaustive. The role of the RTS is to
 maintain the summary and the history of integrity measurements [^NIST_sp800-155_3222]
-while keeping it's integrity, confidentiality and protecting it from
+while keeping its integrity, confidentiality and protecting it from
 modifications other than by performing further measurements.
 The measurement history might be a list of digests of measured
 components and a cumulative hash of all the measured components, which can be
 used to verify if the reported sequence of measurements is valid.
-
-<!-- TODO I can't say more for now. Need to read the documents in detail
-Is it just an encrypted data store?-->
 
 #### RTV (Root of Trust for Verification)
 
@@ -212,10 +209,7 @@ of trusted certificate issuers and/or trusted digests, which can be extended
 by additional components added later to the Chain of Trust for Verification.
 Depending on the result of the verification and the used policies, the RTV
 might authorize the component being verified to be executed, or not. This
-may result in stoping the process of booting the device.
-
-<!--TODO find some sources to these claims and possibly change them once
-a good source is found-->
+may result in stopping the process of booting the device.
 
 ### The difference between verified boot and measured boot
 <!-- - 457-465    "Measured Boot vs Secure Boot" -->
@@ -227,7 +221,7 @@ serve different purposes in a computer system and are not mutually exclusive.
 
 Verified boot can be used to ensure that no unverified components are executed
 during boot. This is done by verifying the authenticity of the components using
-signatures and cerfiticates or by comparing their digests to a list of expected
+signatures and certificates or by comparing their digests to a list of expected
 and trusted values.
 
 To verify if a code should be executed, verified boot depends on the RTM to
@@ -236,9 +230,9 @@ executed or not.
 
 #### Measured Boot
 
-The purpose of meaured boot is not to decide whether to execute the firmware or
+The purpose of measured boot is not to decide whether to execute the firmware or
 software components, but to perform the process of BIOS Integrity Measurements,[^NIST_sp800-155]
-to document the process, and to allow to analyze it for unexpected events
+to document the process, and to allow analyzing it for unexpected events
 after the fact.
 
 Measured Boot depends on the RTM to calculate the digests of executed
@@ -253,15 +247,14 @@ if a potential security threat happened.
 |--|--|--|
 |Short description|Verifies code signatures before passing execution|Documents what code was executed|
 |Security benefits|Only verified software will be executed|It can be determined if something unexpected and potentially dangerous was already executed|
-|Requred RoTs and CoTs|Verification|Measurement, Storage and Reporting|
-|Support|supported on almost every device|to function properly requires CPU functionality not always available on consumer level devices[^intel_txt]|
-<!-- better name for the "Popularity" criterion?-->
+|Required RoTs and CoTs|Verification|Measurement, Storage and Reporting|
+|Support|Supported on almost every device|To function properly requires CPU functionality not always available on consumer level devices[^intel_txt]|
 
-#### Cross references
+#### Cross-references
 
 - Measured boot description by coreboot - https://doc.coreboot.org/security/vboot/measured_boot.html
 - Short comparison by SLIM bootloader - https://slimbootloader.github.io/security/boot-guard.html
-- Measured and verified boott comparison by the TPM.dev community - https://github.com/tpm2dev/tpm.dev.tutorials/blob/master/Boot-with-TPM/README.md#verified-vs-measured-boot
+- Measured and verified boot comparison by the TPM.dev community - https://github.com/tpm2dev/tpm.dev.tutorials/blob/master/Boot-with-TPM/README.md#verified-vs-measured-boot
 - Overview of verified boot on Android devices - https://source.android.com/docs/security/features/verifiedboot
 
 ### Difference between integrity and authenticity verification
@@ -301,7 +294,7 @@ To verify the integrity of the data, the digest has to be calculated once
 more and compared against the one received.
 When creating digests using a strong hash function, even the
 smallest change to the data will result in a completely different value
-of the digest and chaning the data in such a way that won't change the
+of the digest and chaining the data in such a way that won't change the
 digest is not feasible computationally.
 
 Only verifying integrity does not guarantee the origin of the data is
@@ -321,14 +314,13 @@ asymmetric cryptography. The private key of an asymmetric
 cryptography keypair is often called the `identity`. In this context, proving
 an identity is proving to be in possession of the private key.
 
-The simplest way an entity can prove it's identity is to encrypt a well known
-data using it's private key. If decrypting the data with a public
+The simplest way an entity can prove its identity is to encrypt a well known
+data using its private key. If decrypting the data with a public
 key yields the same data, then it must have been encrypted using the
 corresponding private key.
 
-Verifying authenticity requires one to be in posession of a public key, that
+Verifying authenticity requires one to be in possession of a public key, that
 is trusted to correspond to the private key of the to-be authenticated entity.
-<!-- TODO? tell about how it is solved? certificate stores in UEFI / PKI? -->
 
 Authenticity itself does not guarantee the integrity of data.
 
@@ -359,7 +351,7 @@ key corresponding to the specified public key), non-repudiation (a user cannot
 deny having sent a message) and integrity (that the message was not altered
 during transmission).
 
-~ NIST SP 800-63, Appendix A - Deifinitions and Abbreviations [^NIST_sp800-63]
+~ NIST SP 800-63, Appendix A - Definitions and Abbreviations [^NIST_sp800-63]
 
 A basic digital signature is a digest of data, that has been encrypted using the
 private key of some entity.
@@ -387,10 +379,6 @@ calculated from the datum. The data did not change
 private key could have encrypted the digest so that it can be decrypted using
 the public key
 
-<!--
-TODO find good definitions or sources to support the claims
--->
-
 [^NIST_sp800-63]: NIST SP 800-63, https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
 [^NIST_sp800-137]: NIST SP 800-137, https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-137.pdf
 [^NIST_sp800-147_glossary]: NIST SP 800-147 Appendix B — Glossary, https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-147.pdf
@@ -409,7 +397,7 @@ TODO find good definitions or sources to support the claims
 [^NIST_ir8320A_1-2]: NIST IR 8320A, section 1.2 - Terminology, https://nvlpubs.nist.gov/nistpubs/ir/2021/NIST.IR.8320A.pdf
 [^NIST_ir8320_3-2]: NIST IR 8320, section 3.2 - The Chain of Trust (CoT), https://nvlpubs.nist.gov/nistpubs/ir/2022/NIST.IR.8320.pdf
 [^NIST_fips186-5]: NIST FIPS 186-5, https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
-[^CNSSI_4009]: COmmitee on National Security Systems (CNSS) Glossary, https://rmf.org/wp-content/uploads/2017/10/CNSSI-4009.pdf
+[^CNSSI_4009]: Committee on National Security Systems (CNSS) Glossary, https://rmf.org/wp-content/uploads/2017/10/CNSSI-4009.pdf
 [^intel_txt]: Intel Trusted Execution Technology Overview, https://www.intel.com/content/www/us/en/developer/articles/tool/intel-trusted-execution-technology.html
 [^ARM_BBSR_4-5]: ARM Base Boot Security Requirements, Issue 1.3, https://documentation-service.arm.com/static/65e84577837c4d065f655931
 
