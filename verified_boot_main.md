@@ -245,6 +245,23 @@ The RTR can then be used to inspect what software components were executed
 during the boot process and decide whether the sequence is expected or
 if a potential security threat happened.
 
+#### Comparison of verified boot and measured boot
+
+|Criterion|verified boot|measured boot|
+|--|--|--|
+|Short description|Verifies code signatures before passing execution|Documents what code was executed|
+|Security benefits|Only verified software will be executed|It can be determined if something unexpected and potentially dangerous was already executed|
+|Requred RoTs and CoTs|Verification|Measurement, Storage and Reporting|
+|Support|supported on almost every device|to function properly requires CPU functionality not always available on consumer level devices|
+<!-- better name for the "Popularity" criterion?-->
+
+#### Cross references
+
+- Measured boot description by coreboot - https://doc.coreboot.org/security/vboot/measured_boot.html
+- Short comparison by SLIM bootloader - https://slimbootloader.github.io/security/boot-guard.html
+- Measured and verified boott comparison by the TPM.dev community - https://github.com/tpm2dev/tpm.dev.tutorials/blob/master/Boot-with-TPM/README.md#verified-vs-measured-boot
+- Overview of verified boot on Android devices - https://source.android.com/docs/security/features/verifiedboot
+
 ### Difference between integrity and authenticity verification
 
 #### Integrity Verification
