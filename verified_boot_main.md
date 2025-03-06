@@ -67,6 +67,12 @@ The Trusted Computing Base, on the other hand, refers to all the hardware,
 firmware and software components that play a crucial role in the system's
 security, without specifying any relations between them.
 
+The Trusted Computing Base, just like the Chain of Trust, can consist of
+a different number of software components at any given point in the process
+of booting th system. When analyzing the boot process, the TCB is increasing
+in size with every new component appended to the Chains of Trust that is
+important for the security, or might impact it in any way.
+
 The components belonging to the Trusted Computing Base include a number of the
 initial elements of all the Chains of Trust in a system, and the Roots of Trust
 in particular - the elements which form the "Base" for providing security
