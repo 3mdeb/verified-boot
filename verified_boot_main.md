@@ -215,6 +215,36 @@ may result in stoping the process of booting the device.
 <!--TODO find some sources to these claims and possibly change them once
 a good source is found-->
 
+### The difference between verified boot and measured boot
+<!-- - 457-465    "Measured Boot vs Secure Boot" -->
+
+Verified boot and measured boot are two fundamentally different concepts, which
+serve different purposes in a computer system and are not mutually exclusive.
+
+#### Verified Boot
+
+Verified boot can be used to ensure that no unverified components are executed
+during boot. This is done by verifying the authenticity of the components using
+signatures and cerfiticates or by comparing their digests to a list of expected
+and trusted values.
+
+To verify if a code should be executed, verified boot depends on the RTM to
+calculate digests and the RTV to verify and decide whether they should be
+executed or not.
+
+#### Measured Boot
+
+The purpose of meaured boot is not to decide whether to execute the firmware or
+software components, but to perform the process of BIOS Integrity Measurements,[^NIST_sp800-155]
+to document the process, and to allow to analyze it for unexpected events
+after the fact.
+
+Measured Boot depends on the RTM to calculate the digests of executed
+components and the RTS for storing the measurements and their summary.
+The RTR can then be used to inspect what software components were executed
+during the boot process and decide whether the sequence is expected or
+if a potential security threat happened.
+
 ### Difference between integrity and authenticity verification
 
 #### Integrity Verification
@@ -340,36 +370,6 @@ calculated from the datum. The data did not change
 - Authenticity is verified. Only the one in possession of the corresponding
 private key could have encrypted the digest so that it can be decrypted using
 the public key
-
-### The difference between verified boot and measured boot
-<!-- - 457-465    "Measured Boot vs Secure Boot" -->
-
-Verified boot and measured boot are two fundamentally different concepts, which
-serve different purposes in a computer system and are not mutually exclusive.
-
-#### Verified Boot
-
-Verified Boot can be used to ensure that no unverified components are executed
-during boot. This is done by verifying the authenticity of the components using
-signatures and cerfiticates or by comparing their digests to a list of expected
-and trusted values.
-
-To verify if a code should be executed, Verified Boot depends on the RTM to
-calculate digests and the RTV to verify and decide whether they should be
-executed or not.
-
-#### Measured Boot
-
-The purpose of Meaured Boot is not to decide whether to execute the firmware or
-software components, but to perform the process of BIOS Integrity Measurements,[^NIST_sp800-155]
-to document the process, and to allow to analyze it for unexpected events
-after the fact.
-
-Measured Boot depends on the RTM to calculate the digests of executed
-components and the RTS for storing the measurements and their summary.
-The RTR can then be used to inspect what software components were executed
-during the boot process and decide whether the sequence is expected or
-if a potential security threat happened.
 
 <!--
 TODO find good definitions or sources to support the claims
