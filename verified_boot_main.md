@@ -24,7 +24,7 @@ as expected.
 
 It's worth noting that the "element" or "entity" in these definitions might
 not only be a software or hadware component, but also a person or an organization
-as well. A person using their computer **Trusts** the its hardware, software,
+as well. A person using their computer **Trusts** its hardware, software,
 firmware, the UEFI Secure Boot certificate issuers, the PKI
 Certificate Authorities and more.
 
@@ -67,7 +67,7 @@ The Trusted Computing Base, on the other hand, refers to all of the hardware,
 firmware and software components that play a crucial role in the system's
 security, without specifying any relations between them.
 
-The components belonging to the Trusted Computing Group include a number of the
+The components belonging to the Trusted Computing Base include a number of the
 initial elements of all the Chains of Trust in a system, and the Roots of Trust
 in particular - the elements which form the "Base" for providing security
 functionalities.
@@ -195,10 +195,12 @@ Is it just an encrypted data store?-->
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
-> The core RoT for verification (CRTV) is responsible for verifying the first
-component before control is passed to it.
+> A root of trust for verification is an
+immutable location, such as a boot ROM, which cryptographically verifies the
+first mutable firmware in the system. The verification is done using digital
+signatures before the mutable firmware is executed.
 
-~ NIST IR 8320, section 3.2 The Chain of Trust (CoT) [^NIST_ir8320_3-2]
+~ ARM Base Boot Security Requirements, Issue 1.3, section 4.5 - Secure Boot [^ARM_BBSR_4-5]
 
 The Root of Trust for Verification is responsible for verifying components and
 enforcing the security policies depending on the results of the verification.
@@ -367,9 +369,7 @@ Verifying a signature requires:
 - The digital signature of the data
 - The public key corresponding to the private key of the signer
 - Knowledge of the hash function used to calculate the digest and the type of
-assymetric keys used by the signer
-
-<!-- TODO? digest is not necesarry, it just saves some time if the data is large, because asym. crypt. is slow -->
+asymmetric keys used by the signer
 
 The process consists of:
 
@@ -383,7 +383,6 @@ If the verification succeeds then:
 
 - Integrity is verified. The received digest is the same as the one
 calculated from the datum. The data did not change
-<!-- TODO? only if the used hash function is safe? -->
 - Authenticity is verified. Only the one in possession of the corresponding
 private key could have encrypted the digest so that it can be decrypted using
 the public key
@@ -412,6 +411,7 @@ TODO find good definitions or sources to support the claims
 [^NIST_fips186-5]: NIST FIPS 186-5, https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
 [^CNSSI_4009]: COmmitee on National Security Systems (CNSS) Glossary, https://rmf.org/wp-content/uploads/2017/10/CNSSI-4009.pdf
 [^intel_txt]: Intel Trusted Execution Technology Overview, https://www.intel.com/content/www/us/en/developer/articles/tool/intel-trusted-execution-technology.html
+[^ARM_BBSR_4-5]: ARM Base Boot Security Requirements, Issue 1.3, https://documentation-service.arm.com/static/65e84577837c4d065f655931
 
 ## 2. Definition of requirements
 - 584-645    "Notes"
