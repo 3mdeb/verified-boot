@@ -66,6 +66,35 @@
 
 ### Role-based boot modes
 
+Role-Based boot is a term proposed by Kicksecure, it is a concept of booting
+operating system into different modes based on user roles in order to enhance
+security by isolating executable activities and permissions. The aim for
+role-base boot concept is to develop more secure and flexible OS environments
+by tailoring boot models to specific user roles for performing permissible
+range of tasks.
+
+Role-based boot is implemented in Kicksecure and Whonix operating systems.
+Currently supported boot modes are[^1]:
+* `PERSISTENT mode` - intended for performing daily activities (browsing,
+email, chat) with write access only for `/home` directory.
+* `LIVE mode` - serves same usage as `PERSISTENT mode` but changes are not
+persistent between system reboots.
+* `PERSISTENT mode SYSMAINT` - intended only for performing system maintenance
+with global write access.
+
+Another example that implement multiple boot modes, but are not referred to as
+role-base boot, is ChromeOs. ChromeOs includes following boot modes[^2]:
+* Normal mode - default boot option, performs full verification of firmware and
+OS components.
+* Recovery mode - Used for OS and RW firmware components repair.
+* Developer mode - relaxes some of the restrictions in Verified Boot Mode,
+allows root access, modification of system components or upgrading firmware.
+* Legacy boot mode - allows for booting alternate OS.
+
+#### References
+[^1]: [user-sysmaint-split](https://www.kicksecure.com/w/index.php?title=Dev/user-sysmaint-split)
+[^2]: [ChromeOS-Boot-Modes](https://docs.mrchromebox.tech/docs/boot-modes/)
+
 ### Read-only/discardable-file-systems
 
 ### Checksum verification
