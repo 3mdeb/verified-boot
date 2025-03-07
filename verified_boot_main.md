@@ -434,12 +434,6 @@ the public key
 
 #### UEFI
 
-<!--
-
-http://osresearch.net/FAQ/#whats-wrong-with-uefi-secure-boot
-https://learn.microsoft.com/en-us/azure/security/fundamentals/secure-boot
- -->
-
 The UEFI specification defines the UEFI Secure Boot protocol as a security
 mechanism that can be used as a part of verified boot process. The protocol
 allows to verify the authenticity and integrity of UEFI drivers as well as
@@ -469,7 +463,7 @@ UEFI Secure Boot bases the verification on two types of keys:
 owner and the platform firmware. The platform owner enrolls the public half
 of the key (PKpub) into the platform firmware. The platform owner can later
 use the private half of the key (PKpriv) to change platform ownership or to
-enroll a Key Exchange Key. [^UEFI_key_exchange]
+enroll a Key Exchange Key.
 
 The platform key, also called the owner key, is used to verify the KEKs that
 are maintained by the firmware and operating system vendors. It is enrolled
@@ -479,15 +473,16 @@ removing and enrolling a new one.
 > Key exchange keys establish a trust relationship between the operating
 system and the platform firmware. Each operating system (and potentially,
 each 3rd party application which need to communicate with platform firmware)
-enrolls a public key (KEKpub) into the platform firmware. [^UEFI_key_exchange]
+enrolls a public key (KEKpub) into the platform firmware.
 
 The Key Exchange Keys are stored in the Signature Database along the trusted
 and revoked signatures of UEFI drivers and operating systems. Updates to the
-KEKs must be signed using the currently enrolled PK. Similarily, the updates to
-the trusted and revoked signature databases must be signed using an enrolled
-KEK.
+KEKs must be signed using the currently enrolled PK.
 
-<!-- TODO Continue with what to enroll to the signature databases -->
+Similarily, the updates to the trusted and revoked signature databases must be
+signed using an enrolled KEK. The signature databases can contain signatures of
+either software components or certificates with further signing keys.
+
 
 Microsoft is the official maintainer of UEFI Secure Boot Platform Keys.
 Using the default keys means trusting the device's security to Microsoft
@@ -496,18 +491,13 @@ UEFI Secure Boot. [^HEADS_sb_wrong]
 <!-- TODO reference some more discussions -->
 
 
-<!--
-A UEFI BIOS needs to manage a signature database[^UEFI_certificate_database]
-Key management[^UEFI_key_mgmnt]
-Verification services[^UEFI_verify_protocol]
--->
-
 [^UEFI_key_mgmnt]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#key-management-service
 [^UEFI_hash_services]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#hash-references
 [^UEFI_verify_protocol]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#pkcs7-verify-protocol
 [^UEFI_certificate_database]: https://uefi.org/specs/UEFI/2.10_A/32_Secure_Boot_and_Driver_Signing.html#uefi-image-validation
 [^UEFI_PK]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
 [^UEFI_key_exchange]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
+[^MS_SB]: https://learn.microsoft.com/en-us/azure/security/fundamentals/secure-boot
 
 
 [^HEADS_sb_wrong]: http://osresearch.net/FAQ/#whats-wrong-with-uefi-secure-boot
