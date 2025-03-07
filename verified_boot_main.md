@@ -571,7 +571,7 @@ called the `Initial Boot Block (IBB)` using the `Authenticated Code Module (ACM)
 code embedded in the CPU by the manufacturer. The IBB is verified using the OEM
 keys, that are also in the CPU itself and can be fused to make them permamently
 read-only. The IBB is the second link of the CTV and continues to extend
-it.
+it by verifying the rest of the BIOS firmware.
 
 <!--
 better: https://www.intel.com/content/www/us/en/developer/articles/technical/software-security-guidance/resources/key-usage-in-integrated-firmware-images.html
@@ -579,14 +579,16 @@ better: https://www.intel.com/content/www/us/en/developer/articles/technical/sof
 
 #### AMD Platform Secure Boot
 
-The AMD PSB[^AMD_PSB] rovides the Hardware RTM and RTV thanks to the
+The AMD PSB[^AMD_PSB], also called AMD Hardware Validated Boot on data center
+processors, provides the Hardware RTM and RTV thanks to the
 AMD Secure Processor (ASP), which is logically isolated from the CPU.
 The ASP executes the `ASP boot loader code`, which verifies an initial part
 of the firmware called the `Secure Loader`, using keys fused into the CPU,
-making it the second link of the CTV.
+making it the second link of the CTV. The Secure Loader then extends the
+Chain of Trust for Verification by verifying the rest of the BIOS firmware.
 
 <!-- TODO?? Describe the names of equivalent components in Intel/AMD: SINIT/SKINI, IBB, SL etc. -->
-
+[^AMD_HVB]: https://www.amd.com/content/dam/amd/en/documents/epyc-business-docs/white-papers/5th-gen-amd-epyc-processor-architecture-white-paper.pdf
 [^AMD_PSB]: https://www.amd.com/content/dam/amd/en/documents/products/processors/ryzen/7000/ryzen-pro-7000-security-whitepaper.pdf
 <!-- - Platform Security Processor (PSP)
 - https://doc.coreboot.org/soc/amd/psp_integration.html
