@@ -427,11 +427,18 @@ the public key
 
 ### Implementations of verified boot
 <!-- Describe differences in verified boot between Legacy / UEFI / Heads -->
+
 #### Legacy
 
 #### Legacy
 
 #### UEFI
+
+<!--
+
+http://osresearch.net/FAQ/#whats-wrong-with-uefi-secure-boot
+https://learn.microsoft.com/en-us/azure/security/fundamentals/secure-boot
+ -->
 
 The UEFI specification defines the UEFI Secure Boot protocol as a security
 mechanism that can be used as a part of verified boot process. The protocol
@@ -449,33 +456,80 @@ UEFI specification defines the protocols used to locate and access hashing
 services provided by software (drivers) or hardware components
 [^UEFI_hash_services].
 
-##### Certificate Database
+##### Signature Database
 
+The signature database in UEFI is used to manage a list of
+trusted and revoked software signatures.
+
+UEFI Secure Boot bases the verification on two types of keys:
+- Platform Key
+- Key Exchange Keys (KEK)
+
+> The platform key establishes a trust relationship between the platform
+owner and the platform firmware. The platform owner enrolls the public half
+of the key (PKpub) into the platform firmware. The platform owner can later
+use the private half of the key (PKpriv) to change platform ownership or to
+enroll a Key Exchange Key. [^UEFI_key_exchange]
+
+The platform key, also called the owner key, is used to verify the KEKs that
+are maintained by the firmware and operating system vendors. It is enrolled
+during the production of a device by the OEM, but some UEFI BIOSes allow
+removing and enrolling a new one.
+
+> Key exchange keys establish a trust relationship between the operating
+system and the platform firmware. Each operating system (and potentially,
+each 3rd party application which need to communicate with platform firmware)
+enrolls a public key (KEKpub) into the platform firmware. [^UEFI_key_exchange]
+
+The Key Exchange Keys are stored in the Signature Database along the trusted
+and revoked signatures of UEFI drivers and operating systems. Updates to the
+KEKs must be signed using the currently enrolled PK. Similarily, the updates to
+the trusted and revoked signature databases must be signed using an enrolled
+KEK.
+
+<!-- TODO Continue with what to enroll to the signature databases -->
+
+Microsoft is the official maintainer of UEFI Secure Boot Platform Keys.
+Using the default keys means trusting the device's security to Microsoft
+which is one of the reasons why some people are sceptic of the
+UEFI Secure Boot. [^HEADS_sb_wrong]
+<!-- TODO reference some more discussions -->
+
+
+<!--
 A UEFI BIOS needs to manage a signature database[^UEFI_certificate_database]
-which
 Key management[^UEFI_key_mgmnt]
 Verification services[^UEFI_verify_protocol]
-
-##### Chain of Trust for Verification
-
-
-
-
-
-<!-- Certificate and digest stores -->
-<!-- shims -->
-<!-- UEFI Secure Boot? -->
+-->
 
 [^UEFI_key_mgmnt]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#key-management-service
 [^UEFI_hash_services]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#hash-references
 [^UEFI_verify_protocol]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#pkcs7-verify-protocol
 [^UEFI_certificate_database]: https://uefi.org/specs/UEFI/2.10_A/32_Secure_Boot_and_Driver_Signing.html#uefi-image-validation
+[^UEFI_PK]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
+[^UEFI_key_exchange]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
+
+
+[^HEADS_sb_wrong]: http://osresearch.net/FAQ/#whats-wrong-with-uefi-secure-boot
 #### Heads
 
-<!-- http://osresearch.net/ not much info here -->
+<!--
+http://osresearch.net/ not much info here, are there better sources on how
+Heads implements verification?
+-->
 
 
 ### Firmware protections against changing settings in its UI
+
+<!--
+
+https://docs.dasharo.com/dasharo-menu-docs/overview/#user-password-management
+
+http://osresearch.net/FAQ/#why-use-linux-instead-of-vboot2
+> by moving the verification into the boot scripts we’re able to have a much
+  flexible verification system and use more common tools like PGP to sign firmware stages
+
+ -->
 
 ### Firmware protections against changing firmware's flash chip
 - 811-831    "Write Protection"
