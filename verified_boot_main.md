@@ -433,9 +433,46 @@ the public key
 
 #### UEFI
 
+The UEFI specification defines the UEFI Secure Boot protocol as a security
+mechanism that can be used as a part of verified boot process. The protocol
+allows to verify the authenticity and integrity of UEFI drivers as well as
+the operating system before the hand-off.
+
+Verified boot depends on two roots of trust, the Chain of Trust for Measurement
+and the Chain of Trust for Verification. To provide verified boot
+functionalities a UEFI BIOS has to implement a number of software components
+that need to be verified and consequently added to these chains.
+
+##### Hash services
+
+UEFI specification defines the protocols used to locate and access hashing
+services provided by software (drivers) or hardware components
+[^UEFI_hash_services].
+
+##### Certificate Database
+
+A UEFI BIOS needs to manage a signature database[^UEFI_certificate_database]
+which
+Key management[^UEFI_key_mgmnt]
+Verification services[^UEFI_verify_protocol]
+
+##### Chain of Trust for Verification
+
+
+
+
+
+<!-- Certificate and digest stores -->
+<!-- shims -->
+<!-- UEFI Secure Boot? -->
+
+[^UEFI_key_mgmnt]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#key-management-service
+[^UEFI_hash_services]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#hash-references
+[^UEFI_verify_protocol]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#pkcs7-verify-protocol
+[^UEFI_certificate_database]: https://uefi.org/specs/UEFI/2.10_A/32_Secure_Boot_and_Driver_Signing.html#uefi-image-validation
 #### Heads
 
-<!-- - http://osresearch.net/ not much info here -->
+<!-- http://osresearch.net/ not much info here -->
 
 
 ### Firmware protections against changing settings in its UI
@@ -449,15 +486,15 @@ the public key
 
 #### Intel Boot Guard
 
-<!-- - Intel ISA doesn't mention BG. Possibly there is some info there, but it's
+<!-- Intel ISA doesn't mention BG. Possibly there is some info there, but it's
 too low level to be used https://cdrdv2.intel.com/v1/dl/getContent/671200 -->
 
 
 Intel Boot Guard is a technology that implements a S-RTM and a RTV in hardware.
 
 The hardware-based RTV works by verifying the Initial Boot Block (IBB)
-using OEM keys, that are saved in the CPU itself and can be fused to make them
-permamently read-only. This procedure makes it impossible to boot any firmware
+using OEM keys, that are saved in the CPU itself and can be fused[^efuses_wikipedia] to make them
+permamently read-only. Fusing the keys procedure makes it impossible to boot any firmware
 that is not signed (trusted) by the owner of the OEM keys.
 
 <!-- based on weird chinese site? Can't change the language https://edc.intel.com/content/www/cn/zh/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/12th-generation-intel-core-processors-datasheet-volume-1-of-2/010/boot-guard-technology/
@@ -473,6 +510,7 @@ but I don't know about the credentialibity of this site
 
 
 -->
+[^efuses_wikipedia]: https://en.wikipedia.org/wiki/EFuse
 
 ## 4. OS-level approaches at limiting system modification
 - 836-850    "Other Distributions implementing Verified Boot"
