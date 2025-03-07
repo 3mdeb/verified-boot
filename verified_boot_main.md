@@ -536,26 +536,53 @@ http://osresearch.net/FAQ/#why-use-linux-instead-of-vboot2
 
 ### Intel Boot Guard / AMD Platform Secure Boot
 
+<!-- TODO?? Because the technologies are more or less equivalent, maybe it's
+better to describe what they are about here and then show the differences
+in naming in the two sections -->
 
+The two technologies are mostly equivalent and serve the purpose of:
+- Verifying and Measuring the BIOS firmware
+- Providing a Hardware RTM (HRTM) and RTV (HRTV) for the processes
+  of verified and measured boot
+- Allowing to create uninterrupted Chains of Trust from the hardware up to
+  an operating system
+
+The hardware roots of trust consist of:
+- A secure storage for enrolling keys by the OEM. Possibly using electronic
+fuses[^efuses_wikipedia] that make the keys permamently encoded into the CPU
+- Hardware implementations of basic cryptography operations
+- A small read-only code for verifying the firmware
 
 #### Intel Boot Guard
 
 <!-- Intel ISA doesn't mention BG. Possibly there is some info there, but it's
-too low level to be used https://cdrdv2.intel.com/v1/dl/getContent/671200 -->
+too low level to be used https://cdrdv2.intel.com/v1/dl/getContent/671200
 
+-->
 
-Intel Boot Guard is a technology that implements a S-RTM and a RTV in hardware.
+Intel Boot Guard is a technology that implements a RTM and a RTV in hardware.
+The hardware-based RTV works by verifying the initial part of the firmware
+called the `Initial Boot Block (IBB)` using the `Authenticated Code Module (ACM)`
+code embedded in the CPU by the manufacturer. The IBB is verified using the OEM
+keys, that are also in the CPU itself and can be fused to make them permamently
+read-only. The IBB is the second link of the CTV and continues to extend
+it.
 
-The hardware-based RTV works by verifying the Initial Boot Block (IBB)
-using OEM keys, that are saved in the CPU itself and can be fused[^efuses_wikipedia] to make them
-permamently read-only. Fusing the keys procedure makes it impossible to boot any firmware
-that is not signed (trusted) by the owner of the OEM keys.
-
-<!-- based on weird chinese site? Can't change the language https://edc.intel.com/content/www/cn/zh/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/12th-generation-intel-core-processors-datasheet-volume-1-of-2/010/boot-guard-technology/
+<!--
+better: https://www.intel.com/content/www/us/en/developer/articles/technical/software-security-guidance/resources/key-usage-in-integrated-firmware-images.html
 -->
 
 #### AMD Platform Secure Boot
 
+The AMD PSB[^AMD_PSB] rovides the Hardware RTM and RTV thanks to the
+AMD Secure Processor (ASP), which is logically isolated from the CPU.
+The ASP executes the `ASP boot loader code`, which verifies an initial part
+of the firmware called the `Secure Loader`, using keys fused into the CPU,
+making it the second link of the CTV.
+
+<!-- TODO?? Describe the names of equivalent components in Intel/AMD: SINIT/SKINI, IBB, SL etc. -->
+
+[^AMD_PSB]: https://www.amd.com/content/dam/amd/en/documents/products/processors/ryzen/7000/ryzen-pro-7000-security-whitepaper.pdf
 <!-- - Platform Security Processor (PSP)
 - https://doc.coreboot.org/soc/amd/psp_integration.html
 - https://ioactive.com/exploring-amd-platform-secure-boot/ - might be great,
