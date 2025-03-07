@@ -521,6 +521,16 @@ Heads implements verification?
 
 ### Firmware protections against changing settings in its UI
 
+Typically two factors are used to authenticate changes in firmware settings
+using the UI:
+- Physical presence - because the UI is presented on a screen and the inputs
+are incoming from an external device it is often safe to assume that a person,
+not malicious code, is accessing the settings, and so the changes may be treated
+as authenticated
+- BIOS Password - in scenarios where a higher security is required most BIOS
+firmwares implement a way to set up a password which protects the settings
+from being changed[^Dasharo_password][^MSI_password][^system76_password][^Gigabyte_password]
+
 <!--
 
 https://docs.dasharo.com/dasharo-menu-docs/overview/#user-password-management
@@ -530,6 +540,11 @@ http://osresearch.net/FAQ/#why-use-linux-instead-of-vboot2
   flexible verification system and use more common tools like PGP to sign firmware stages
 
  -->
+
+ [^Dasharo_password]: Dasharo menu overwier, User password management, https://docs.dasharo.com/dasharo-menu-docs/overview/#user-password-management
+ [^MSI_password]: MSI DT BIOS Manual, under "Security", https://www.msi.com/support/technical_details/DT_BIOS_Manual
+ [^system76_password]: System76 Technical Documentation, Security, https://tech-docs.system76.com/models/addw1/setup-specs.html#security
+ [^Gigabyte_password]: Gigabyte BIOS Setup User's Guide, Chapter 1, under "Security", https://download.gigabyte.com/FileList/Manual/server_manual_r121-x30_bios_e_1.0.pdf
 
 ### Firmware protections against changing firmware's flash chip
 - 811-831    "Write Protection"
