@@ -448,7 +448,8 @@ that need to be verified and consequently added to these chains.
 
 UEFI specification defines the protocols used to locate and access hashing
 services provided by software (drivers) or hardware components
-[^UEFI_hash_services].
+[^UEFI_hash_services]. These are required to calculate digests (hashes) to use
+in both measured boot and verified boot processes.
 
 ##### Signature Database
 
@@ -461,9 +462,11 @@ UEFI Secure Boot bases the verification on two types of keys:
 
 > The platform key establishes a trust relationship between the platform
 owner and the platform firmware. The platform owner enrolls the public half
-of the key (PKpub) into the platform firmware. The platform owner can later
+of the key (PKpub) into the platform firmware. (...) The platform owner can later
 use the private half of the key (PKpriv) to change platform ownership or to
 enroll a Key Exchange Key.
+
+~ Windows Secure Boot Key Creation and Management Guidance, section 1.3.2 [^Windows_sb_keys]
 
 The platform key, also called the owner key, is used to verify the KEKs that
 are maintained by the firmware and operating system vendors. It is enrolled
@@ -474,6 +477,8 @@ removing and enrolling a new one.
 system and the platform firmware. Each operating system (and potentially,
 each 3rd party application which need to communicate with platform firmware)
 enrolls a public key (KEKpub) into the platform firmware.
+
+~ Windows Secure Boot Key Creation and Management Guidance, section 1.3.4 [^Windows_sb_keys]
 
 The Key Exchange Keys are stored in the Signature Database along the trusted
 and revoked signatures of UEFI drivers and operating systems. Updates to the
@@ -498,9 +503,10 @@ UEFI Secure Boot. [^HEADS_sb_wrong]
 [^UEFI_PK]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
 [^UEFI_key_exchange]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
 [^MS_SB]: https://learn.microsoft.com/en-us/azure/security/fundamentals/secure-boot
-
+[^Windows_sb_keys]:  Windows Secure Boot Key Creation and Management Guidance, section 1.3.2, https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-secure-boot-key-creation-and-management-guidance?view=windows-11#13-secure-boot-pki-requirements
 
 [^HEADS_sb_wrong]: http://osresearch.net/FAQ/#whats-wrong-with-uefi-secure-boot
+
 #### Heads
 
 <!--
@@ -511,15 +517,19 @@ Heads implements verification?
 
 ### Firmware protections against changing settings in its UI
 
+Changing the BIOS firmware settings via its UI is the easiest way to affect
+the firmware and it's security. It requires next to no technical knowledge
+or preparations.
+
 Typically two factors are used to authenticate changes in firmware settings
 using the UI:
-- Physical presence - because the UI is presented on a screen and the inputs
+- Physical presence - Because the UI is presented on a screen and the inputs
 are incoming from an external device it is often safe to assume that a person,
 not malicious code, is accessing the settings, and so the changes may be treated
-as authenticated
-- BIOS Password - in scenarios where a higher security is required most BIOS
-firmwares implement a way to set up a password which protects the settings
-from being changed[^Dasharo_password][^MSI_password][^system76_password][^Gigabyte_password]
+as authenticated as done intentionally by a user.
+- BIOS Password - In scenarios where a higher security is required most BIOS
+firmware implementations[^Dasharo_password][^MSI_password][^system76_password][^Gigabyte_password] provide a way to set up a password which protects the settings
+from being changed by an unathorized user.
 
 <!--
 
@@ -558,36 +568,33 @@ fuses[^efuses_wikipedia] that make the keys permamently encoded into the CPU
 - Hardware implementations of basic cryptography operations
 - A small read-only code for verifying the firmware
 
+While similar in essence, Intel Boot Guard and AMD Platform Secure Boot use
+different naming for equivalent steps and elements of the technologies.
+
 #### Intel Boot Guard
 
-<!-- Intel ISA doesn't mention BG. Possibly there is some info there, but it's
-too low level to be used https://cdrdv2.intel.com/v1/dl/getContent/671200
-
--->
-
-Intel Boot Guard is a technology that implements a RTM and a RTV in hardware.
+Intel Boot Guard[^Intel_introduction_to_key_usage] is a technology that
+implements the RTM and the RTV in hardware.
 The hardware-based RTV works by verifying the initial part of the firmware
 called the `Initial Boot Block (IBB)` using the `Authenticated Code Module (ACM)`
 code embedded in the CPU by the manufacturer. The IBB is verified using the OEM
-keys, that are also in the CPU itself and can be fused to make them permamently
-read-only. The IBB is the second link of the CTV and continues to extend
-it by verifying the rest of the BIOS firmware.
+keys, that are saved in the CPU registers and can be fused to make them
+permamently read-only. The IBB is the second link of the CTV and continues
+to extend it by verifying the rest of the BIOS firmware.
 
-<!--
-better: https://www.intel.com/content/www/us/en/developer/articles/technical/software-security-guidance/resources/key-usage-in-integrated-firmware-images.html
--->
+[^Intel_introduction_to_key_usage]: https://www.intel.com/content/www/us/en/developer/articles/technical/software-security-guidance/resources/key-usage-in-integrated-firmware-images.html
 
 #### AMD Platform Secure Boot
 
-The AMD PSB[^AMD_PSB], also called AMD Hardware Validated Boot on data center
-processors, provides the Hardware RTM and RTV thanks to the
-AMD Secure Processor (ASP), which is logically isolated from the CPU.
-The ASP executes the `ASP boot loader code`, which verifies an initial part
-of the firmware called the `Secure Loader`, using keys fused into the CPU,
-making it the second link of the CTV. The Secure Loader then extends the
+The AMD Platform Secure Boot[^AMD_PSB], also called AMD Hardware Validated Boot[^AMD_HVB] on data
+center processors, provides the Hardware RTM and RTV thanks to the
+`AMD Secure Processor (ASP)`, which is logically isolated from the CPU.
+The ASP executes the `ASP boot loader code` - a read only code embedded within
+the ASP, which verifies an initial part of the firmware called the `Secure Loader (SL)`
+using keys fused into the CPU. Verifying the SL makes it the second link of the CTV.
+The Secure Loader then extends the
 Chain of Trust for Verification by verifying the rest of the BIOS firmware.
 
-<!-- TODO?? Describe the names of equivalent components in Intel/AMD: SINIT/SKINI, IBB, SL etc. -->
 [^AMD_HVB]: https://www.amd.com/content/dam/amd/en/documents/epyc-business-docs/white-papers/5th-gen-amd-epyc-processor-architecture-white-paper.pdf
 [^AMD_PSB]: https://www.amd.com/content/dam/amd/en/documents/products/processors/ryzen/7000/ryzen-pro-7000-security-whitepaper.pdf
 <!-- - Platform Security Processor (PSP)
