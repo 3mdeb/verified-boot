@@ -682,7 +682,37 @@ allows root access, modification of system components or upgrading firmware.
 [^1]: [user-sysmaint-split](https://www.kicksecure.com/w/index.php?title=Dev/user-sysmaint-split)
 [^2]: [chromeos-boot-modes](https://docs.mrchromebox.tech/docs/boot-modes/)
 
-### Read-only/discardable-file-systems
+### Read-only
+
+Read-only is a file-system permission, allowing for reading and copying the
+data, but prohibits modification and addons. A file, directory or entire disk
+can be subject to `read-only`[^1]. A physical media format plays significant
+role to `read-only` attribute. Some storage media like CD-Rs, DVDs or ROMs
+become read-only storage medium once initial data has been written. Other
+mediums like SD-cards, might have physical switch which sets the medium to read-only mode[^2].
+
+A read-only file system is a type of filesystem that prohibits altering data to
+ensure integrity and stability of the files. The primary purposes for read-only filesystems are: prohibiting unauthorized or accidental modifications, improving
+system reliability and enhancing security[^3].
+
+Some filesystems are inherently read-only by design, examples are:
+* ISO 9660 - industry standard, read-only media format designed for
+compact-disk read-only memory (CD-ROM)[^4].
+* SquashFS - compressed, read-only filesystem for archival use on Linux. Intended for scenarios where low overhead is needed[^5].
+* EROFS - stands for "Enchanced Read-Only File System", a general-purpose,
+flexible filesystem focused on runtime-performance[^6].
+
+Linux kernel provides and abstraction layer called VFS, which allows for read-only access for non-read-only filesystems[^7].
+
+#### References
+
+[^1]: [read-only](https://www.computerhope.com/jargon/r/readonly.htm)
+[^2]: [read-only](https://techterms.com/definition/read-only)
+[^3]: [read-only-file-system](https://www.sliksafe.com/blog/read-only-file-system)
+[^4]: [iso-9660](https://www.ibm.com/docs/en/i/7.5?topic=formats-iso-9660)
+[^5]: [squashfs-4.0-filesystem](https://docs.kernel.org/filesystems/squashfs.html)
+[^6]: [erofs-enhanced-read-only-file-system](https://docs.kernel.org/filesystems/squashfs.html)
+[^7]: [mount-linux-manual-page](https://man7.org/linux/man-pages/man8/mount.8.html)
 
 ### Checksum verification
 
