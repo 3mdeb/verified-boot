@@ -1104,8 +1104,6 @@ time, but its advantage is support for more unlocking methods.
 [^7]: [systemd-crypteup](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptsetup.html)
 [^8]: [clevis](https://github.com/latchset/clevis)
 
-### ISOs
-
 ### CVMs
 
 Confidential computing is a concept in which workloads are isolated from the
@@ -1143,3 +1141,49 @@ mitigate potential risks.
 [^3]: [few-key-points-of-confidential-vm](https://www.naukri.com/code360/library/few-key-points-of-confidential-vm)
 [^4]: [ernax-and-confidential-vms-compated](https://enarx.dev/assets/files/Enarx_and_Confidential_VMs_compared-9d0e599aaf63f5d1c0c873e37094251e.pdf)
 [^5]: [confidential-vms-hacked-via-new-ahoi-attack](https://www.securityweek.com/confidential-vms-hacked-via-new-ahoi-attacks/)
+
+### ISOs
+
+ISO is format of disk file image containing exact duplicate of data from source
+disk. ISO disk images are common way to share software (including OS)
+installation media[^1]. This chapter will focus on various scenarios in which
+installation media could be tampered with, leading to compromised software
+being installed.
+
+`.iso` images cannot be modified by mounting them and modifying the files, yet
+there are ways to "modify" .iso image. One of the ways is repackaging, this
+means extracting image contents, performing modifications and repackaging
+contents into new disk image file. It is important to always check signatures,
+as described in [checksum verification chapter](#checksum-verification)[^2],
+to verify integrity of disk images. If package is skillfully repackaged, it's
+execution won't be prohibited by secure boot mechanism[^3]. Another way of
+compromising read-only attribute of `iso` images is flashing such image onto
+physical media.
+
+#### Verifying boot media with secure-boot
+
+Kicksecure would like to utilize secure boot to verify distributed installation media, yet there are limitations to this technology which do not allow it:
+* Booting `.iso` file directly, rather than flashing the contents onto physical
+media, is possible with boot-loaders like GRUB[^4]. Yet, such image cannot be
+cryptographically verified as a whole. GRUB verifies contents at
+component-level. This approach might still lead to executing repackaged `iso`.
+* Vast majority of x86 based hardware comes preloaded with Microsoft keys, this
+means that when secure boot is enabled, ony Microsoft signed binaries are
+allowed to run[^5]. Binaries can be signed only with a single key, this means
+that OS vendors cannot sign binaries themselves as they'd be prohibited from
+executing. Kicksecure came out with few ideas on how these limitations could be
+resolved:
+    * Maintain two disk images (one signed, one unsigned),
+    * Create disk images with two boot-loaders,
+    * Sell custom hardware with preloaded Kicksecure keys.
+
+#### References
+
+[^1]: [iso-file-extension](https://fileinfo.com/extension/iso)
+[^2]: [iso-image](https://www.lenovo.com/us/en/glossary/iso-image/)
+[^3]: [unified-extensible-firmware-nterface/secure-boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#ISO_repacking)
+[^4]: [multiboot-usb-drive](https://wiki.archlinux.org/title/Multiboot_USB_drive#Using_GRUB_and_loopback_devices)
+[^5]: [SecureBoot](https://wiki.debian.org/SecureBoot)
+
+### VMs
+- 939-946    Part 3: OS and VMs
