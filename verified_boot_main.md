@@ -74,5 +74,26 @@
 
 ### ISOs
 
-### VMs
-- 939-946    Part 3: OS and VMs
+### CVMs
+
+Confidential computing is a concept in which workloads are isolated from the
+environment they run on, in order to assure confidentiality. Confidential
+Virtual Machines (CVMs) put this theory into practice, assuring workloads and
+data are isolated from the host system unless explicit access is granted[^1].
+
+Confidential VMs use hardware-based memory encryption which is supported by
+technologies including AMD SEV or Intel TDX. CVMs have benefits of[^2]:
+* isolation - keys reside solely in dedicated hardware and are inaccessible to
+hypervisor,
+* attestation - VM identity and state can be verified to ensure integrity.
+
+CVMs can greatly improve overall security of the system as a whole, due to
+following factors:
+* adding additional, hardware based encryption layer,
+* separating host from VM reducing risk of malware infection,
+* preventing side channel attacks like cold-boot.
+
+#### References
+
+[^1]: [introduction-to-confidental-virtual-machines](https://www.redhat.com/en/blog/introduction-confidential-virtual-machines)
+[^2]: [confidential-vm-overview](https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview)
