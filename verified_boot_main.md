@@ -447,12 +447,14 @@ BIOSes that work towards verified boot include:
 - `seabios` - exposes the `1Ah` BIOS interrupt, an ABI defined by the TCG[^TCG_1ah]
   that allows interacting with TPM and performing verification and measurements
   by the next launched component[^seabios_1ah]
+- `Slim Bootloader` - implements both verified and measured boot[^Slim_security]
 
 [^wikipedia_bic]: https://en.wikipedia.org/wiki/BIOS_interrupt_call
 [^coreboot_vboot]: https://doc.coreboot.org/security/vboot/index.html
 [^TCG_1ah]: TCG PC Client Specific Implementation Specification for Conventional BIOS, section https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientImplementation_1-21_1_00.pdf
 [^seabios_1ah]: https://mail.coreboot.org/pipermail/seabios/2011-April/001609.html
 [^skiboot_libstb]: https://open-power.github.io/skiboot/doc/stb.html
+[^Slim_security]: https://slimbootloader.github.io/security/index.html
 
 #### UEFI
 
