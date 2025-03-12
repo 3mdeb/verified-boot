@@ -70,41 +70,60 @@
 
 ### Checksum verification
 
-Checksum as a concept, is a redundancy check for detecting variations in data.
-Checksums are created as result of calculating binary values of a block or
-packet of data using sophisticated algorithms. Comparing checksums allows for
-verifying data integrity, yet is truthfulness is dependent of algorithm
+Checksum is a redundancy check for detecting variations in data or data
+streams. Checksums are created as result of calculating binary values of a
+block or packet of data using dedicated algorithms. Comparing checksums allows
+for verifying data integrity, yet it's truthfulness is dependent of algorithm
 used[^1].
 
-Checksums values come in form of unique, fixed string of characters referred to
-as hash. Exact form of hash is dependent on algorithm used. Checksum algorithms
-ensure even tiniest changes made to a block of data, would result in checksum
-value changing completely. This property makes them easy to compare without
-need for any additional components. Common algorithms include: sha-256, md5 or
-sha-1[^2].
+#### Checksums and hash codes
 
-#### Checksum verification in chain of trust context
+Transforming a portion of data of any size, into a code with predefined size is
+referred to as hashing process. A result of performing a hash function is
+output in form of a hash code (or simply hash). Hash codes are irreversible by
+definition, in theory a hash cannot be used to recreate source data.
 
-Checksum verification can be used as a part of chain of trust mechanism.
+Checksums are based on hash codes concept, yet they serve different purposes.
+Checksum algorithms are optimized for calculation speed in expense of security.
+Checksums are focused on checking data integrity, serving as a digital
+fingerprints. A hash codes and cryptographic functions are much broader concept
+that focuses on security and authentication[^2].
+
+#### Common hashing algorithms
+
+Common hashing algorithms include[^3]:
+* MD-5 - created in 1991, but now considered compromised as it was discovered
+how to decode it.
+* SHA family - developed by US government. A recent SHA-3 version uses
+randomness in the code making it more difficult to decode. Currently an
+industry standard.
+
+Hashing algorithm produce hash values, yet they are often used as a way to
+verify data integrity, serving a role of a checksum. This is why it is not
+uncommon to see an output of hashing algorithms being referred to as checksum.
+
+#### Hash verification in chain of trust context
+
+Hashing functions can be used as a part of chain of trust mechanism.
 Particular example is Google's Verified Boot found on Android based devices.
 Verified boot cryptographically verifies executable code and data as the device
 boots. It does so for both files and partitions using multiple mechanisms, one
-one of them being [dm-verity](#dm-verity). In Verify Boot implementation hashes
+of them being [dm-verity](#dm-verity). In Verify Boot implementation hashes
 are stored on dedicated partitions and are signed by the root of trust[^3].
 
-#### debsums
+#### Extending chain of trust to OS
 
 A supplementary integrity checks can also be performed on OS level.
-`debsums` is an utility for verifying debian package files against their
-checksums. It is primarily intended for determining if installed filed were
-modified or damaged. It also serves limited usage as a security tool[^4].
+`debsums` is a utility for verifying Debian package files against their
+checksums. The MD-5 algorithm is used in the process. `debsums` is primarily
+intended for determining if installed files were modified or damaged. It also
+serves limited usage as a security tool[^5].
 
-#### References
-
-[^1] [Checksum Definition](https://www.linfo.org/checksum.html)
-[^2] [Exploring Checksums: Types, Uses, And Verification Methods](https://linuxsecurity.com/features/what-are-checksums-why-should-you-be-using-them)
-[^3] [Verify Boot](https://source.android.com/docs/security/features/verifiedboot/verified-boot)
-[^4] [debsums](https://manpages.ubuntu.com/manpages/trusty/man1/debsums.1.html)
+[^1]: [checksum-definition](https://www.linfo.org/checksum.html)
+[^2]: [hash-code-vs-checksum](https://www.baeldung.com/cs/hash-code-vs-checksum)
+[^3]: [hashing-algorithm-overview](https://www.okta.com/identity-101/hashing-algorithms/)
+[^4]: [verify-boot](https://source.android.com/docs/security/features/verifiedboot/verified-boot)
+[^5]: [debsums](https://manpages.ubuntu.com/manpages/trusty/man1/debsums.1.html)
 
 ### dm-verity
 
