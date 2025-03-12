@@ -254,9 +254,10 @@ if a potential security threat happened.
 |Criterion|verified boot|measured boot|
 |--|--|--|
 |Short description|Verifies code signatures before passing execution|Documents what code was executed|
-|Security benefits|Only verified software will be executed|It can be determined if something unexpected and potentially dangerous was already executed|
+|Time of measurement|Before execution|After execution|
+|What it allows|Blocking untrusted components|Documenting what was executed|
 |Required RoTs and CoTs|Verification|Measurement, Storage and Reporting|
-|Support|Supported on almost every device|To function properly requires CPU functionality not always available on consumer level devices[^intel_txt]|
+<!-- better name for the "Popularity" criterion?-->
 
 #### Cross-references
 
