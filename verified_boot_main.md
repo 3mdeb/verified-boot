@@ -951,39 +951,72 @@ editing configuration file[^9].
 
 ### dm-verity
 
-Device Mapper (DM) is a linux kernel component for managing logical
+Device Mapper (DM) is a Linux kernel component for managing logical
 volumes[^1]. Device Manager allows mapping physical block devices, to create
 virtual block devices[^2].
 
 Device-Mapper's verity (`dm-verity`) provides a read-only target (layer)
 providing integrity checking of block devices using kernel crypto API[^3].
 
-`dm-verity` allows for detection if the data has been tempered with at binary
-level. It splits block device into blocks and calculates their hashes.
-It follows Merkle tree (hash tree) structure, where each node (leaf) is a hash
-of data block and child nodes. Each leaf is verified against parent nodes until
-reaching root hash, where final validation happens. This structure ensures data
-integrity as no change can be made without altering root hash[^4]. In
-`dm-verity` scheme data is verified as it's being read, any variations would
-cause I/O errors[^5].
+`dm-verity` allows for detection if the data has been tampered with at binary
+level, a single bit flipped should have impact in hash changing. `dm-verity`
+splits block device into blocks and calculates their hashes, which can be
+stored on separate (non dm-verity protected) or in unallocated space at the end
+of data partition.`dm-verity` follows Merkle tree (hash tree) structure, where
+each node (leaf) is labeled with hash of data block. Non-leaf nodes are labeled
+with hash of the labels of their child-nodes. Validation proceeds from the
+leaves level, up to the root hash, where final validation happens. A simplified
+structure is shown on diagram below
 
-The `dm-verity` integrity control, has limitation being protected
-disks are read-only, which might be limiting for full-fledge operating systems.
-Updates must be performed offline and hashes need to be recalculated. This
-works well in embedded environment, where devices are expected to have
+```text
+                                           Block 8
+                                          /
+                                Hash H-2-2
+                               /          \
+                              /            Block 7
+                |  Hash H-2  |
+                |H-2-1..H-2-2|
+               /              \            Block 6
+              /                \          /
+             /                  Hash H-2-1
+            /                             \
+           /                               Block 5
+|Root hash|
+|H-1..H-2 |
+           \                               Block 4
+            \                             /
+             \                  Hash H-1-2
+              \                /          \
+               \              /            Block 3
+                |  Hash H-1  |
+                |H-1-1..H-1-2|
+                              \            Block 2
+                               \          /
+                                Hash H-1-1
+                                          \
+                                           Block 1
+```
+
+This structure ensures data integrity as no change can be made without altering
+root hash[^4]. In `dm-verity` scheme data is verified as it's being read, any
+variations would cause I/O errors[^5].
+
+The `dm-verity` integrity control has disadvantage that limits the storage to
+be read-only, which might be challenging to work with in fully-fledge operating
+systems. Updates must be performed offline and hashes need to be recalculated.
+This works well in embedded environment, where devices are expected to have
 identical disk layout[^4].
 
 `dm-verity` is used on Android based devices (since Android 4.4) as a part of
 `verified boot`, Google's chain of trust implementation. During boot process,
 each stage is being verified prior to executing[^6].
 
-#### References
-[^1] [Device-mapper Resource Page](https://sourceware.org/dm/)  
-[^2] [DM-Verity rootfs integrity](https://archive.fosdem.org/2023/schedule/event/image_linux_secureboot_dmverity/attachments/slides/5559/export/events/attachments/image_linux_secureboot_dmverity/slides/5559/DM_Verity.pdf)  
-[^3] [Linux kernel documentation](https://docs.qualcomm.com/bundle/publicresource/topics/80-88500-4/80_DM_verity.htmlhttps://docs.kernel.org/admin-guide/device-mapper/verity.html)  
-[^4] [dm-verity-in-embedded-device-security](https://www.starlab.io/blog/dm-verity-in-embedded-device-security)  
-[^5] [DM-verity](https://docs.qualcomm.com/bundle/publicresource/topics/80-88500-4/80_DM_verity.html)  
-[^6] [An introduction to dm-verify on Android](https://technotes.kynetics.com/2018/introduction-to-dm-verity-on-android/)
+[^1]: [device-mapper-resource-page](https://sourceware.org/dm/)  
+[^2]: [dm-verity-rootfs-integrity](https://archive.fosdem.org/2023/schedule/event/image_linux_secureboot_dmverity/attachments/slides/5559/export/events/attachments/image_linux_secureboot_dmverity/slides/5559/DM_Verity.pdf)  
+[^3]: [linux-kernel-documentation](https://docs.kernel.org/admin-guide/device-mapper/verity.html)  
+[^4]: [dm-verity-in-embedded-device-security](https://www.starlab.io/blog/dm-verity-in-embedded-device-security)  
+[^5]: [dm-verity](https://docs.qualcomm.com/bundle/publicresource/topics/80-88500-4/80_DM_verity.html)  
+[^6]: [an-introduction-to-dm-verity-on-android](https://technotes.kynetics.com/2018/introduction-to-dm-verity-on-android/)
 
 ### LUKS drive encryption
 
