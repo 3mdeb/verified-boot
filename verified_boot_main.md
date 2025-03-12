@@ -68,7 +68,7 @@ firmware and software components that play a crucial role in the system's
 security, without specifying any relations between them.
 
 The Trusted Computing Base, just like the Chain of Trust, can consist of
-a different number of software components at any given point in the process
+a different number of components at any given point in the process
 of booting th system. When analyzing the boot process, the TCB is increasing
 in size with every new component appended to the Chains of Trust that is
 important for the security, or might impact it in any way.
@@ -118,8 +118,8 @@ initialization, we can differentiate:
 ##### S-RTM (Static Root of Trust for Measurements)
 
 > An RTM where the initial integrity measurement occurs at platform reset.
-The S-RTM is static because the PCRs associated with it cannot be reini
-tialized without a platform reset.
+The S-RTM is static because the PCRs associated with it cannot be
+reinitialized without a platform reset.
 
 ~ Trusted Computing Group Glossary, Version 1.1, rev 1.0 [^TCG_glossary]
 
@@ -222,6 +222,8 @@ may result in stopping the process of booting the device.
 
 Verified boot and measured boot are two fundamentally different concepts, which
 serve different purposes in a computer system and are not mutually exclusive.
+The two mechanisms don't compete nor substitute each other, but they can work
+in tandem and one can complement the other.
 
 #### Verified Boot
 
