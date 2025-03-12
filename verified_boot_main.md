@@ -434,80 +434,32 @@ the public key
 
 #### UEFI
 
-The UEFI specification defines the UEFI Secure Boot protocol as a security
+The UEFI specification defines the UEFI Secure Boot protocol[^UEFI_SB] as a security
 mechanism that can be used as a part of verified boot process. The protocol
 allows to verify the authenticity and integrity of UEFI drivers as well as
 the operating system before the hand-off.
 
-Verified boot depends on two roots of trust, the Chain of Trust for Measurement
-and the Chain of Trust for Verification. To provide verified boot
-functionalities a UEFI BIOS has to implement a number of software components
-that need to be verified and consequently added to these chains.
+What makes Secure Boot special is that the process is very well documented
+in the UEFI specification. Different UEFI BIOS implementations can differ
+in how exactly it is implemented and whether additional functionalities
+are provided, but thanks to the common specification, and standard set of UEFI
+Services, any UEFI compatible Operating Systems can be easily booted on any
+UEFI BIOS implementation.
 
-##### Hash services
+UEFI Secure Boot causes some controversy due to the fact that most hardware
+comes with Microsoft keys enrolled, and that most firmware and operating systems
+come signed using them. The Debian Wiki [^Debian_sb] explains how this fact
+does no harm to security nor freedom, as depending on the implementation,
+the keys can be modified.
 
-UEFI specification defines the protocols used to locate and access hashing
-services provided by software (drivers) or hardware components
-[^UEFI_hash_services]. These are required to calculate digests (hashes) to use
-in both measured boot and verified boot processes.
-
-##### Signature Database
-
-The signature database in UEFI is used to manage a list of
-trusted and revoked software signatures.
-
-UEFI Secure Boot bases the verification on two types of keys:
-- Platform Key
-- Key Exchange Keys (KEK)
-
-> The platform key establishes a trust relationship between the platform
-owner and the platform firmware. The platform owner enrolls the public half
-of the key (PKpub) into the platform firmware. (...) The platform owner can later
-use the private half of the key (PKpriv) to change platform ownership or to
-enroll a Key Exchange Key.
-
-~ Windows Secure Boot Key Creation and Management Guidance, section 1.3.2 [^Windows_sb_keys]
-
-The platform key, also called the owner key, is used to verify the KEKs that
-are maintained by the firmware and operating system vendors. It is enrolled
-during the production of a device by the OEM, but some UEFI BIOSes allow
-removing and enrolling a new one.
-
-> Key exchange keys establish a trust relationship between the operating
-system and the platform firmware. Each operating system (and potentially,
-each 3rd party application which need to communicate with platform firmware)
-enrolls a public key (KEKpub) into the platform firmware.
-
-~ Windows Secure Boot Key Creation and Management Guidance, section 1.3.4 [^Windows_sb_keys]
-
-The Key Exchange Keys are stored in the Signature Database along the trusted
-and revoked signatures of UEFI drivers and operating systems. Updates to the
-KEKs must be signed using the currently enrolled PK.
-
-Similarily, the updates to the trusted and revoked signature databases must be
-signed using an enrolled KEK. The signature databases can contain signatures of
-either software components or certificates with further signing keys.
-
-
-Microsoft is the official maintainer of UEFI Secure Boot Platform Keys.
-Using the default keys means trusting the device's security to Microsoft
-which is one of the reasons why some people are sceptic of the
-UEFI Secure Boot. [^HEADS_sb_wrong]
-<!-- TODO reference some more discussions -->
-
-
-[^UEFI_key_mgmnt]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#key-management-service
-[^UEFI_hash_services]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#hash-references
-[^UEFI_verify_protocol]: UEFI Specification Version 2.10 Errata A https://uefi.org/specs/UEFI/2.10_A/37_Secure_Technologies.html#pkcs7-verify-protocol
-[^UEFI_certificate_database]: https://uefi.org/specs/UEFI/2.10_A/32_Secure_Boot_and_Driver_Signing.html#uefi-image-validation
-[^UEFI_PK]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
-[^UEFI_key_exchange]: https://uefi.org/specs/UEFI/2.10/32_Secure_Boot_and_Driver_Signing.html#firmware-os-key-exchange-creating-trust-relationships
-[^MS_SB]: https://learn.microsoft.com/en-us/azure/security/fundamentals/secure-boot
-[^Windows_sb_keys]:  Windows Secure Boot Key Creation and Management Guidance, section 1.3.2, https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-secure-boot-key-creation-and-management-guidance?view=windows-11#13-secure-boot-pki-requirements
+[^UEFI_SB]: UEFI Specification Version 2.10 Erata A, Section 32 - Secure Boot and Driver Signing, https://uefi.org/specs/UEFI/2.10_A/32_Secure_Boot_and_Driver_Signing.html#secure-boot-and-driver-signing
+[^Debian_sb]: Debian Wiki, "What is UEFI Secure Boot?" https://wiki.debian.org/SecureBoot
 
 [^HEADS_sb_wrong]: http://osresearch.net/FAQ/#whats-wrong-with-uefi-secure-boot
 
 #### Heads
+
+https://tech.michaelaltfield.net/2023/02/16/evil-maid-heads-pureboot/
 
 <!--
 http://osresearch.net/ not much info here, are there better sources on how
