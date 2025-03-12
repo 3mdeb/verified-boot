@@ -446,26 +446,40 @@ are provided, but thanks to the common specification, and standard set of UEFI
 Services, any UEFI compatible Operating Systems can be easily booted on any
 UEFI BIOS implementation.
 
-UEFI Secure Boot causes some controversy due to the fact that most hardware
+UEFI Secure Boot causes some controversy[^Wikipedia_uefi_criticism] due to the fact that most hardware
 comes with Microsoft keys enrolled, and that most firmware and operating systems
-come signed using them. The Debian Wiki [^Debian_sb] explains how this fact
-does no harm to security nor freedom, as depending on the implementation,
+come signed using them. The Debian Wiki [^Debian_sb] explains how this fact,
+depending on the implementation, does no harm to security nor freedom, as
 the keys can be modified.
 
 [^UEFI_SB]: UEFI Specification Version 2.10 Erata A, Section 32 - Secure Boot and Driver Signing, https://uefi.org/specs/UEFI/2.10_A/32_Secure_Boot_and_Driver_Signing.html#secure-boot-and-driver-signing
 [^Debian_sb]: Debian Wiki, "What is UEFI Secure Boot?" https://wiki.debian.org/SecureBoot
-
-[^HEADS_sb_wrong]: http://osresearch.net/FAQ/#whats-wrong-with-uefi-secure-boot
+[^Wikipedia_uefi_criticism]: https://en.wikipedia.org/wiki/UEFI#Secure_Boot_criticism
 
 #### Heads
 
-https://tech.michaelaltfield.net/2023/02/16/evil-maid-heads-pureboot/
+Heads consists of a custom coreboot[^Heads_coreboot][^coreboot] firmware
+and a minimal Linux kernel embedded in the SPI chip[^Heads_intro].
 
-<!--
-http://osresearch.net/ not much info here, are there better sources on how
-Heads implements verification?
--->
+The main point of Heads is to move the authority to verify the trust towards
+a computer system from an OEM or a corporation back to the user.
 
+Heads[^Heads_by_trammel_hudson] uses measured boot to measure the integrity of
+the whole system. This includes the proprietary binary blobs provided by
+the CPU vendors. The measurements are saved it inside the TPM module serving
+as an RTS for the purpose of verifying if the system's integrity was not
+compromised when booting next time.
+Additionally Heads implements verified boot by signing
+and verifying its components using keys controlled by the user, preferably
+in the form of a hardware token[^Heads_by_trammel_hudson_33c3]. The user keys
+are not only used to authenticate the user to the system, but also to
+authenticate the system to the user.
+
+[^coreboot]: https://coreboot.org/
+[^Heads_intro]: https://osresearch.net/#overview
+[^Heads_coreboot]: https://osresearch.net/FAQ/#why-replace-uefi-with-coreboot
+[^Heads_by_trammel_hudson]: https://trmm.net/Heads/
+[^Heads_by_trammel_hudson_33c3]: Heads 33c3, section "Code signing", https://trmm.net/Heads_33c3/
 
 ### Firmware protections against changing settings in its UI
 
