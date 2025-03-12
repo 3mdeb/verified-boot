@@ -422,15 +422,31 @@ the public key
 ### Non-functional requirements
 
 ## 3. Firmware
-- 884-914    "Part 1 - Hardware and Firmware"
-- 915-938    "Part 2: Firmware and OS"
 
 ### Implementations of verified boot
 <!-- Describe differences in verified boot between Legacy / UEFI / Heads -->
 
 #### Legacy
 
-#### Legacy
+Legacy BIOS firmware is highly implementation dependent. It is common
+for BIOS firmware to implement a subset of BIOS interrupt calls[^wikipedia_bic]
+compatible with the ones used in the first IBM PCs, but it is not required.
+
+Not every BIOS firmware implements verified boot and the implementations are not
+guaranteed to have a compatible API or ABI. Some common open-source non-UEFI
+BIOSes that work towards verified boot include:
+- `coreboot` - implements verified boot, calls the feature `vboot` [^coreboot_vboot]
+- `skiboot` - implements verified boot and exposes the API as the
+  Secure and Trusted Boot Library [^skiboot_libstb]
+- `seabios` - exposes the `1Ah` BIOS interrupt, an ABI defined by the TCG[^TCG_1ah]
+  that allows interacting with TPM and performing verification and measurements
+  by the next launched component[^seabios_1ah]
+
+[^wikipedia_bic]: https://en.wikipedia.org/wiki/BIOS_interrupt_call
+[^coreboot_vboot]: https://doc.coreboot.org/security/vboot/index.html
+[^TCG_1ah]: TCG PC Client Specific Implementation Specification for Conventional BIOS, section https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientImplementation_1-21_1_00.pdf
+[^seabios_1ah]: https://mail.coreboot.org/pipermail/seabios/2011-April/001609.html
+[^skiboot_libstb]: https://open-power.github.io/skiboot/doc/stb.html
 
 #### UEFI
 
@@ -513,7 +529,6 @@ http://osresearch.net/FAQ/#why-use-linux-instead-of-vboot2
  [^Gigabyte_password]: Gigabyte BIOS Setup User's Guide, Chapter 1, under "Security", https://download.gigabyte.com/FileList/Manual/server_manual_r121-x30_bios_e_1.0.pdf
 
 ### Firmware protections against changing firmware's flash chip
-- 811-831    "Write Protection"
 
 The processes of verified boot and measured boot can be used to detect that
 the system's security might have been compromited and react to it accordingly.
