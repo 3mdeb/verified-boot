@@ -549,6 +549,47 @@ http://osresearch.net/FAQ/#why-use-linux-instead-of-vboot2
 ### Firmware protections against changing firmware's flash chip
 - 811-831    "Write Protection"
 
+The processes of verified boot and measured boot can be used to detect that
+the system's security might have been compromited and react to it accordingly.
+
+Protecting the firmware's flash chip from being modified, on the other hand,
+is a precaution that might save the device from being compromited altogether.
+Making the chip read only should make it impossible to add an untrusted
+component to the boot process. Such protections only apply to modifying the
+flash chip via the integrated programmer that can be operated by the CPU
+and the software running on it. They don't protect the flash chip from being
+reprogrammed by physically connecting an external programmer device to it.
+
+On the example of Intel platforms, the supported protections are described
+in the chipset Platform Controller Hub datasheets and consist of three
+mechanisms:
+
+- Flash Descriptor Master Region [^Intel_series_9_pch_5-26-2-1]
+  - Defines the structure of firmware regions
+  - Controls the read and write access to the regions
+  - The *Master* [^Intel_series_9_pch_5-26-2-1] of the region can access it
+    no matter the access setting
+  - The CPU is the *Master* of the BIOS region, so this mechanism
+    is not enough to protect the BIOS from malicious software
+- Global Write Protection [^Intel_series_9_pch_5-26-5-1]
+  - Blocks writes to the whole SPI chip
+  - Can be turned off after booting by System Management Mode code
+- BIOS Range Write Protection [^Intel_series_9_pch_5-26-5-1]
+  - Blocks writes to a specific address ranges of the SPI flash chip memory
+  - Can only be turned off by a system reset
+
+<!--
+https://eclypsium.com/blog/firmware-security-realizations-part-3-spi-write-protections/
+https://opensecuritytraining.info/IntroBIOS_files/Day2_03_Advanced%20x86%20-%20BIOS%20and%20SMM%20Internals%20-%20SPI%20Flash%20Protection%20Mechanisms.pdf
+https://nixhacker.com/analyse-bios-protection-against-uefi-rootkit/
+https://cdrdv2-public.intel.com/743835/743835-004.pdf, section 27.1.1
+ -->
+
+[^Intel_series_9_pch]: https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/9-series-chipset-pch-datasheet.pdf
+[^Intel_series_9_pch_5-26-2-1] Intel 9 Series Chipset PCH, section 5.26.2.1: https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/9-series-chipset-pch-datasheet.pdf
+[^Intel_series_9_pch_5-26-5-1] Intel 9 Series Chipset PCH, section 5.26.2.1: https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/9-series-chipset-pch-datasheet.pdf
+
+
 ### Intel Boot Guard / AMD Platform Secure Boot
 
 <!-- TODO?? Because the technologies are more or less equivalent, maybe it's
