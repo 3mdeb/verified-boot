@@ -424,7 +424,13 @@ the public key
 ## 3. Firmware
 
 ### Implementations of verified boot
-<!-- Describe differences in verified boot between Legacy / UEFI / Heads -->
+
+Booting the system is a multistep process that might include an arbitrary
+sequence of components. In order to perform a verified boot of the system,
+every firmware and software component ran after the Root of Trust has to be
+verified and verify the next component in the chain. Launching a component that
+does not implement verified boot and passes execution to unverified code
+breaks the chain of trust and poses a security risk.
 
 #### Legacy
 
@@ -475,14 +481,16 @@ the keys can be modified.
 #### Heads
 
 Heads consists of a custom coreboot[^Heads_coreboot][^coreboot] firmware
-and a minimal Linux kernel embedded in the SPI chip[^Heads_intro].
+and a minimal Linux kernel embedded in the SPI chip[^Heads_intro]. It is
+a complete package of firmware components that allows to boot the operating
+system securely.
 
 The main point of Heads is to move the authority to verify the trust towards
 a computer system from an OEM or a corporation back to the user.
 
 Heads[^Heads_by_trammel_hudson] uses measured boot to measure the integrity of
 the whole system. This includes the proprietary binary blobs provided by
-the CPU vendors. The measurements are saved it inside the TPM module serving
+the CPU vendors. The measurements are saved inside the TPM module serving
 as an RTS for the purpose of verifying if the system's integrity was not
 compromised when booting next time.
 Additionally Heads implements verified boot by signing
