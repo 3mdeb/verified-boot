@@ -1162,28 +1162,25 @@ physical media.
 
 #### Verifying boot media with secure-boot
 
-Kicksecure would like to utilize secure boot to verify distributed installation media, yet there are limitations to this technology which do not allow it:
+Kicksecure would like to utilize secure boot to verify distributed installation
+media, yet there are limitations to this technology which do not allow it:
 * Booting `.iso` file directly, rather than flashing the contents onto physical
 media, is possible with boot-loaders like GRUB[^4]. Yet, such image cannot be
 cryptographically verified as a whole. GRUB verifies contents at
 component-level. This approach might still lead to executing repackaged `iso`.
 * Vast majority of x86 based hardware comes preloaded with Microsoft keys, this
-means that when secure boot is enabled, ony Microsoft signed binaries are
-allowed to run[^5]. Binaries can be signed only with a single key, this means
-that OS vendors cannot sign binaries themselves as they'd be prohibited from
-executing. Kicksecure came out with few ideas on how these limitations could be
-resolved:
-    * Maintain two disk images (one signed, one unsigned),
-    * Create disk images with two boot-loaders,
-    * Sell custom hardware with preloaded Kicksecure keys.
-
-#### References
+means that when secure boot is enabled, only Microsoft signed binaries are
+allowed to run[^5]. It used to be that binaries could be signed only with a
+single key, this means that OS vendors couldn't sign binaries themselves as
+they would have been prohibited from executing. As of 2014 a binary can be
+signed by multiple authorities[^6].
 
 [^1]: [iso-file-extension](https://fileinfo.com/extension/iso)
 [^2]: [iso-image](https://www.lenovo.com/us/en/glossary/iso-image/)
 [^3]: [unified-extensible-firmware-nterface/secure-boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#ISO_repacking)
 [^4]: [multiboot-usb-drive](https://wiki.archlinux.org/title/Multiboot_USB_drive#Using_GRUB_and_loopback_devices)
 [^5]: [SecureBoot](https://wiki.debian.org/SecureBoot)
+[^6]: [add-multiple-signature-support](https://web.git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git/commit/src/image.c?id=f6115a8045275a0dc138f9088ba018441146e81d)
 
 ### VMs
 - 939-946    Part 3: OS and VMs
