@@ -583,18 +583,12 @@ https://cdrdv2-public.intel.com/743835/743835-004.pdf, section 27.1.1
 
 ### Intel Boot Guard / AMD Platform Secure Boot
 
-<!-- TODO?? Because the technologies are more or less equivalent, maybe it's
-better to describe what they are about here and then show the differences
-in naming in the two sections -->
+The two technologies are mostly equivalent and serve the purpose of providing
+Hardware Roots of Trust, which are harder to compromise than software-based
+ones, and allowing to create uninterrupted Chains of Trust from the hardware
+up to an operating system.
 
-The two technologies are mostly equivalent and serve the purpose of:
-- Verifying and Measuring the BIOS firmware
-- Providing a Hardware RTM (HRTM) and RTV (HRTV) for the processes
-  of verified and measured boot
-- Allowing to create uninterrupted Chains of Trust from the hardware up to
-  an operating system
-
-The hardware roots of trust consist of:
+The two implementations include, but are not limited to:
 - A secure storage for enrolling keys by the OEM. Possibly using electronic
 fuses[^efuses_wikipedia] that make the keys permamently encoded into the CPU
 - Hardware implementations of basic cryptography operations
@@ -618,9 +612,10 @@ to extend it by verifying the rest of the BIOS firmware.
 
 #### AMD Platform Secure Boot
 
-The AMD Platform Secure Boot[^AMD_PSB], also called AMD Hardware Validated Boot[^AMD_HVB] on data
-center processors, provides the Hardware RTM and RTV thanks to the
-`AMD Secure Processor (ASP)`, which is logically isolated from the CPU.
+The AMD Platform Secure Boot[^AMD_PSB] (formerly known as AMD Hardware
+Validated Boot[^AMD_HVB]), provides the Hardware RTV thanks to the
+`AMD Secure Processor (ASP)` (formerly known as Platform Security
+Processor - PSP), which is logically isolated from the CPU.
 The ASP executes the `ASP boot loader code` - a read only code embedded within
 the ASP, which verifies an initial part of the firmware called the `Secure Loader (SL)`
 using keys fused into the CPU. Verifying the SL makes it the second link of the CTV.
@@ -629,14 +624,6 @@ Chain of Trust for Verification by verifying the rest of the BIOS firmware.
 
 [^AMD_HVB]: https://www.amd.com/content/dam/amd/en/documents/epyc-business-docs/white-papers/5th-gen-amd-epyc-processor-architecture-white-paper.pdf
 [^AMD_PSB]: https://www.amd.com/content/dam/amd/en/documents/products/processors/ryzen/7000/ryzen-pro-7000-security-whitepaper.pdf
-<!-- - Platform Security Processor (PSP)
-- https://doc.coreboot.org/soc/amd/psp_integration.html
-- https://ioactive.com/exploring-amd-platform-secure-boot/ - might be great,
-but I don't know about the credentialibity of this site
-- AMD developer guide that describes the Platform Secure Processor https://www.amd.com/content/dam/amd/en/documents/archived-tech-docs/programmer-references/52740_16h_Models_30h-3Fh_BKDG.pdf
-
-
--->
 [^efuses_wikipedia]: https://en.wikipedia.org/wiki/EFuse
 
 ## 4. OS-level approaches at limiting system modification
