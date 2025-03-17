@@ -441,7 +441,7 @@ compatible with the ones used in the first IBM PCs, but it is not required.
 Not every BIOS firmware implements verified boot and the implementations are not
 guaranteed to have a compatible API or ABI. Some common open-source non-UEFI
 BIOSes that work towards verified boot include:
-- `coreboot` - implements verified boot, calls the feature `vboot` [^coreboot_vboot]
+- `coreboot` - implements both verified boot[^coreboot_vboot] and measured boot[^coreboot_vboot_measured]
 - `skiboot` - implements verified boot and exposes the API as the
   Secure and Trusted Boot Library [^skiboot_libstb]
 - `seabios` - exposes the `1Ah` BIOS interrupt, an ABI defined by the TCG[^TCG_1ah]
@@ -451,6 +451,7 @@ BIOSes that work towards verified boot include:
 
 [^wikipedia_bic]: https://en.wikipedia.org/wiki/BIOS_interrupt_call
 [^coreboot_vboot]: https://doc.coreboot.org/security/vboot/index.html
+[^coreboot_vboot_measured]: https://doc.coreboot.org/security/vboot/measured_boot.html
 [^TCG_1ah]: TCG PC Client Specific Implementation Specification for Conventional BIOS, section https://trustedcomputinggroup.org/wp-content/uploads/TCG_PCClientImplementation_1-21_1_00.pdf
 [^seabios_1ah]: https://mail.coreboot.org/pipermail/seabios/2011-April/001609.html
 [^skiboot_libstb]: https://open-power.github.io/skiboot/doc/stb.html
