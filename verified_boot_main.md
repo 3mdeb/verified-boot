@@ -472,7 +472,7 @@ UEFI BIOS implementation.
 
 UEFI Secure Boot causes some controversy[^Wikipedia_uefi_criticism] due to the fact that most hardware
 comes with Microsoft keys enrolled, and that most firmware and operating systems
-come signed using them. The Debian Wiki [^Debian_sb] explains how this fact,
+come signed by those keys. The Debian Wiki [^Debian_sb] explains how this fact,
 depending on the implementation, does no harm to security nor freedom, as
 the keys can be modified.
 
@@ -533,7 +533,7 @@ http://osresearch.net/FAQ/#why-use-linux-instead-of-vboot2
 
  -->
 
- [^Dasharo_password]: Dasharo menu overwier, User password management, https://docs.dasharo.com/dasharo-menu-docs/overview/#user-password-management
+ [^Dasharo_password]: Dasharo menu overwiew, User password management, https://docs.dasharo.com/dasharo-menu-docs/overview/#user-password-management
  [^MSI_password]: MSI DT BIOS Manual, under "Security", https://www.msi.com/support/technical_details/DT_BIOS_Manual
  [^system76_password]: System76 Technical Documentation, Security, https://tech-docs.system76.com/models/addw1/setup-specs.html#security
  [^Gigabyte_password]: Gigabyte BIOS Setup User's Guide, Chapter 1, under "Security", https://download.gigabyte.com/FileList/Manual/server_manual_r121-x30_bios_e_1.0.pdf
@@ -541,11 +541,11 @@ http://osresearch.net/FAQ/#why-use-linux-instead-of-vboot2
 ### Firmware protections against changing firmware's flash chip
 
 The processes of verified boot and measured boot can be used to detect that
-the system's security might have been compromited and react to it accordingly.
+the system's security might have been compromised and react to it accordingly.
 
 Protecting the firmware's flash chip from being modified, on the other hand,
-is a precaution that might save the device from being compromited altogether.
-Making the chip read only should make it impossible to add an untrusted
+is a precaution that might save the device from being compromised or tampered
+with. Making the chip read only should make it impossible to add an untrusted
 component to the boot process. Such protections only apply to modifying the
 flash chip via the integrated programmer that can be operated by the CPU
 and the software running on it. They don't protect the flash chip from being
