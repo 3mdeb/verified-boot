@@ -742,6 +742,9 @@ Intended for scenarios where low overhead is needed[^7].
 * EROFS - stands for "Enhanced Read-Only File System", a general-purpose,
 flexible filesystem focused on runtime-performance[^8].
 
+Note: read-only file systems may not be misconstrued as write-protection, refer
+to [read only physical media](#read-only-physical-media) and [ISOs](#isos).
+
 #### Mounting as readonly on Linux
 
 In context of attaching storage devices in Linux, a read-only is a storage
@@ -788,20 +791,37 @@ Immutable Linux operating systems are aimed to introduce reliable, more secure
 approach to Linux. Immutable Linux OS cores are designed to be unchangeable
 and read only, meaning any changes made to the system are lost when system
 reboots. The advantages of immutability are:
-* increased security - even if system is compromised on runtime, permanent
-changes cannot be made by design,
+* increased security - modifications to installed system structure should not
+be possible by design,
 * easy maintenance - updates are made via atomic upgrades.
 
 These types of systems are updated via creating new OS instance,
 deploying it and switching over to the new one. This process is referred to as
 "image-based-update"[^15]. Updates are done alongside reboot, the architecture
 ensures that in case of failure in updating the system, one can easily revert
-system to previous state. Immutable distributions use containerization for
-applications to ensure they are isolated from core system[^16]. Some examples
-of immutable linux distributions are: Fedora CoreOs, SUSE MicroOS, Fedora
-Silverblue or NixOS. Each distro has it's own approach and technology stack
-that ensure immutability, eg. Fedora OSes and and SUSE MicroOS use rpm-ostree,
-which provides read-only access to most of the files[^17].
+system to previous state. There are multiple ways of handling package
+installation on immutable distributions. One of the approaches is to
+use containerization for applications to ensure they are isolated from core
+system[^16]. Some examples of immutable linux distributions are: Fedora CoreOs,
+SUSE MicroOS, Fedora Silverblue or NixOS. Each distro has it's own approach and
+technology stack that ensure immutability, eg. Fedora OSes and and SUSE MicroOS
+use rpm-ostree, which provides read-only access to most of the files[^17].
+
+#### Immutable vs stateless
+
+`Stateless` is a deign principle in which system (not essentially operating
+system) or application does not retain any user session information in between
+interactions with stateless entity. Each interaction is independent, it
+requires full context needed to perform certain action[^18]. Stateless systems
+act like they were just were re-deployed from ground up. Such systems never
+store any data on persistent storage, instead they rely on receiving
+configuration during runtime via various mechanisms[^19]. Immutability and
+statelessness should not be confused. Immutability ensures a system cannot be
+changed after deployment, statelessness means a system can be entirely replaced
+without concern for local state persistence[^20]. The difference between
+stateless systems and immutable systems is that stateless system is designed to
+be unmodifiable as a whole. Immutable systems on the other hand, ensure that
+only core of the system cannot be modified, but some user data is preserved.
 
 [^1]: [read-only](https://encyclopedia2.thefreedictionary.com/read+only)
 [^2]: [what-is-rom](https://umatechnology.org/what-is-rom-how-read-only-memory-works-in-computers/)
@@ -821,6 +841,9 @@ which provides read-only access to most of the files[^17].
 [^15]: [Understanding-immutable-linux-os](https://kairos.io/blog/2023/03/22/understanding-immutable-linux-os-benefits-architecture-and-challenges/)
 [^16]: [what-is-immutable-linux](https://www.zdnet.com/article/what-is-immutable-linux-heres-why-youd-run-an-immutable-linux-distro/)
 [^17]: [the-future-is-minimal-and-immutable](https://sonalake.com/latest/the-future-is-minimal-and-immutable-a-new-generation-of-operating-systems/) 
+[^18]: [stateful-vs-stateless](https://www.ninjaone.com/blog/stateful-vs-stateless-architecture/)
+[^19]: [factory-reset-stateless-systems-reproducible-systems-verifiable-systems](https://0pointer.net/blog/projects/stateless.html)
+[^20]: [stateless-linux](https://konfou.xyz/posts/stateless-linux/)
 
 ### Checksum verification
 
