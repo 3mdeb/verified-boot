@@ -76,6 +76,66 @@ running on the CPU.
 
 ## Static and Dynamic RTM
 
+Measured Boot can be performed basing on: Static RTM or Dynamic RTM.
+Achieving measured boot using the two Roots of Trust differ in how the process
+is performed and each has its strenghts and shortcomings. The two techniques can
+even be used together to achieve the best results[^Intel_txt_security_paper].
+
+### SRTM
+
+The Static Root of Trust for Measurements creates a Chain of Trust, which
+starts with the first code executed on the CPU. The code is often read only,
+proprietary and provided by the hardware vendor. From there, every executed
+software is being measured and added to the chain of trust extending the
+Trusted Computing Base. The process is simple, but the resulting
+Trusted Computing Base can end up being large and its security can be difficult
+to audit.
+
+### DRTM
+
+The main difference in Dynamic Root of Trust for Measurement is that the RTM
+does not start with the first code executed on the CPU, but with the execution
+of a special CPU instruction
+(Intel - SINIT[^Intel_txt_security_paper], AMD - SKINIT[^AMD_DRTM_guide]).
+
+This allows to exclude the boot code, the firmware and the bootloader, from
+the TCB by allowing them to run during platform boot, but ensuring they won't
+affect the security of the platform after the special D-RTM CPU instruction
+is executed. The code executed after the DRTM initialization instruction is said
+to run in a measured environment (Intel), or a secure execution environment
+(AMD).
+
+### Why use SRTM and DRTM at the same time
+
+Because modern CPUs include features like the Intel ME and AMD ASP, which are
+more privileged than any other code on the CPU, the environment in which the
+platform will execute code after the DRTM initialization instruction can not be
+entirely hermetized from them.
+
+For this reason SRTM and DRTM should be used together[^Intel_txt_security_paper_srtm_and_drtm],
+so that the highly priviledged components like Intel ME and AMD ASP can be
+verified using SRTM, and the code running in a measured environment created
+using the DRTM, while not entirely hermetized, can at least depend on the
+SRTM measurements.
+
+This way the TCB of the SRTM can be reduced to the highly priviledged hardware
+components that can affect the measured environment of the DRTM, and the TCB
+of the DRTM can be left unchanged, and minimal.
+
+### Pros and cons of SRTM and DRTM
+
+|Criterion|SRTM|DRTM|
+|--|--|--|
+|First measurements|First CPU instructions|Anywhere and anything|
+|Size of TCB|Large|Minimal|
+|Implementation and use|Simple|Complex|
+|Hardware support|Not required|Required|
+
+[^Intel_txt_security_paper]: https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/trusted-execution-technology-security-paper.pdf
+[^AMD_DRTM_guide]: https://www.amd.com/content/dam/amd/en/documents/epyc-technical-docs/user-guides/58453.pdf
+[^Intel_txt_security_paper_srtm_and_drtm]: Intel TXT Security Paper, Details: Establishing a root of
+trust with Intel TXT for Servers, paragraph 3. starting with "Intel developed Intel TXT architecture for servers...", https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/
+
 ## EK and hierarchies
 
 [^TPM_standard]: https://www.iso.org/standard/66513.html
