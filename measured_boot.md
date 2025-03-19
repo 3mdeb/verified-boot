@@ -74,6 +74,31 @@ The TPM can securely store and report its storage allowing for recording
 the platform state reliably, but the whole process is controlled by the code
 running on the CPU.
 
+### Data Sealing and Unsealing
+
+Sealing and Unsealing is a functionality of the TPM that allows saving any data
+in a Shielded Location [^TPM_spec_4-89] where the access to the data is
+controlled by the Autorization Subsystem [^TPM_spec_11-5] where a set of
+policies can be used to control the access to the data.
+
+The process of saving the data is called `sealing`. Such data can only be
+`unsealed` if the given set of Policies is satisfied.
+
+Sealing an object with an unseal policy so that a set of PCRs has to have
+defined values (PolicyPCR) can be used to make sure a secret is only revealed
+if the platform is in an expected state, that is no untrusted code was executed
+up to a given point. Sealing a piece of data crucial for the boot process,
+like the disk password, can prevent the platform from booting and
+potentially exposing sensitive data when the platform is not in a trusted
+state.
+
+An example of a more complex unseal policy is given in the TPM specification
+where a PolicyPCR and a PolicyAuthorize are used together as alternatives
+to allow unsealing the secret during a BIOS update. The Update changes the
+PCR values making the PolicyPCR fail, but using a signature from the
+platform OEM supplying the BIOS update the PolicyAuthorize is satisfied
+and the keys are unsealed by the TPM.[^TPM_spec_19-7-11]
+
 ## Static and Dynamic RTM
 
 Measured Boot can be performed basing on: Static RTM or Dynamic RTM.
@@ -136,19 +161,16 @@ of the DRTM can be left unchanged, and minimal.
 [^Intel_txt_security_paper_srtm_and_drtm]: Intel TXT Security Paper, Details: Establishing a root of
 trust with Intel TXT for Servers, paragraph 3. starting with "Intel developed Intel TXT architecture for servers...", https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/
 
-## EK and hierarchies
-
 [^TPM_standard]: https://www.iso.org/standard/66513.html
 [^TPM_Spec]: https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_11-6-2]: Section 11.6.2, Platform Configuration Registers (PCR), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_4-84]: Section 4, definition 84, Sealed Object Data, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_4-89]: Section 4, definition 89, Shielded Location, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_11-6-3]: Section 11.6.3 Object Store, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_11-5]: Section 11.5 Authorization Subsystem, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-1]: Section 17.1, Initializing PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-2]: Section 17.2, Extend of a PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-7-2]: 17.7.2 Authorization Set, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_19-7-11]: Section 19.7.11 Modification of Policies, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^NIST_HMAC]: NIST FIPS 198-1, The Keyed-Hash Message Authentication Code (HMAC), https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf
 [^TPM_spec_34-1]: 34.1 Hardware Core Root of Trust Measurement (H-CRTM) Event Sequence, Introduction, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
-PCRs
-Sealing/unsealing operations
-Difference between static and dynamic RTM
-EK and hierarchies
-
-Short (1-2 sentences max) description of differences between measured and verified boot, with link to verified boot page.
