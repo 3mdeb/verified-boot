@@ -32,11 +32,12 @@ Storage.
 
 #### Platform Configuration Register (PCR)
 
-The PCRs[TPM_spec_11-6-2] are small secure memory locations in the TPM which can be read by the
-system freely, but cannot be directly written to. A PCR can only be modified by:
+The PCRs[^TPM_spec_11-6-2] are small secure memory locations in the TPM which
+can be read by the system freely, but cannot be directly written to.
+A PCR can only be modified by:
 
-- resetting
-- extending
+- resetting[^TPM_spec_17-1]
+- extending[^TPM_spec_17-2]
 
 Extending a PCR is a key operation in the process of measured boot using TPM.
 Extending a hash consists of appending some data to the bytes of the hash and
@@ -49,13 +50,21 @@ the PCR by the TPM.
 The integrity of the measurement log can be verified by calculating and
 extending all the digests in the log. The resulting value can be compared
 against the one saved in a PCR as any change to the chain of measured components
-will result in a different hash value in the end
+will result in a different hash value in the end.
 
-Comparing the values in PCRs to some well-known
-ones allows to verify the integrity of all the components measured during
-the process of measured boot in one operation.
+Comparing the values in PCRs to some well-known ones allows to verify the
+integrity of all the components measured during the process of measured boot
+in one operation.
 
 ### Root of Trust for Reporting
+
+The TPM allows to ensure the integrity and authenticity of the data read from
+its storage. Because of that it can act as the
+Root of Trust for Reporting of the data stored in the TPM's storage.
+
+One way this can be achieved is by creating a HMAC[^NIST_HMAC] session with the
+TPM[^TPM_spec_17-7-2]. The PCR value will be provided alongside a HMAC allowing
+for verifying that it comes from the TPM chip and was not altered in any way.
 
 ### Static and Dynamic RTM
 
@@ -63,7 +72,12 @@ the process of measured boot in one operation.
 
 [^TPM_standard]: https://www.iso.org/standard/66513.html
 [^TPM_Spec]: https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
-[TPM_spec_11-6-2]: Section 11.6.2, Platform Configuration Registers (PCR), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_11-6-2]: Section 11.6.2, Platform Configuration Registers (PCR), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_17-1]: Section 17.1, Initializing PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_17-2]: Section 17.2, Extend of a PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_17-7-2]: 17.7.2 Authorization Set, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^NIST_HMAC]: NIST FIPS 198-1, The Keyed-Hash Message Authentication Code (HMAC), https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf
+
 PCRs
 Sealing/unsealing operations
 Difference between static and dynamic RTM
