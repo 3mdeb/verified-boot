@@ -99,6 +99,41 @@ PCR values making the PolicyPCR fail, but using a signature from the
 platform OEM supplying the BIOS update the PolicyAuthorize is satisfied
 and the keys are unsealed by the TPM.[^TPM_spec_19-7-11]
 
+### TPM Key Hierarchies
+
+The TPM is able to generate asymmetric keypairs for specific uses.
+The keys are not stored in the non-volatile memory of the TPM, but are
+instead generated when needed using the `Primary Seed` of a given key hierarchy
+and are always the same for a given set of attributes
+
+The TPM specification defines three `Primary Key Seeds`, and their corresponding
+key hierachies[Section_14.4]:
+- Endorsement Primary Seed (EPS)
+- Storage Primary Seed (SPS)
+- Platform Primary Seed (PPS)
+
+The Primary Key Seeds never leave the TPM and are the most important secrets
+held by it as all the keys used by the TPM are derived from them.
+
+#### Endorsement Key hierarchy
+
+A Endorsement Key (EK)[14.4.2] is an identity of the Root of Trust for Reporting.
+All the data that is reported by the TPM, like the PCR values, are authorized
+to an Endorsement Key, or a key verified using a certificate issued using the
+Endorsement Key.
+
+#### Platform Key hierarchy
+
+A Platform Key (PK)[14.4.3] and its hierarchy is controlled by the platform firmware.
+The TPM can be used to generate the PK for the firmare's use
+
+#### Storage Root Key hierarchy
+
+Storage Root Key (SRK) and the hierarchy of keys signed by it are controlled
+by the platform owner. The keys can be used by the OS and applications for any
+use, like sealing some secret by encrypting it on the disk using a SRK hierarchy
+key, which itself is sealed by the TPM.
+
 ## Static and Dynamic RTM
 
 Measured Boot can be performed basing on: Static RTM or Dynamic RTM.
