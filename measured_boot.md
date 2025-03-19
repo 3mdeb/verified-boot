@@ -66,9 +66,17 @@ One way this can be achieved is by creating a HMAC[^NIST_HMAC] session with the
 TPM[^TPM_spec_17-7-2]. The PCR value will be provided alongside a HMAC allowing
 for verifying that it comes from the TPM chip and was not altered in any way.
 
-### Static and Dynamic RTM
+### Not a Root of Trust for Measurements
 
-### EK and hierarchies
+The TPM can not act as the RTM, because it is not able to initiate the
+measurements. The TPM is only a tool which is operated by the CPU[^TPM_spec_34-1].
+The TPM can securely store and report its storage allowing for recording
+the platform state reliably, but the whole process is controlled by the code
+running on the CPU.
+
+## Static and Dynamic RTM
+
+## EK and hierarchies
 
 [^TPM_standard]: https://www.iso.org/standard/66513.html
 [^TPM_Spec]: https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
@@ -77,7 +85,7 @@ for verifying that it comes from the TPM chip and was not altered in any way.
 [^TPM_spec_17-2]: Section 17.2, Extend of a PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-7-2]: 17.7.2 Authorization Set, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^NIST_HMAC]: NIST FIPS 198-1, The Keyed-Hash Message Authentication Code (HMAC), https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf
-
+[^TPM_spec_34-1]: 34.1 Hardware Core Root of Trust Measurement (H-CRTM) Event Sequence, Introduction, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 PCRs
 Sealing/unsealing operations
 Difference between static and dynamic RTM
