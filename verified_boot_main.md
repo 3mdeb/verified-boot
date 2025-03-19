@@ -555,7 +555,7 @@ and the software running on it. They don't protect the flash chip from being
 reprogrammed by physically connecting an external programmer device to it.
 
 On the example of Intel platforms, the supported protections are described
-in the chipset Platform Controller Hub datasheets and consist of three
+in the chipset Platform Controller Hub datasheets and consist of a couple
 mechanisms:
 
 - Flash Descriptor Master Region [^Intel_series_9_pch_5-26-2-1]
@@ -566,8 +566,16 @@ mechanisms:
   - The CPU is the *Master* of the BIOS region, so this mechanism
     is not enough to protect the BIOS from malicious software
 - Global Write Protection [^Intel_series_9_pch_5-26-5-1]
-  - Blocks writes to the whole SPI chip
-  - Can be turned off after booting by System Management Mode code
+  - Blocks the executed code from writing to the SPI flash
+  - System Management Mode (SMM) code can turn it on/off anytime
+  - Disabling the protection from non-SMM code launches a
+    System Management Interrupt that can prevent the protection from being
+    disabled
+  - SMM BIOS Write Protection [^Intel_series_9_pch_12-1-33]
+    - Part of the Global Write Protection mechanism
+    - Can prevent non-SMM code from writing to the BIOS chip regardless
+      of the other settings
+    - Nowadays known as Enable InSMM.STS (EISS) [^Intel_800_series_pch_vol2]
 - BIOS Range Write Protection [^Intel_series_9_pch_5-26-5-1]
   - Blocks writes to a specific address ranges of the SPI flash chip memory
   - Can only be turned off by a system reset
@@ -582,6 +590,7 @@ https://cdrdv2-public.intel.com/743835/743835-004.pdf, section 27.1.1
 [^Intel_series_9_pch]: https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/9-series-chipset-pch-datasheet.pdf
 [^Intel_series_9_pch_5-26-2-1] Intel 9 Series Chipset PCH, section 5.26.2.1: https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/9-series-chipset-pch-datasheet.pdf
 [^Intel_series_9_pch_5-26-5-1] Intel 9 Series Chipset PCH, section 5.26.2.1: https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/9-series-chipset-pch-datasheet.pdf
+[^Intel_series_800_pch_vol2] Intel 800 Series Chipset PCH, Volume 2, https://edc.intel.com/content/www/us/en/design/publications/800-series-chipset-family-platform-controller-hub-pch-volume-2/bios-control-bios-spi-bc-offset-dc/
 
 
 ### Intel Boot Guard / AMD Platform Secure Boot
