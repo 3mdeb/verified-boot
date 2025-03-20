@@ -8,7 +8,7 @@ Contrary to verified boot[^VerifiedBoot], measured boot does not prevent
 untrusted code from being executed, but it makes it impossible for the execution
 of such code to go undetected.
 
-Every single piece of code executed since the start up to the end of the
+Every single piece of code executed since the start-up to the end of the
 measured boot process has its digest calculated. The digests, called
 measurements, are then stored for future reference using the Root of Trust
 for Storage. The Root of Trust for Reporting allows to reliably analyze the
@@ -16,7 +16,7 @@ measurements history stored in the RTS and make decisions on the trust towards
 the platform depending on whether the sequence of code executed up to a point
 is expected, or if a security breach could have happened.
 
-This page will focus on the practical realisation of measured boot
+This page will focus on the practical realization of measured boot
 using a TPM module. Some more theory regarding the process and the definitions
 of basic concepts can be found on the [Verified Boot Page](./verified_boot_main.md)
 
@@ -25,7 +25,7 @@ of basic concepts can be found on the [Verified Boot Page](./verified_boot_main.
 ## Measured Boot and the Trusted Platform Module
 
 The Trusted Platform Module (TPM) is a secure cryptoprocessor, a dedicated
-microprocessor seperate from the CPU, able to perform cryptographic operations
+microprocessor separate from the CPU, able to perform cryptographic operations
 in a secure, tamper resistant environment. The TPM was created by the
 Trusted Computing Group, which maintains and develops its
 specification[^TPM_Spec]. The second edition of the specification is published
@@ -39,7 +39,7 @@ Root of Trust for Reporting.
 
 The TPM contains a volatile and non-volatile storage, which are not directly
 available to the rest of the system and are guarded by the TPM.
-Thanks to these storages, the TPM can be used as the the Root of Trust for
+Thanks to these storages, the TPM can be used as the Root of Trust for
 Storage.
 
 #### Platform Configuration Register (PCR)
@@ -64,13 +64,13 @@ extending all the digests in the log. The resulting value can be compared
 against the one saved in a PCR as any change to the chain of measured components
 will result in a different hash value in the end.
 
-Comparing the values in PCRs to some well-known ones allows to verify the
+Comparing the values in PCRs to some well-known ones allows verifying the
 integrity of all the components measured during the process of measured boot
 in one operation.
 
 ### Root of Trust for Reporting
 
-The TPM allows to ensure the integrity and authenticity of the data read from
+The TPM allows ensuring the integrity and authenticity of the data read from
 its storage. Because of that it can act as the
 Root of Trust for Reporting of the data stored in the TPM's storage.
 
@@ -108,12 +108,12 @@ An example of a more complex unseal policy is given in the TPM specification
 where a PolicyPCR and a PolicyAuthorize are used together as alternatives
 to allow unsealing the secret during a BIOS update. The Update changes the
 PCR values making the PolicyPCR fail, but using a signature from the
-platform OEM supplying the BIOS update the PolicyAuthorize is satisfied
+platform OEM supplying the BIOS update the PolicyAuthorize is satisfied,
 and the keys are unsealed by the TPM.[^TPM_spec_19-7-11]
 
 ### TPM Key Hierarchies
 
-The TPM is able to generate asymmetric keypairs for specific uses and
+The TPM is able to generate asymmetric key pairs for specific uses and
 act as an authority for attesting the trust towards them. Every key
 created using the TPM is a part of some `key hierarchy`.
 
@@ -130,7 +130,7 @@ for a given set of attributes allowing to save space in the TPM's secure NVRAM.
 The private parts of Primary Keys never leave the TPM.
 
 The TPM specification defines three `Primary Key Seeds`, and their corresponding
-key hierachies[^TPM_spec_14-4]:
+key hierarchies[^TPM_spec_14-4]:
 - Endorsement Primary Seed (EPS)
 - Storage Primary Seed (SPS)
 - Platform Primary Seed (PPS)
@@ -148,7 +148,7 @@ like the PCR values, is authorized to the Endorsement Key.
 
 A Platform Key (PK)[^TPM_spec_14-4-3] and its hierarchy is controlled by and
 used by the platform firmware. The TPM can generate the PK for the
-firmare's use, like signing firmware and software components for [verified boot](./verified_boot_main.md).
+firmware's use, like signing firmware and software components for [verified boot](./verified_boot_main.md).
 
 #### Storage Root Key hierarchy
 
@@ -161,7 +161,7 @@ disk making it only accessible when a policy is satisfied, or for authorization.
 
 Measured Boot can be performed basing on: Static RTM or Dynamic RTM.
 Achieving measured boot using the two Roots of Trust differ in how the process
-is performed and each has its strenghts and shortcomings. The two techniques can
+is performed and each has its strengths and shortcomings. The two techniques can
 even be used together to achieve the best results[^Intel_txt_security_paper].
 
 ### SRTM
@@ -193,15 +193,15 @@ or a secure execution environment (AMD).
 Because modern CPUs include features like the Intel ME and AMD ASP, which are
 more privileged than any other code on the CPU, the environment in which the
 platform will execute code after the DRTM initialization instruction can not be
-entirely hermetized from them.
+entirely hermitized from them.
 
 For this reason SRTM and DRTM should be used together[^Intel_txt_security_paper_srtm_and_drtm],
-so that the highly priviledged components like Intel ME and AMD ASP can be
+so that the highly privileged components like Intel ME and AMD ASP can be
 verified using SRTM, and the code running in a measured environment created
-using the DRTM, while not entirely hermetized, can at least depend on the
+using the DRTM, while not entirely hermitized, can at least depend on the
 SRTM measurements.
 
-This way the TCB of the SRTM can be reduced to the highly priviledged hardware
+This way the TCB of the SRTM can be reduced to the highly privileged hardware
 components that can affect the measured environment of the DRTM, and the TCB
 of the DRTM can be left unchanged, and minimal.
 
