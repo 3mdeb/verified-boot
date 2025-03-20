@@ -113,13 +113,24 @@ and the keys are unsealed by the TPM.[^TPM_spec_19-7-11]
 
 ### TPM Key Hierarchies
 
-The TPM is able to generate asymmetric keypairs for specific uses.
-The keys are not stored in the non-volatile memory of the TPM, but are
-instead generated when needed using the `Primary Seed` of a given key hierarchy
-and are always the same for a given set of attributes.
+The TPM is able to generate asymmetric keypairs for specific uses and
+act as an authority for attesting the trust towards them. Every key
+created using the TPM is a part of some `key hierarchy`.
+
+The key hierarchies are mechanisms of transitive trust, just like the chains
+of trust. The trust is transitioned from a `Primary Key` of a hierarchy
+down to other keys of the same hierarchy, which in turn can be used to encrypt,
+decrypt, sign and verify any data.
+
+The primary keys used to verify the trust towards other keys are not stored
+in the non-volatile memory of the TPM, but are instead generated when needed
+using the `Primary Seed` of a given key hierarchy.
+Generating the Primary Keys is deterministic and will always produce the same key
+for a given set of attributes allowing to save space in the TPM's secure NVRAM.
+The private parts of Primary Keys never leave the TPM.
 
 The TPM specification defines three `Primary Key Seeds`, and their corresponding
-key hierachies[Section_14.4]:
+key hierachies[^TPM_spec_14-4]:
 - Endorsement Primary Seed (EPS)
 - Storage Primary Seed (SPS)
 - Platform Primary Seed (PPS)
@@ -129,22 +140,22 @@ held by it as all the keys used by the TPM are derived from them.
 
 #### Endorsement Key hierarchy
 
-A Endorsement Key (EK)[14.4.2] is an identity of the Root of Trust for Reporting.
-All the data that is reported by the TPM, like the PCR values, are authorized
-to an Endorsement Key, or a key verified using a certificate issued using the
-Endorsement Key.
+The Endorsement Key (EK)[^TPM_spec_14-4-2] is the identity of the Root of Trust
+for Reporting[^TPM_spec_9-4-4-2]. All the data that is reported by the TPM,
+like the PCR values, is authorized to the Endorsement Key.
 
 #### Platform Key hierarchy
 
-A Platform Key (PK)[14.4.3] and its hierarchy is controlled by the platform firmware.
-The TPM can be used to generate the PK for the firmare's use
+A Platform Key (PK)[^TPM_spec_14-4-3] and its hierarchy is controlled by and
+used by the platform firmware. The TPM can generate the PK for the
+firmare's use, like signing firmware and software components for [verified boot](./verified_boot_main.md).
 
 #### Storage Root Key hierarchy
 
-Storage Root Key (SRK) and the hierarchy of keys signed by it are controlled
-by the platform owner. The keys can be used by the OS and applications for any
-use, like sealing some secret by encrypting it on the disk using a SRK hierarchy
-key, which itself is sealed by the TPM.
+Storage Root Key (SRK)[^TPM_spec_14-4-4] and the hierarchy of keys signed by
+it are controlled by the platform owner. The keys can be used by the OS and
+applications for any use, like sealing some secret by encrypting it on the
+disk making it only accessible when a policy is satisfied, or for authorization.
 
 ## Static and Dynamic RTM
 
@@ -165,17 +176,17 @@ to audit.
 
 ### DRTM
 
-The main difference in Dynamic Root of Trust for Measurement is that the RTM
-does not start with the first code executed on the CPU, but with the execution
-of a special CPU instruction
+The main difference between Dynamic Root of Trust for Measurement from the SRTM
+is that the DRTM  does not start with the first code executed on the CPU,
+but with the execution of a special CPU instruction
 (Intel - SINIT[^Intel_txt_security_paper], AMD - SKINIT[^AMD_DRTM_guide]).
 
-This allows to exclude the boot code, the firmware and the bootloader, from
-the TCB by allowing them to run during platform boot, but ensuring they won't
-affect the security of the platform after the special D-RTM CPU instruction
-is executed. The code executed after the DRTM initialization instruction is said
-to run in a measured environment (Intel), or a secure execution environment
-(AMD).
+The instruction allows to exclude the boot code, the firmware and the
+bootloader, from the TCB by allowing them to run during platform boot, but
+ensuring they won't affect the security of the platform after the special
+D-RTM CPU instruction is executed. The code executed after the DRTM
+initialization instruction is said to run in a measured environment (Intel),
+or a secure execution environment (AMD).
 
 ### Why use SRTM and DRTM at the same time
 
@@ -203,6 +214,7 @@ of the DRTM can be left unchanged, and minimal.
 |Implementation and use|Simple|Complex|
 |Hardware support|Not required|Required|
 
+
 [^Intel_txt_security_paper]: https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/trusted-execution-technology-security-paper.pdf
 [^AMD_DRTM_guide]: https://www.amd.com/content/dam/amd/en/documents/epyc-technical-docs/user-guides/58453.pdf
 [^Intel_txt_security_paper_srtm_and_drtm]: Intel TXT Security Paper, Details: Establishing a root of
@@ -213,8 +225,13 @@ trust with Intel TXT for Servers, paragraph 3. starting with "Intel developed In
 [^TPM_spec_11-6-2]: Section 11.6.2, Platform Configuration Registers (PCR), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_4-84]: Section 4, definition 84, Sealed Object Data, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_4-89]: Section 4, definition 89, Shielded Location, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_9-4-4-2]: Section 9.4.4.2 Identity of the RTR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_11-6-3]: Section 11.6.3 Object Store, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_11-5]: Section 11.5 Authorization Subsystem, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_14-4]: Section 14.4, Primary Seed Properties, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_14-4-2]: Section 14.4.2, Endorsement Primary Seed (EPS), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_14-4-3]: Section 14.4.3, Platform Primary Seed (PPS), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_14-4-4]: Section 14.4.4, Storage Primary Seed (SPS), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-1]: Section 17.1, Initializing PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-2]: Section 17.2, Extend of a PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-7-2]: 17.7.2 Authorization Set, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
