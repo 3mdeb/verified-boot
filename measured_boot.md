@@ -8,6 +8,18 @@ Contrary to verified boot[^VerifiedBoot], measured boot does not prevent
 untrusted code from being executed, but it makes it impossible for the execution
 of such code to go undetected.
 
+Every single piece of code executed since the start up to the end of the
+measured boot process has its digest calculated. The digests, called
+measurements, are then stored for future reference using the Root of Trust
+for Storage. The Root of Trust for Reporting allows to reliably analyze the
+measurements history stored in the RTS and make decisions on the trust towards
+the platform depending on whether the sequence of code executed up to a point
+is expected, or if a security breach could have happened.
+
+This page will focus on the practical realisation of measured boot
+using a TPM module. Some more theory regarding the process and the definitions
+of basic concepts can be found on the [Verified Boot Page](./verified_boot_main.md)
+
 [^VerifiedBoot]: [Verified Boot Page](./verified_boot_main.md)
 
 ## Measured Boot and the Trusted Platform Module
@@ -104,7 +116,7 @@ and the keys are unsealed by the TPM.[^TPM_spec_19-7-11]
 The TPM is able to generate asymmetric keypairs for specific uses.
 The keys are not stored in the non-volatile memory of the TPM, but are
 instead generated when needed using the `Primary Seed` of a given key hierarchy
-and are always the same for a given set of attributes
+and are always the same for a given set of attributes.
 
 The TPM specification defines three `Primary Key Seeds`, and their corresponding
 key hierachies[Section_14.4]:
