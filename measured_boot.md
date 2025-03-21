@@ -11,7 +11,7 @@ of such code to go undetected.
 Every single piece of code executed since the start-up to the end of the
 measured boot process has its digest calculated. The digests, called
 measurements, are then stored for future reference using the Root of Trust
-for Storage. The Root of Trust for Reporting allows to reliably analyze the
+for Storage (RTS). The Root of Trust for Reporting (RTR) allows to reliably analyze the
 measurements history stored in the RTS and make decisions on the trust towards
 the platform depending on whether the sequence of code executed up to a point
 is expected, or if a security breach could have happened.
@@ -29,7 +29,7 @@ microprocessor separate from the CPU, able to perform cryptographic operations
 in a secure, tamper resistant environment. The TPM was created by the
 Trusted Computing Group, which maintains and develops its
 specification[^TPM_Spec]. The second edition of the specification is published
-as the is the ISO/IEC 11889[^TPM_standard] standard.
+as the ISO/IEC 11889[^TPM_standard] standard.
 
 The Trusted Platform Module is often used in modern systems in the process of
 measured boot as the Root of Trust for Storage and the
@@ -74,21 +74,21 @@ The TPM allows ensuring the integrity and authenticity of the data read from
 its storage. Because of that it can act as the
 Root of Trust for Reporting of the data stored in the TPM's storage.
 
-One way this can be achieved is by creating a HMAC[^NIST_HMAC] session with the
+One way to achieve this is to create a HMAC[^NIST_HMAC] session with the
 TPM[^TPM_spec_17-7-2]. The PCR value will be provided alongside a HMAC allowing
-for verifying that it comes from the TPM chip and was not altered in any way.
+for the verification that it comes from the TPM chip and was not altered in any way.
 
 ### Not a Root of Trust for Measurements
 
 The TPM can not act as the RTM, because it is not able to initiate the
 measurements. The TPM is only a tool which is operated by the CPU[^TPM_spec_34-1].
-The TPM can securely store and report its storage allowing for recording
-the platform state reliably, but the whole process is controlled by the code
-running on the CPU.
+The TPM can securely store and report its storage, allowing for reliable
+recording of the platform state, but the whole process is controlled
+by the code running on the CPU.
 
 ### Data Sealing and Unsealing
 
-Sealing and Unsealing is a functionality of the TPM that allows saving any data
+Sealing and unsealing is a functionality of the TPM that allows saving any data
 in a Shielded Location [^TPM_spec_4-89] where the access to the data is
 controlled by the Autorization Subsystem [^TPM_spec_11-5] where a set of
 policies can be used to control the access to the data.
@@ -98,7 +98,7 @@ The process of saving the data is called `sealing`. Such data can only be
 
 Sealing an object with an unseal policy so that a set of PCRs has to have
 defined values (PolicyPCR) can be used to make sure a secret is only revealed
-if the platform is in an expected state, that is no untrusted code was executed
+if the platform is in an expected state, that is no unexpected code was executed
 up to a given point. Sealing a piece of data crucial for the boot process,
 like the disk password, can prevent the platform from booting and
 potentially exposing sensitive data when the platform is not in a trusted
@@ -159,14 +159,14 @@ disk making it only accessible when a policy is satisfied, or for authorization.
 
 ## Static and Dynamic RTM
 
-Measured Boot can be performed basing on: Static RTM or Dynamic RTM.
+Measured Boot can be performed based on a Static RTM or a Dynamic RTM.
 Achieving measured boot using the two Roots of Trust differ in how the process
 is performed and each has its strengths and shortcomings. The two techniques can
 even be used together to achieve the best results[^Intel_txt_security_paper].
 
-### SRTM
+### Static Root of Trust for Measurement (SRTM)
 
-The Static Root of Trust for Measurements creates a Chain of Trust, which
+The Static Root of Trust for Measurements (SRTM) creates a Chain of Trust, which
 starts with the first code executed on the CPU. The code is often read only,
 proprietary and provided by the hardware vendor. From there, every executed
 software is being measured and added to the chain of trust extending the
@@ -174,26 +174,28 @@ Trusted Computing Base. The process is simple, but the resulting
 Trusted Computing Base can end up being large and its security can be difficult
 to audit.
 
-### DRTM
+### Dynamic Root of Trust for Measurement (DRTM)
 
-The main difference between Dynamic Root of Trust for Measurement from the SRTM
-is that the DRTM  does not start with the first code executed on the CPU,
-but with the execution of a special CPU instruction
-(Intel - SINIT[^Intel_txt_security_paper], AMD - SKINIT[^AMD_DRTM_guide]).
+The main difference between a Dynamic Root of Trust for Measurement and a Static
+Root of Trust for Measurement is that the DRTM does not start with the first
+instructions executed on the CPU, but with the execution of a special CPU
+instruction (Intel - GETSEC(SENTER)[^Intel_txt_security_paper], or AMD - SKINIT[^AMD_DRTM_guide]). The point where measured boot starts is not static but
+controlled by the code, thus its called a Dynamic RTM.
 
 The instruction allows to exclude the boot code, the firmware and the
 bootloader, from the TCB by allowing them to run during platform boot, but
 ensuring they won't affect the security of the platform after the special
 D-RTM CPU instruction is executed. The code executed after the DRTM
-initialization instruction is said to run in a measured environment (Intel),
-or a secure execution environment (AMD).
+initialization instruction is said to run in a measured launch environment
+(Intel), or a secure execution environment (AMD).
 
 ### Why use SRTM and DRTM at the same time
 
-Because modern CPUs include features like the Intel ME and AMD ASP, which are
-more privileged than any other code on the CPU, the environment in which the
-platform will execute code after the DRTM initialization instruction can not be
-entirely hermitized from them.
+Modern systems include coprocessors like the Intel ME and AMD ASP, which are
+more privileged than any other entity in the system, including the CPU.
+Because of that, the environment in which the platform will execute code
+after the DRTM initialization instruction can not be entirely hermitized
+from them.
 
 For this reason SRTM and DRTM should be used together[^Intel_txt_security_paper_srtm_and_drtm],
 so that the highly privileged components like Intel ME and AMD ASP can be
