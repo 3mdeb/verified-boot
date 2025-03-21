@@ -1,8 +1,8 @@
 # Measured Boot
 
-Measured boot is a security mechanism designed to verify that all the firmware
-and software executed during the boot process are trusted by measuring them
-and documenting the measurements for future validation.
+Measured boot is a security mechanism designed to provide a cryptographic
+footprint of the firmware and software executed during the boot process
+for future validation and attestation.
 
 Contrary to verified boot[^VerifiedBoot], measured boot does not prevent
 untrusted code from being executed, but it makes it impossible for the execution
