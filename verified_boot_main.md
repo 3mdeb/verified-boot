@@ -87,13 +87,27 @@ technologies including AMD SEV or Intel TDX. CVMs have benefits of[^2]:
 hypervisor,
 * attestation - VM identity and state can be verified to ensure integrity.
 
-CVMs can greatly improve overall security of the system as a whole, due to
-following factors:
+Usage of CVMs can be used as a security strategy preventing data or workload
+exposition. CMVs follow Trusted Execution Environment (TEE) principle, to
+provide safe and isolated environments for protects user resources from
+unwanted access[^3]. Utilization of confidential virtual machines can improve
+overall security of a system (infrastructure) due to following factors:
 * adding additional, hardware based encryption layer,
 * separating host from VM reducing risk of malware infection,
 * preventing side channel attacks like cold-boot.
+
+It should be noted, that while CVMs can greatly improve security, it is only
+beneficial at VM level, not for the host itself. Confidential VM usage:
+can reduce manageability by increasing overhead, increase cost and was proven
+of being difficult to attest[^4]. Moreover, CMVs are not protected from a
+malicious or compromised host[^5], thus it is equally important to ensure the
+security of the underlying infrastructure and implement additional layers of
+protection to mitigate potential risks.
 
 #### References
 
 [^1]: [introduction-to-confidental-virtual-machines](https://www.redhat.com/en/blog/introduction-confidential-virtual-machines)
 [^2]: [confidential-vm-overview](https://cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview)
+[^3]: [few-key-points-of-confidential-vm](https://www.naukri.com/code360/library/few-key-points-of-confidential-vm)
+[^4]: [ernax-and-confidential-vms-compated](https://enarx.dev/assets/files/Enarx_and_Confidential_VMs_compared-9d0e599aaf63f5d1c0c873e37094251e.pdf)
+[^5]: [confidential-vms-hacked-via-new-ahoi-attack](https://www.securityweek.com/confidential-vms-hacked-via-new-ahoi-attacks/)
