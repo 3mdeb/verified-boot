@@ -773,11 +773,14 @@ list folder contents, read & execute, modify and full control.
 #### Immutable storage concept
 
 Immutable storage is a term related to "read-only" concept. It is a storage
-protocol that ensures stored data cannot be altered within a set of indefinite
-amount of time. The term comes from object-oriented programming, which defines
-immutable objects as object which state cannot be changed after it's
-created. Immutability can be implemented at various levels of storage stacks,
-based on both hardware and software solutions[^13].
+protocol that ensures stored data cannot be altered within a set or indefinite
+amount of time. The time aspect in this definition means, that while it is
+possible to create immutable storage for indefinite amount of time, it is
+hardly needed as such storages are often used for limited time. The term
+"immutable" comes from object-oriented programming, which defines immutable
+objects as object which state cannot be changed after it's created.
+Immutability can be implemented at various levels of storage stacks, based on
+both hardware and software solutions[^13].
 
 One of the immutability implementations is WORM (Write Once, Read Many)
 principle. On the other hand, a direct implementation of WORM are
@@ -805,7 +808,11 @@ use containerization for applications to ensure they are isolated from core
 system[^16]. Some examples of immutable linux distributions are: Fedora CoreOs,
 SUSE MicroOS, Fedora Silverblue or NixOS. Each distro has it's own approach and
 technology stack that ensure immutability, eg. Fedora OSes and and SUSE MicroOS
-use rpm-ostree, which provides read-only access to most of the files[^17].
+use rpm-ostree[^17]. The `libostree` (a newly proposed name for rpm-ostree)
+implements principle of transactional updates and rollbacks. It is similar to
+Git as it stores checksums per file and stores them in a content-addressed
+storage system. OSTree uses hard links to manage files, thus they must be
+immutable by design to avoid corruptions across different versions[^21].
 
 #### Immutable vs stateless
 
@@ -844,6 +851,7 @@ only core of the system cannot be modified, but some user data is preserved.
 [^18]: [stateful-vs-stateless](https://www.ninjaone.com/blog/stateful-vs-stateless-architecture/)
 [^19]: [factory-reset-stateless-systems-reproducible-systems-verifiable-systems](https://0pointer.net/blog/projects/stateless.html)
 [^20]: [stateless-linux](https://konfou.xyz/posts/stateless-linux/)
+[^21]: [libostree](https://ostreedev.github.io/ostree/)
 
 ### Checksum verification
 
