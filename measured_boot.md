@@ -11,14 +11,15 @@ of such code to go undetected.
 Every single piece of code executed since the start-up to the end of the
 measured boot process has its digest calculated. The digests, called
 measurements, are then stored for future reference using the Root of Trust
-for Storage (RTS). The Root of Trust for Reporting (RTR) allows to reliably analyze the
-measurements history stored in the RTS and make decisions on the trust towards
-the platform depending on whether the sequence of code executed up to a point
-is expected, or if a security breach could have happened.
+for Storage (RTS). The Root of Trust for Reporting (RTR) allows to reliably
+analyze the measurements history stored in the RTS and make decisions on the
+trust towards the platform depending on whether the sequence of code executed
+up to a point is expected, or if a security breach could have happened.
 
 This page will focus on the practical realization of measured boot
 using a TPM module. Some more theory regarding the process and the definitions
-of basic concepts can be found on the [Verified Boot Page](./verified_boot_main.md)
+of basic concepts can be found on the
+[Verified Boot Page](./verified_boot_main.md)
 
 [^VerifiedBoot]: [Verified Boot Page](./verified_boot_main.md)
 
@@ -49,25 +50,26 @@ and protect them from being altered.
 The protections and authorization scheme are defined separately for every
 data (Object) stored in Shielded Locations.
 Three main types of authorization are defined by the TPM specification:
+
 - password,
 - HMAC,
 - policies.
 
 #### Password Authorization
 
-Password authorization [^TPM_spec_19-4] is the least secure way of authorizing the access to an
-object stored in a shielded location. The password is sent between the CPU and
-the TPM in plaintext. This authorization scheme should only be
-used if using an HMAC is not possible, the channel between the entity seeking
-authorization and the TPM is trusted to be secure, or the password is well
-known.
+Password authorization [^TPM_spec_19-4] is the least secure way of authorizing
+the access to an object stored in a shielded location. The password is sent
+between the CPU and the TPM in plaintext. This authorization scheme should
+only be used if using an HMAC is not possible, the channel between the entity
+seeking authorization and the TPM is trusted to be secure, or the password
+is well known.
 
 #### HMAC Session Authorization
 
 The keyed-Hash Message Authentication Code (HMAC)[^NIST_HMAC] is a code
-that allows for verifying both the integrity of a message (like a classical MAC),
-but can also be used to verify the authenticity of the source of the message
-by mixing a shared secret into the authentication codes.
+that allows for verifying both the integrity of a message (like a classical
+MAC), but can also be used to verify the authenticity of the source of the
+message by mixing a shared secret into the authentication codes.
 
 The secret has to be exchanged by the two communicating parties. It has to be
 remembered by the two parties for the duration of the communication,
@@ -80,18 +82,20 @@ create the key depends on the usage[^TPM_spec_19-6-11].
 
 #### Authorization Policies
 
-The TPM provides a capability policies for accessing an object[^TPM_spec_19-7-1]. Policies can
-be depicted as logic statements and are
-composed of three elements:
+The TPM provides a capability policies for accessing an
+object[^TPM_spec_19-7-1]. Policies can be depicted as logic statements
+and are composed of three elements:
+
 - policy assertions - statements that can be either true or false,
 - OR operators,
-- AND operators,
+- AND operators.
 
 For the access to an object to be granted, the whole logic statement composed
 of assertions and AND/OR operators has to be true.
 The policy assertions can be freely composed using OR and AND operators to
 define arbitrarily complex policies. The policy assertions include, but are
 not limited to:
+
 - TPM2_PolicyPassword - plaintext password verification,
   just like the password authorization scheme;
 - TPM2_PolicyAuthValue - HMAC session authorization,
@@ -136,15 +140,16 @@ Root of Trust for Reporting of the data stored in the TPM's storage.
 
 One way to achieve this is to create a HMAC[^NIST_HMAC] session with the
 TPM[^TPM_spec_17-7-2]. The PCR value will be provided alongside a HMAC allowing
-for the verification that it comes from the TPM chip and was not altered in any way.
+for the verification that it comes from the TPM chip and was not altered
+in any way.
 
 ### Not a Root of Trust for Measurements
 
 The TPM can not act as the RTM, because it is not able to initiate the
-measurements. The TPM is only a tool which is operated by the CPU[^TPM_spec_34-1].
-The TPM can securely store and report its storage, allowing for reliable
-recording of the platform state, but the whole process is controlled
-by the code running on the CPU.
+measurements. The TPM is only a tool which is operated by the
+CPU[^TPM_spec_34-1]. The TPM can securely store and report its storage,
+allowing for reliable recording of the platform state, but the whole process
+is controlled by the code running on the CPU.
 
 ### Data Sealing and Unsealing
 
@@ -185,12 +190,13 @@ decrypt, sign and verify any data.
 The primary keys used to verify the trust towards other keys are not stored
 in the non-volatile memory of the TPM, but are instead generated when needed
 using the `Primary Seed` of a given key hierarchy.
-Generating the Primary Keys is deterministic and will always produce the same key
-for a given set of attributes allowing to save space in the TPM's secure NVRAM.
-The private parts of Primary Keys never leave the TPM.
+Generating the Primary Keys is deterministic and will always produce the
+same key for a given set of attributes allowing to save space in the TPM's
+secure NVRAM. The private parts of Primary Keys never leave the TPM.
 
 The TPM specification defines three `Primary Key Seeds`, and their corresponding
 key hierarchies[^TPM_spec_14-4]:
+
 - Endorsement Primary Seed (EPS)
 - Storage Primary Seed (SPS)
 - Platform Primary Seed (PPS)
@@ -208,7 +214,8 @@ like the PCR values, is authorized to the Endorsement Key.
 
 A Platform Key (PK)[^TPM_spec_14-4-3] and its hierarchy is controlled by and
 used by the platform firmware. The TPM can generate the PK for the
-firmware's use, like signing firmware and software components for [verified boot](./verified_boot_main.md).
+firmware's use, like signing firmware and software components for
+[verified boot](./verified_boot_main.md).
 
 #### Storage Root Key hierarchy
 
@@ -239,8 +246,9 @@ to audit.
 The main difference between a Dynamic Root of Trust for Measurement and a Static
 Root of Trust for Measurement is that the DRTM does not start with the first
 instructions executed on the CPU, but with the execution of a special CPU
-instruction (Intel - GETSEC(SENTER)[^Intel_txt_security_paper], or AMD - SKINIT[^AMD_DRTM_guide]). The point where measured boot starts is not static but
-controlled by the code, thus its called a Dynamic RTM.
+instruction (Intel - GETSEC(SENTER)[^Intel_txt_security_paper],
+or AMD - SKINIT[^AMD_DRTM_guide]). The point where measured boot starts
+is not static but controlled by the code, thus its called a Dynamic RTM.
 
 The instruction allows to exclude the boot code, the firmware and the
 bootloader, from the TCB by allowing them to run during platform boot, but
@@ -257,11 +265,11 @@ Because of that, the environment in which the platform will execute code
 after the DRTM initialization instruction can not be entirely hermitized
 from them.
 
-For this reason SRTM and DRTM should be used together[^Intel_txt_security_paper_srtm_and_drtm],
-so that the highly privileged components like Intel ME and AMD ASP can be
-verified using SRTM, and the code running in a measured environment created
-using the DRTM, while not entirely hermitized, can at least depend on the
-SRTM measurements.
+For this reason SRTM and DRTM should be used
+together[^Intel_txt_security_paper_srtm_and_drtm], so that the highly
+privileged components like Intel ME and AMD ASP can be verified using SRTM,
+and the code running in a measured environment created using the DRTM, while
+not entirely hermitized, can at least depend on the SRTM measurements.
 
 This way the TCB of the SRTM can be reduced to the highly privileged hardware
 components that can affect the measured environment of the DRTM, and the TCB
