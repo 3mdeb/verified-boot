@@ -37,10 +37,70 @@ Root of Trust for Reporting.
 
 ### Root of Trust for Storage
 
-The TPM contains a volatile and non-volatile storage, which are not directly
-available to the rest of the system and are guarded by the TPM.
-Thanks to these storages, the TPM can be used as the Root of Trust for
-Storage.
+The TPM contains a volatile (RAM) and non-volatile (NVRAM) storages, which
+are not directly available to the rest of the system and the access to them is
+controlled by the TPM. Such storage locations protected by the TPM are called
+`Shielded Locations`[^TPM_spec_4-89].
+
+Thanks to the protections provided by the TPM it can be used as the Root of
+Trust for Storage[^TPM_spec_9-4-3] to document the measured boot measurements,
+and protect them from being altered.
+
+The protections and authorization scheme are defined separately for every
+data (Object) stored in Shielded Locations.
+Three main types of authorization are defined by the TPM specification:
+- password,
+- HMAC,
+- policies.
+
+#### Password Authorization
+
+Password authorization [^TPM_spec_19-4] is the least secure way of authorizing the access to an
+object stored in a shielded location. The password is sent between the CPU and
+the TPM in plaintext. This authorization scheme should only be
+used if using an HMAC is not possible, the channel between the entity seeking
+authorization and the TPM is trusted to be secure, or the password is well
+known.
+
+#### HMAC Session Authorization
+
+The keyed-Hash Message Authentication Code (HMAC)[^NIST_HMAC] is a code
+that allows for verifying both the integrity of a message (like a classical MAC),
+but can also be used to verify the authenticity of the source of the message
+by mixing a shared secret into the authentication codes.
+
+The secret has to be exchanged by the two communicating parties. It has to be
+remembered by the two parties for the duration of the communication,
+thus making this authorization scheme `session-based` [^TPM_spec_19-5].
+
+When using the HMAC session for authorization, the shared secret contains the
+`authValue` of an entity, which is chosen when creating
+the object and required to access it in the future. How exactly it is used to
+create the key depends on the usage[^TPM_spec_19-6-11].
+
+#### Authorization Policies
+
+The TPM provides a capability policies for accessing an object[^TPM_spec_19-7-1]. Policies can
+be depicted as logic statements and are
+composed of three elements:
+- policy assertions - statements that can be either true or false,
+- OR operators,
+- AND operators,
+
+For the access to an object to be granted, the whole logic statement composed
+of assertions and AND/OR operators has to be true.
+The policy assertions can be freely composed using OR and AND operators to
+define arbitrarily complex policies. The policy assertions include, but are
+not limited to:
+- TPM2_PolicyPassword - plaintext password verification,
+  just like the password authorization scheme;
+- TPM2_PolicyAuthValue - HMAC session authorization,
+  just like the HMAC session authorization scheme;
+- TPM2_PolicyPCR - asserting [PCR](#platform-configuration-register-pcr) values.
+
+All the policy assertions specified by the TPM specification can be found in the
+section 19.7.7.6 List of Assertions of the TPM specification part 1,
+Architecture[^TPM_spec_19-7-7-6].
 
 #### Platform Configuration Register (PCR)
 
@@ -227,6 +287,7 @@ trust with Intel TXT for Servers, paragraph 3. starting with "Intel developed In
 [^TPM_spec_11-6-2]: Section 11.6.2, Platform Configuration Registers (PCR), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_4-84]: Section 4, definition 84, Sealed Object Data, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_4-89]: Section 4, definition 89, Shielded Location, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_9-4-3]: Section 9.4.3, Root of Trust for Storage (RTS), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_9-4-4-2]: Section 9.4.4.2 Identity of the RTR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_11-6-3]: Section 11.6.3 Object Store, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_11-5]: Section 11.5 Authorization Subsystem, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
@@ -236,7 +297,12 @@ trust with Intel TXT for Servers, paragraph 3. starting with "Intel developed In
 [^TPM_spec_14-4-4]: Section 14.4.4, Storage Primary Seed (SPS), https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-1]: Section 17.1, Initializing PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_17-2]: Section 17.2, Extend of a PCR, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
-[^TPM_spec_17-7-2]: 17.7.2 Authorization Set, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_17-7-2]: Section 17.7.2 Authorization Set, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_19-4]: Section 19.4, Password Authorizations, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_19-5]: Section 19.5, Sessions, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_19-6-11]: Section 19.6.11, Salted Session Key Generation, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_19-7-1]: Section 19.7.1, Enhanced Authorization - Introduction, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_19-7-7-6]: Section 19.7.7.6, List of Assertions, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^TPM_spec_19-7-11]: Section 19.7.11 Modification of Policies, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
+[^TPM_spec_34-1]: Section 34.1 Hardware Core Root of Trust Measurement (H-CRTM) Event Sequence, Introduction, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
 [^NIST_HMAC]: NIST FIPS 198-1, The Keyed-Hash Message Authentication Code (HMAC), https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf
-[^TPM_spec_34-1]: 34.1 Hardware Core Root of Trust Measurement (H-CRTM) Event Sequence, Introduction, https://trustedcomputinggroup.org/wp-content/uploads/TPM-2.0-1.83-Part-1-Architecture.pdf
