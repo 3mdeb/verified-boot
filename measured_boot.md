@@ -5,8 +5,10 @@ footprint of the firmware and software executed during the boot process
 for future validation and attestation.
 
 Contrary to verified boot[^VerifiedBoot], measured boot does not prevent
-untrusted code from being executed, but it makes it impossible for the execution
-of such code to go undetected.
+untrusted code from being executed. It only provides the means to determine
+if no unexpected changes happened to the firmware and software components
+executed during the boot process, given the measurements were not forged
+by malicious code.
 
 Every single piece of code executed since the start-up to the end of the
 measured boot process has its digest calculated. The digests, called
