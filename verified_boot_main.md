@@ -93,10 +93,11 @@ that focuses on security and authentication[^2].
 
 Common hashing algorithms include[^3]:
 * MD-5 - created in 1991, but now considered compromised as it was discovered
-how to decode it.
-* SHA family - developed by US government. A recent SHA-3 version uses
-randomness in the code making it more difficult to decode. Currently an
-industry standard.
+how to crack it. A successful collision attacks against it were
+demonstrated[^4].
+* SHA family - developed by US government, currently an industry standard.
+Most recent SHA-3 algorithm uses sponge construct mechanism, which enhances
+it's security by processing data with random-like transformations[^5].
 
 Hashing algorithm produce hash values, yet they are often used as a way to
 verify data integrity, serving a role of a checksum. This is why it is not
@@ -109,21 +110,40 @@ Particular example is Google's Verified Boot found on Android based devices.
 Verified boot cryptographically verifies executable code and data as the device
 boots. It does so for both files and partitions using multiple mechanisms, one
 of them being [dm-verity](#dm-verity). In Verify Boot implementation hashes
-are stored on dedicated partitions and are signed by the root of trust[^3].
+are stored on dedicated partitions and are signed by the root of trust[^6].
 
 #### Extending chain of trust to OS
 
-A supplementary integrity checks can also be performed on OS level.
+A supplementary integrity checks can also be performed on OS level. Following
+are tool examples that can help perform additional security checks.
+
 `debsums` is a utility for verifying Debian package files against their
 checksums. The MD-5 algorithm is used in the process. `debsums` is primarily
 intended for determining if installed files were modified or damaged. It also
-serves limited usage as a security tool[^5].
+serves limited usage as a security tool[^7].
+
+`debcheckroot` is an utility that can perform trusted verification of root file
+system by comparing package content with the files on a disk. It performs
+similar role to `debsums`, the difference is `debsums` uses locally stored
+md5sums,`debcheckroot` on the other hand can verify checksums with multiple
+source types: online, CD, DVD, etc. While this might make it more reliable,
+it's primary purpose are integrity checks checks and it's not meant to be used
+as a security tool[^8].
+
+`AIDE` is a file structure integrity checker software. AIDE works by creating
+database storing file hashes and permissions, which is later used to verify
+integrity of the files. The files which are monitored can be specified via
+editing configuration file[^9].
 
 [^1]: [checksum-definition](https://www.linfo.org/checksum.html)
 [^2]: [hash-code-vs-checksum](https://www.baeldung.com/cs/hash-code-vs-checksum)
 [^3]: [hashing-algorithm-overview](https://www.okta.com/identity-101/hashing-algorithms/)
-[^4]: [verify-boot](https://source.android.com/docs/security/features/verifiedboot/verified-boot)
-[^5]: [debsums](https://manpages.ubuntu.com/manpages/trusty/man1/debsums.1.html)
+[^4]: [on-collsons-for-md5](https://web.archive.org/web/20170517115509/http://www.win.tue.nl/hashclash/On%20Collisions%20for%20MD5%20-%20M.M.J.%20Stevens.pdf)
+[^5]: [the-state-of-hashing-algorithms](https://medium.com/@rauljordan/the-state-of-hashing-algorithms-the-why-the-how-and-the-future-b21d5c0440de)
+[^6]: [verify-boot](https://source.android.com/docs/security/features/verifiedboot/verified-boot)
+[^7]: [debsums](https://manpages.ubuntu.com/manpages/trusty/man1/debsums.1.html)
+[^8]: [debcheckroot](https://www.elstel.org/debcheckroot/index.html)
+[^9]: [aide](https://aide.github.io/)
 
 ### dm-verity
 
