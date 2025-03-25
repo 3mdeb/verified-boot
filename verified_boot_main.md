@@ -1175,12 +1175,24 @@ single key, this means that OS vendors couldn't sign binaries themselves as
 they would have been prohibited from executing. As of 2014 a binary can be
 signed by multiple authorities[^6].
 
+#### Modifying ISOs with growisofs
+
+`growisofs` is a linux utility that can append data to
+[read-only filesystems](#read-only-filesystems) like ISO9660 and
+[read-only physical media](#read-only-physical-media) like DVD+RW. `growisofs`
+was originally developed as a frontend to `mkisofs`[^7]. The key factor here,
+is that `mkisofs` performs "merging", the output is a new session which gets
+written to the end of the image file[^8]. This proves that limited
+in-place "modifications" of ISO files are possible.
+
 [^1]: [iso-file-extension](https://fileinfo.com/extension/iso)
 [^2]: [iso-image](https://www.lenovo.com/us/en/glossary/iso-image/)
 [^3]: [unified-extensible-firmware-nterface/secure-boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#ISO_repacking)
 [^4]: [multiboot-usb-drive](https://wiki.archlinux.org/title/Multiboot_USB_drive#Using_GRUB_and_loopback_devices)
 [^5]: [SecureBoot](https://wiki.debian.org/SecureBoot)
 [^6]: [add-multiple-signature-support](https://web.git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git/commit/src/image.c?id=f6115a8045275a0dc138f9088ba018441146e81d)
+[^7]: [growisofs](https://linux.die.net/man/1/growisofs)
+[^8]: [mkisof](https://linux.die.net/man/8/mkisofs)
 
 ### VMs
 - 939-946    Part 3: OS and VMs
