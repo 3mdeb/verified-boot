@@ -78,10 +78,11 @@ Role-based boot is implemented in Kicksecure and Whonix operating systems.
 Currently supported boot modes are[^1]:
 * `PERSISTENT mode USER` - provides persistency for user files. The
 user operates with standard permissions, but they're not allowed to escalate
-privileges (eg. by executing `sudo` command). All locations remain writeable
+privileges (e.g. by executing `sudo` command). All locations remain writable
 including `/tmp` and `/dev/shm`.
-* `LIVE mode USER` - serves similar tole to `PERSISTENT mode USER` with the
-difference that all not-persistent changes are lost during reboot.
+* `LIVE mode USER` - serves similar role to `PERSISTENT mode USER` with the
+difference that any changes made to the filesystem are not persistent and will
+be lost during reboot.
 * `PERSISTENT mode SYSMAINT` - Grants access to special system maintenance
 account, which can escalate privileges in order to perform administrative
 tasks. Provides a full persistence.
