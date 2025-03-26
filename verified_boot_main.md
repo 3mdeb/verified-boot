@@ -798,9 +798,11 @@ often related to technologies like snapshotting or immutable filesystems[^15].
 #### Immutable Linux OS
 
 Immutable Linux operating systems are aimed to introduce reliable, more secure
-approach to Linux. Immutable Linux OS cores are designed to be unchangeable
-and read-only, meaning any changes made to the system are lost when system
-reboots. The advantages of immutability are:
+approach to Linux. Fore such systems, the core components like kernel, system
+libraries or critical system files are read-only and cannot be modified
+permanently. Any changes made to the core system components are lost when
+system reboots but user information is preserved. The advantages of
+immutability are:
 * increased security - modifications to installed system structure should not
 be possible by design,
 * easy maintenance - updates are made via atomic upgrades.
