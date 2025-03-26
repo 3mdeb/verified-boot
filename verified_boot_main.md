@@ -103,7 +103,7 @@ stored on a external storage media, can serve as a physical key.
 
 #### Integrity protection with dm-integrity
 
-`cryptsetup`LUKS2 based devices by default ensure only confidentiality
+`cryptsetup` LUKS2 based devices by default ensure only confidentiality
 protection. An additional integrity protection can be configured directly in
 `cryptsetup`. If it is enabled, an additional `dm-integrity` device is added to
 virtual device stack and `dm-crypt` layer is placed on top of it. The downside
