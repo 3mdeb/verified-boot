@@ -695,15 +695,18 @@ permanently. In theory, a content can be read, but not updated nor removed[^1].
 Below are detailed explanations of listed read-only physical media examples:
 * ROM chips - ROM (Read-Only Memory) is a non-volatile memory type used in
 various electronic devices to store firmware or software that's hardly changed.
-Although "read-only" might suggest such memory cannot be altered, there are
-various types of ROM memory that can be modified, including[^2]:
+There exist certain types of ROM memory that can be modified despite being
+having "read-only" in the name. These extend ROM functionality, examples
+are[^2]:
     * PROM - programmable read-only memory. A type of ROM memory that allows
-    data to be written only once after manufacturing.
+    data to be "written" only once after manufacturing. Word "written" has been
+    put in quotes, as writing and programming are considered different
+    processes.
     * EPROM and EEPROM - types of Erasable Programmable Read-Only Memory. Both
     memory types can be erased and reprogrammed. For EPROM this is done by
     exposing the chip to ultraviolet light, EEPROM on the other hand can be
     reprogrammed electrically, which makes it suitable for applications where
-    data (eg. firmware) must be updated from time to time. Example is BIOS
+    data (e.g. firmware) must be updated from time to time. Example is BIOS
     chips.
 * Optical media - for optical media, a laser beam is used to read and write
 data of the medium. Optical mediums, often come in form of disc. Similar to
@@ -715,12 +718,12 @@ discs and recordable optical discs[^3]:
     Disc - Read-Only Memory).
     * recordable optical discs - allow for recording data with process named
     "burning". These further split into:
-        * recordable medias like CD-R and DVD-R where data can burnt until disc
-        is full but it cannot be erased;
-        * re-writable medias like CD-RW and DVD-RW where data can be burnt and
+        * recordable medias like CD-R and DVD-R where data can be burnt until
+        disc is full but it cannot be erased;
+        * rewritable medias like CD-RW and DVD-RW where data can be burnt and
         erased.
 
-Some of physical medias can have physical toggle switch that makes them
+Some of the physical medias can have physical toggle switch that makes them
 write-protected or read-only, example being SD cards. It should be noted that
 SD cards switch works only as suggestion, and can be overwritten in
 software[^4].
@@ -742,8 +745,11 @@ Intended for scenarios where low overhead is needed[^7].
 * EROFS - stands for "Enhanced Read-Only File System", a general-purpose,
 flexible filesystem focused on runtime-performance[^8].
 
-Note: read-only file systems may not be misconstrued as write-protection, refer
-to [read only physical media](#read-only-physical-media) and [ISOs](#isos).
+Read-only file systems should not be misconstrued as write-protection.
+Write-protection prevents writing or modifying data thus making it immutable,
+it is often associated with
+[physical storage devices](#read-only-physical-media). Read-only on the other
+hand limits data access for reading purposes only[^9].
 
 #### Mounting as readonly on Linux
 
@@ -751,24 +757,25 @@ In context of attaching storage devices in Linux, a read-only is a storage
 configuration mechanism that ensures no modification can be done to attached
 medium, enhancing security and integrity. Mounting a filesystem as read-only
 attaches storage with read-only configuration to Linux directory structure.
-This configuration acts as a additional layer of protection served by the
-system. Linux does allow to mount read-writeable filesystems (eg. ext4) to be
-mounted as read-only[^9].
+This configuration acts as An additional layer of protection served by the
+system. Linux does allow read-writable filesystems (e.g. ext4) to be
+mounted as read-only[^10].
 
 #### Read-only filesystem permission
 
 Read-only is a file-system permission, allowing for reading and copying the
-data, but prohibits modification and addons. A file, directory or
-[entire disk](#read-only-physical-media) can be `read-only`[^10].
+data, but prohibits modification and appending data. A file, directory or
+[entire disk](#read-only-physical-media) can be `read-only`[^11].
 
 A read-only file is any file with read-only attribute enabled. Such files can
 be read but cannot be modified nor removed. A file might be read-only on a file
 level or directory level. If I directory read-only permission is set, all the
-files in directory inherit that permission[^11]. It is worth noting, that each
+files in directory inherit that permission[^12]. It is worth noting, that each
 filesystem might handle read-only permissions differently, thus "read-only"
-should be thought of as a concept, rather than mechanism. For example, NTFS
-supports six basic groups of permissions types that include[^12]: read, write,
-list folder contents, read & execute, modify and full control.
+should be thought of as a concept, rather how it is implemented. For example,
+NTFS supports six basic groups of permission types that include[^13]: read,
+write, list folder contents, read & execute, modify and full control. For other
+filesystems read-only might simply mean lack of write permission.
 
 #### Immutable storage concept
 
@@ -780,19 +787,19 @@ hardly needed as such storages are often used for limited time. The term
 "immutable" comes from object-oriented programming, which defines immutable
 objects as object which state cannot be changed after it's created.
 Immutability can be implemented at various levels of storage stacks, based on
-both hardware and software solutions[^13].
+both hardware and software solutions[^14].
 
 One of the immutability implementations is WORM (Write Once, Read Many)
 principle. On the other hand, a direct implementation of WORM are
 [read-only physical media](#read-only-physical-media). WORM principle ensures
 once data is written it cannot be altered or removed. Immutability is also
-often related to technologies like snapshotting or immutable filesystems[^14].
+often related to technologies like snapshotting or immutable filesystems[^15].
 
-#### Immutable linux OS
+#### Immutable Linux OS
 
 Immutable Linux operating systems are aimed to introduce reliable, more secure
 approach to Linux. Immutable Linux OS cores are designed to be unchangeable
-and read only, meaning any changes made to the system are lost when system
+and read-only, meaning any changes made to the system are lost when system
 reboots. The advantages of immutability are:
 * increased security - modifications to installed system structure should not
 be possible by design,
@@ -800,32 +807,32 @@ be possible by design,
 
 These types of systems are updated via creating new OS instance,
 deploying it and switching over to the new one. This process is referred to as
-"image-based-update"[^15]. Updates are done alongside reboot, the architecture
+"image-based-upgrade"[^16]. Updates are done alongside reboot, the architecture
 ensures that in case of failure in updating the system, one can easily revert
 system to previous state. There are multiple ways of handling package
 installation on immutable distributions. One of the approaches is to
 use containerization for applications to ensure they are isolated from core
-system[^16]. Some examples of immutable linux distributions are: Fedora CoreOs,
-SUSE MicroOS, Fedora Silverblue or NixOS. Each distro has it's own approach and
-technology stack that ensure immutability, eg. Fedora OSes and and SUSE MicroOS
-use rpm-ostree[^17]. The `libostree` (a newly proposed name for rpm-ostree)
+system[^17]. Some examples of immutable Linux distributions are: Fedora CoreOs,
+SUSE MicroOS, Fedora Silverblue or NixOS. Each distro has its own approach and
+technology stack that ensure immutability, e.g. Fedora OSes and SUSE MicroOS
+use rpm-ostree[^18]. The `libostree` (a newly proposed name for rpm-ostree)
 implements principle of transactional updates and rollbacks. It is similar to
 Git as it stores checksums per file and stores them in a content-addressed
 storage system. OSTree uses hard links to manage files, thus they must be
-immutable by design to avoid corruptions across different versions[^21].
+immutable by design to avoid corruptions across different versions[^19].
 
 #### Immutable vs stateless
 
-`Stateless` is a deign principle in which system (not essentially operating
+`Stateless` is a design principle in which system (not essentially operating
 system) or application does not retain any user session information in between
 interactions with stateless entity. Each interaction is independent, it
-requires full context needed to perform certain action[^18]. Stateless systems
+requires full context needed to perform certain action[^20]. Stateless systems
 act like they were just were re-deployed from ground up. Such systems never
 store any data on persistent storage, instead they rely on receiving
-configuration during runtime via various mechanisms[^19]. Immutability and
+configuration during runtime via various mechanisms[^21]. Immutability and
 statelessness should not be confused. Immutability ensures a system cannot be
 changed after deployment, statelessness means a system can be entirely replaced
-without concern for local state persistence[^20]. The difference between
+without concern for local state persistence[^22]. The difference between
 stateless systems and immutable systems is that stateless system is designed to
 be unmodifiable as a whole. Immutable systems on the other hand, ensure that
 only core of the system cannot be modified, but some user data is preserved.
@@ -838,20 +845,20 @@ only core of the system cannot be modified, but some user data is preserved.
 [^6]: [iso-9660](https://www.ibm.com/docs/en/i/7.5?topic=formats-iso-9660)
 [^7]: [squashfs-4.0-filesystem](https://docs.kernel.org/filesystems/squashfs.html)
 [^8]: [erofs-enhanced-read-only-file-system](https://docs.kernel.org/filesystems/erofs.html)
-[^9]: [create-read-only-filesystems-in-linux](https://labex.io/tutorials/linux-create-read-only-filesystems-in-linux-415253)
-[^10]: [read-only](https://www.computerhope.com/jargon/r/readonly.htm)
-[^11]: [what-is-a-read-only-file](https://www.lifewire.com/what-is-a-read-only-file-2625983)
-[^12]: [ntfs-permissions](https://www.permissionsreporter.com/ntfs-permissions)
-[^13]: [what-is-immutable-storage](https://www.ibm.com/think/topics/immutable-storage)
-[^14]: [immutable-file-systems](https://www.ctera.com/blog/immutable-file-systems-ctera-worm-storage/)
-[^14]: [worm-vs.-immutability](https://www.catalogicsoftware.com/blog/worm-vs-immutability-essential-insights-into-data-protection-differences/)
-[^15]: [Understanding-immutable-linux-os](https://kairos.io/blog/2023/03/22/understanding-immutable-linux-os-benefits-architecture-and-challenges/)
-[^16]: [what-is-immutable-linux](https://www.zdnet.com/article/what-is-immutable-linux-heres-why-youd-run-an-immutable-linux-distro/)
-[^17]: [the-future-is-minimal-and-immutable](https://sonalake.com/latest/the-future-is-minimal-and-immutable-a-new-generation-of-operating-systems/) 
-[^18]: [stateful-vs-stateless](https://www.ninjaone.com/blog/stateful-vs-stateless-architecture/)
-[^19]: [factory-reset-stateless-systems-reproducible-systems-verifiable-systems](https://0pointer.net/blog/projects/stateless.html)
-[^20]: [stateless-linux](https://konfou.xyz/posts/stateless-linux/)
-[^21]: [libostree](https://ostreedev.github.io/ostree/)
+[^9]: [is-write-protect-the-same-as-read-only](https://www.lenovo.com/au/en/glossary/write-protect/)
+[^10]: [create-read-only-filesystems-in-linux](https://labex.io/tutorials/linux-create-read-only-filesystems-in-linux-415253)
+[^11]: [read-only](https://www.computerhope.com/jargon/r/readonly.htm)
+[^12]: [what-is-a-read-only-file](https://www.lifewire.com/what-is-a-read-only-file-2625983)
+[^13]: [ntfs-permissions](https://www.permissionsreporter.com/ntfs-permissions)
+[^14]: [what-is-immutable-storage](https://www.ibm.com/think/topics/immutable-storage)
+[^15]: [immutable-file-systems](https://www.ctera.com/blog/immutable-file-systems-ctera-worm-storage/)
+[^16]: [Understanding-immutable-linux-os](https://kairos.io/blog/2023/03/22/understanding-immutable-linux-os-benefits-architecture-and-challenges/)
+[^17]: [what-is-immutable-linux](https://www.zdnet.com/article/what-is-immutable-linux-heres-why-youd-run-an-immutable-linux-distro/)
+[^18]: [the-future-is-minimal-and-immutable](https://sonalake.com/latest/the-future-is-minimal-and-immutable-a-new-generation-of-operating-systems/)
+[^19]: [libostree](https://ostreedev.github.io/ostree/)
+[^20]: [stateful-vs-stateless](https://www.ninjaone.com/blog/stateful-vs-stateless-architecture/)
+[^21]: [factory-reset-stateless-systems-reproducible-systems-verifiable-systems](https://0pointer.net/blog/projects/stateless.html)
+[^22]: [stateless-linux](https://konfou.xyz/posts/stateless-linux/)
 
 ### Checksum verification
 
