@@ -72,6 +72,46 @@
 
 ### dm-verity
 
+### LUKS drive encryption
+
+Device encryption aims to protect storage media from unauthorized data access
+and modifications. Encrypted storage devices require authentication
+(e.g. password) to access the media. The limitation of this technology is that
+the drive is protected only if the host is turned off or the storage media has
+not yet been unlocked. Once authenticated, the data can be accessed, even if
+the host itself is in locked state[^1].
+
+LUKS (Linux Unified Key Setup) is a specification for storage device
+encryption. In the implementation a Linux kernel device mapper's `dm-crypt`
+module is used to perform low level encryption and decryption operations on
+user data. On the other hand, user-level operations are performed via
+`cryptsetup` utility[^2]. LUKS format can be used to encrypt partitions,
+multiple device RAID arrays, LVM partition or block devices. LUKS layout
+consists of three main components:
+* LUKS header - stores encryption related metadata e.g. utilized algorithm or
+keys. Typically located at the beginning of the partition/storage-media but
+also it also possible to use "detached" header and store it elsewhere. If the
+header get's damaged or lost, the data is irreversibly lost[^3].
+* "key material" area - this is where up to 8 encoded variants of the master
+key are stored. The principle of this mechanism can be compared to deposit
+boxes at a bank. Rather than using user key to decode the data, the user key is
+used to access deposit box which contains the master key used to decrypt the
+data. This ensures multiple users can have access to the data, without sharing
+the master key. A user key can either be a passphrase or a key file, which when
+stored on a external storage media, can serve as a physical key.
+* ciphered user data.
+
+[^1]: [device-encryption](https://riseup.net/ca/security/device-security/device-encryption)
+[^2]: [disk-encryption-user-guide](https://docs.fedoraproject.org/en-US/quick-docs/encrypting-drives-using-LUKS/)
+[^3]: [what-is-luks-and-how-does-it-work](https://www.sysdevlabs.com/articles/storage-technologies/what-is-luks-and-how-does-it-work/)
+
+Why encrypt drive?
+What's LUKS?
+Where is it implemented?
+How it works?
+What's dm-integirty?
+How is dm-integrity used in the process?
+
 ### ISOs
 
 ### VMs
