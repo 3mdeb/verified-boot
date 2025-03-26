@@ -101,9 +101,32 @@ the master key. A user key can either be a passphrase or a key file, which when
 stored on a external storage media, can serve as a physical key.
 * ciphered user data.
 
+#### Integrity protection with dm-integrity
+
+`cryptsetup`LUKS2 based devices by default ensure only confidentiality
+protection. An additional integrity protection can be configured directly in
+`cryptsetup`. If it is enabled, an additional `dm-integrity` device is added to
+virtual device stack and `dm-crypt` layer is placed on top of it. The downside
+is that available storage space is reduced as it is necessary to allocate
+additional memory for integrity tags (metadata and journal)[^4].
+
+`dm-integrity` integrity is based on a "atomic-write" (all-or-nothing)
+principle. This means that in case of a system crash both data and integrity
+tag must get written. `dm-integrity` ensures that by using journals. Sector
+data get first written into a journal, then the journal is committed and both
+data and integrity tags are copied to their respective locations. The
+`dm-integrity` can either work as a standalone target or alongside `dm-crypt`
+target. In standalone mode it is used for silent data corruption detection that
+can be caused for e.g by disk errors. In case of second mentioned mode, the
+`dm-crypt` is responsible for generating integrity tags. These are then passed
+to `dm-integrity`. The `dm-integrity` role is to detect data tampering, and if
+so, return I/O errors rather than the corrupted data.
+
 [^1]: [device-encryption](https://riseup.net/ca/security/device-security/device-encryption)
 [^2]: [disk-encryption-user-guide](https://docs.fedoraproject.org/en-US/quick-docs/encrypting-drives-using-LUKS/)
 [^3]: [what-is-luks-and-how-does-it-work](https://www.sysdevlabs.com/articles/storage-technologies/what-is-luks-and-how-does-it-work/)
+[^4]: [cryptsetup](https://man7.org/linux/man-pages/man8/cryptsetup.8.html)
+[^5]: [dm-integrity](https://docs.kernel.org/admin-guide/device-mapper/dm-integrity.html)
 
 Why encrypt drive?
 What's LUKS?
