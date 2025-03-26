@@ -646,6 +646,42 @@ Chain of Trust for Verification by verifying the rest of the BIOS firmware.
 
 ### Role-based boot modes
 
+Role-Based boot is a term proposed by Kicksecure, it is a concept of booting
+operating system into different modes based on user roles in order to enhance
+security. Each role (mode) should have limited variety of workloads it's
+allowed to perform and limited access to resources. This is similar to
+principle of least privilege. The aim for role-base boot concept is to develop
+more secure and flexible OS environments by tailoring boot models to specific
+user roles for performing permissible range of tasks.
+
+Role-based boot is implemented in Kicksecure and Whonix operating systems.
+Currently supported boot modes are[^1]:
+* `PERSISTENT mode USER` - provides persistency for user files. The
+user operates with standard permissions, but they're not allowed to escalate
+privileges (e.g. by executing `sudo` command). All locations remain writable
+including `/tmp` and `/dev/shm`.
+* `LIVE mode USER` - serves similar role to `PERSISTENT mode USER` with the
+difference that any changes made to the filesystem are not persistent and will
+be lost during reboot.
+* `PERSISTENT mode SYSMAINT` - Grants access to special system maintenance
+account, which can escalate privileges in order to perform administrative
+tasks. Provides a full persistence.
+
+Complete implementation details can be found
+[here](https://www.kicksecure.com/wiki/Dev/user-sysmaint-split).
+
+Another example that implement multiple boot modes, but are not referred to as
+role-base boot, is ChromeOS. ChromeOS includes following boot modes[^2]:
+* Normal mode - default boot option, performs full verification of firmware and
+OS components.
+* Recovery mode - Used for OS and read-writable firmware components repair.
+* Developer mode - relaxes some of the restrictions in Verified Boot Mode,
+allows root access, modification of system components or upgrading firmware.
+* Legacy boot mode - allows for booting alternate OS.
+
+[^1]: [user-sysmaint-split](https://www.kicksecure.com/w/index.php?title=Dev/user-sysmaint-split)
+[^2]: [chromeos-boot-modes](https://docs.mrchromebox.tech/docs/boot-modes/)
+
 ### Read-only/discardable-file-systems
 
 ### Checksum verification
