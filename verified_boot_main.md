@@ -89,7 +89,7 @@ hypervisor,
 
 Usage of CVMs can be used as a security strategy preventing data or workload
 exposition. CMVs follow Trusted Execution Environment (TEE) principle, to
-provide safe and isolated environments for protects user resources from
+provide safe and isolated environments to protect user resources from
 unwanted access[^3]. Utilization of confidential virtual machines can improve
 overall security of a system (infrastructure) due to following factors:
 * adding additional, hardware based encryption layer,
@@ -97,12 +97,12 @@ overall security of a system (infrastructure) due to following factors:
 * preventing side channel attacks like cold-boot.
 
 It should be noted, that while CVMs can greatly improve security, it is only
-beneficial at VM level, not for the host itself. Confidential VM usage:
-can reduce manageability by increasing overhead, increase cost and was proven
-of being difficult to attest[^4]. Moreover, CMVs are not protected from a
-malicious or compromised host[^5], thus it is equally important to ensure the
-security of the underlying infrastructure and implement additional layers of
-protection to mitigate potential risks.
+beneficial at VM level, not for the host itself. CVM usage: can reduce
+manageability by increasing overhead, increase cost and was proven of being
+difficult to attest[^4]. Moreover, CMVs are not protected from a malicious or
+compromised host[^5], thus it is equally important to ensure the security of
+the underlying infrastructure and implement additional layers of protection to
+mitigate potential risks.
 
 #### References
 
