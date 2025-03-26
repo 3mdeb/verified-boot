@@ -128,13 +128,6 @@ so, return I/O errors rather than the corrupted data.
 [^4]: [cryptsetup](https://man7.org/linux/man-pages/man8/cryptsetup.8.html)
 [^5]: [dm-integrity](https://docs.kernel.org/admin-guide/device-mapper/dm-integrity.html)
 
-Why encrypt drive?
-What's LUKS?
-Where is it implemented?
-How it works?
-What's dm-integirty?
-How is dm-integrity used in the process?
-
 ### ISOs
 
 ### VMs
