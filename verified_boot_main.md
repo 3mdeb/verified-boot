@@ -1002,10 +1002,10 @@ root hash[^4]. In `dm-verity` scheme data is verified as it's being read, any
 variations would cause I/O errors[^5].
 
 The `dm-verity` integrity control has disadvantage that limits the storage to
-be read-only, which might be challenging to work with in fully-fledge operating
-systems. Updates must be performed offline and hashes need to be recalculated.
-This works well in embedded environment, where devices are expected to have
-identical disk layout[^4].
+be read-only, which might be challenging to work with in fully-fledged
+operating systems. Updates must be performed offline and hashes need to be
+recalculated. This works well in embedded environment, where devices are
+expected to have identical disk layout[^4].
 
 `dm-verity` is used on Android based devices (since Android 4.4) as a part of
 `verified boot`, Google's chain of trust implementation. During boot process,
