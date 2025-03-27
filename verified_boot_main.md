@@ -89,9 +89,9 @@ user data. On the other hand, user-level operations are performed via
 multiple device RAID arrays, LVM partition or block devices. LUKS layout
 consists of three main components:
 * LUKS header - stores encryption related metadata e.g. utilized algorithm or
-keys. Typically located at the beginning of the partition/storage-media but
-also it also possible to use "detached" header and store it elsewhere. If the
-header get's damaged or lost, the data is irreversibly lost[^3].
+keys. Typically located at the beginning of the partition/storage-media, but
+it is also possible to use "detached" header and store it elsewhere. If the
+header gets damaged or lost, the data is irreversibly lost[^3].
 * "key material" area - this is where up to 8 encoded variants of the master
 key are stored. The principle of this mechanism can be compared to deposit
 boxes at a bank. Rather than using user key to decode the data, the user key is
@@ -110,14 +110,14 @@ virtual device stack and `dm-crypt` layer is placed on top of it. The downside
 is that available storage space is reduced as it is necessary to allocate
 additional memory for integrity tags (metadata and journal)[^4].
 
-`dm-integrity` integrity is based on a "atomic-write" (all-or-nothing)
+`dm-integrity` integrity is based on an "atomic-write" (all-or-nothing)
 principle. This means that in case of a system crash both data and integrity
 tag must get written. `dm-integrity` ensures that by using journals. Sector
 data get first written into a journal, then the journal is committed and both
 data and integrity tags are copied to their respective locations. The
 `dm-integrity` can either work as a standalone target or alongside `dm-crypt`
 target. In standalone mode it is used for silent data corruption detection that
-can be caused for e.g by disk errors. In case of second mentioned mode, the
+can be caused for e.g. by disk errors. In case of second mentioned mode, the
 `dm-crypt` is responsible for generating integrity tags. These are then passed
 to `dm-integrity`. The `dm-integrity` role is to detect data tampering, and if
 so, return I/O errors rather than the corrupted data.
@@ -127,7 +127,7 @@ so, return I/O errors rather than the corrupted data.
 LUKS2 encryption can be combined with tools like `systemd-cryptenroll` or
 `clevis luks bind`.
 
-`systemd-cryptenroll`is a tool for enrolling hardware security tokens into
+`systemd-cryptenroll` is a tool for enrolling hardware security tokens into
 LUKS2 encrypted storages. The tool works by storing meta-information in LUKS2
 JSON token area[^6]. The `systemd-cryptestup` service is then used to
 automatically attach and detach encrypted block devices[^7].
@@ -139,15 +139,15 @@ unlocked via various "unlocker" types, including[^7]:
 * dracut - to unlock volumes during early boot.
 * initramfs - same principle as for `dracut`,
 * UDisk2 - a desktop session utility, useful when connecting external storages.
-It's role is to unlock inserted removable storage medias automatically, without
+Its role is to unlock inserted removable storage medias automatically, without
 user intervention.
 
 The two encryption tools differ on how they operate. The `systemd-cryptenroll`
 is for simply enrolling TPM keys to LUKS while other systemd services handle
-unlocking. It's advantage is no need for extra tooling at boot as decryption
-is handled directly by systemd. `Celvis` does act as a additional layer on top
+unlocking. Its advantage is no need for extra tooling at boot as decryption
+is handled directly by systemd. `Celvis` does act as an additional layer on top
 of `LUKS` and `cryptsetup`. It is an additional tool that must function at boot
-time but it's advantage is support for more unlocking methods.
+time, but its advantage is support for more unlocking methods.
 
 [^1]: [device-encryption](https://riseup.net/ca/security/device-security/device-encryption)
 [^2]: [disk-encryption-user-guide](https://docs.fedoraproject.org/en-US/quick-docs/encrypting-drives-using-LUKS/)
