@@ -122,11 +122,41 @@ can be caused for e.g by disk errors. In case of second mentioned mode, the
 to `dm-integrity`. The `dm-integrity` role is to detect data tampering, and if
 so, return I/O errors rather than the corrupted data.
 
+#### TPM support
+
+LUKS2 encryption can be combined with tools like `systemd-cryptenroll` or
+`clevis luks bind`.
+
+`systemd-cryptenroll`is a tool for enrolling hardware security tokens into
+LUKS2 encrypted storages. The tool works by storing meta-information in LUKS2
+JSON token area[^6]. The `systemd-cryptestup` service is then used to
+automatically attach and detach encrypted block devices[^7].
+
+`Clevis` is a pluggable framework for automated encryption and decryption of
+LUKS volumes. It uses so called PINs, a plugins that implement automated
+decryption. The PIN can be later binded to a LUKS volume so it is automatically
+unlocked via various "unlocker" types, including[^7]:
+* dracut - to unlock volumes during early boot.
+* initramfs - same principle as for `dracut`,
+* UDisk2 - a desktop session utility, useful when connecting external storages.
+It's role is to unlock inserted removable storage medias automatically, without
+user intervention.
+
+The two encryption tools differ on how they operate. The `systemd-cryptenroll`
+is for simply enrolling TPM keys to LUKS while other systemd services handle
+unlocking. It's advantage is no need for extra tooling at boot as decryption
+is handled directly by systemd. `Celvis` does act as a additional layer on top
+of `LUKS` and `cryptsetup`. It is an additional tool that must function at boot
+time but it's advantage is support for more unlocking methods.
+
 [^1]: [device-encryption](https://riseup.net/ca/security/device-security/device-encryption)
 [^2]: [disk-encryption-user-guide](https://docs.fedoraproject.org/en-US/quick-docs/encrypting-drives-using-LUKS/)
 [^3]: [what-is-luks-and-how-does-it-work](https://www.sysdevlabs.com/articles/storage-technologies/what-is-luks-and-how-does-it-work/)
 [^4]: [cryptsetup](https://man7.org/linux/man-pages/man8/cryptsetup.8.html)
 [^5]: [dm-integrity](https://docs.kernel.org/admin-guide/device-mapper/dm-integrity.html)
+[^6]: [systemd-cryptenroll](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptenroll.html)
+[^7]: [systemd-crypteup](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptsetup.html)
+[^8]: [clevis](https://github.com/latchset/clevis)
 
 ### ISOs
 
