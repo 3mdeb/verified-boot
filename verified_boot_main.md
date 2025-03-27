@@ -798,7 +798,7 @@ often related to technologies like snapshotting or immutable filesystems[^15].
 #### Immutable Linux OS
 
 Immutable Linux operating systems are aimed to introduce reliable, more secure
-approach to Linux. Fore such systems, the core components like kernel, system
+approach to Linux. For such systems, the core components like kernel, system
 libraries or critical system files are read-only and cannot be modified
 permanently. Any changes made to the core system components are lost when
 system reboots but user information is preserved. The advantages of
@@ -809,32 +809,39 @@ be possible by design,
 
 These types of systems are updated via creating new OS instance,
 deploying it and switching over to the new one. This process is referred to as
-"image-based-upgrade"[^16]. Updates are done alongside reboot, the architecture
-ensures that in case of failure in updating the system, one can easily revert
-system to previous state. There are multiple ways of handling package
-installation on immutable distributions. One of the approaches is to
-use containerization for applications to ensure they are isolated from core
-system[^17]. Some examples of immutable Linux distributions are: Fedora CoreOs,
-SUSE MicroOS, Fedora Silverblue or NixOS. Each distro has its own approach and
-technology stack that ensure immutability, e.g. Fedora OSes and SUSE MicroOS
-use rpm-ostree[^18]. The `libostree` (a newly proposed name for rpm-ostree)
+"image-based-upgrade"[^16]. In immutable Linux systems, user data is preserved.
+It is achieved via various mechanisms including:
+* writable overlay layer - this is useful for system directories like `/etc` to
+make to allow modifications to various configurations in a controlled manner;
+* separate writable partitions - it is a common practice to put `/home`
+directory on separate, writable partition.
+These mechanisms also allow for user data to be preserved across the system
+updates[^17]. Updates are done alongside reboot, the architecture ensures that
+in case of failure in updating the system, one can easily revert system to
+previous state. There are multiple ways of handling package installation on
+immutable distributions. One of the approaches is to use containerization for
+applications to ensure they are isolated from core system[^18]. Some examples
+of immutable Linux distributions are: Fedora CoreOs, SUSE MicroOS,
+Fedora Silverblue or NixOS. Each distro has its own approach and technology
+stack that ensure immutability, e.g. Fedora OSes and SUSE MicroOS use
+rpm-ostree[^19]. The `libostree` (a newly proposed name for rpm-ostree)
 implements principle of transactional updates and rollbacks. It is similar to
 Git as it stores checksums per file and stores them in a content-addressed
 storage system. OSTree uses hard links to manage files, thus they must be
-immutable by design to avoid corruptions across different versions[^19].
+immutable by design to avoid corruptions across different versions[^20].
 
 #### Immutable vs stateless
 
 `Stateless` is a design principle in which system (not essentially operating
 system) or application does not retain any user session information in between
 interactions with stateless entity. Each interaction is independent, it
-requires full context needed to perform certain action[^20]. Stateless systems
+requires full context needed to perform certain action[^21]. Stateless systems
 act like they were just were re-deployed from ground up. Such systems never
 store any data on persistent storage, instead they rely on receiving
-configuration during runtime via various mechanisms[^21]. Immutability and
+configuration during runtime via various mechanisms[^22]. Immutability and
 statelessness should not be confused. Immutability ensures a system cannot be
 changed after deployment, statelessness means a system can be entirely replaced
-without concern for local state persistence[^22]. The difference between
+without concern for local state persistence[^23]. The difference between
 stateless systems and immutable systems is that stateless system is designed to
 be unmodifiable as a whole. Immutable systems on the other hand, ensure that
 only core of the system cannot be modified, but some user data is preserved.
@@ -855,12 +862,13 @@ only core of the system cannot be modified, but some user data is preserved.
 [^14]: [what-is-immutable-storage](https://www.ibm.com/think/topics/immutable-storage)
 [^15]: [immutable-file-systems](https://www.ctera.com/blog/immutable-file-systems-ctera-worm-storage/)
 [^16]: [Understanding-immutable-linux-os](https://kairos.io/blog/2023/03/22/understanding-immutable-linux-os-benefits-architecture-and-challenges/)
-[^17]: [what-is-immutable-linux](https://www.zdnet.com/article/what-is-immutable-linux-heres-why-youd-run-an-immutable-linux-distro/)
-[^18]: [the-future-is-minimal-and-immutable](https://sonalake.com/latest/the-future-is-minimal-and-immutable-a-new-generation-of-operating-systems/)
-[^19]: [libostree](https://ostreedev.github.io/ostree/)
-[^20]: [stateful-vs-stateless](https://www.ninjaone.com/blog/stateful-vs-stateless-architecture/)
-[^21]: [factory-reset-stateless-systems-reproducible-systems-verifiable-systems](https://0pointer.net/blog/projects/stateless.html)
-[^22]: [stateless-linux](https://konfou.xyz/posts/stateless-linux/)
+[^17]: [immutable-linux](https://dev.to/khozaei/immutable-linux-4a4a)
+[^18]: [what-is-immutable-linux](https://www.zdnet.com/article/what-is-immutable-linux-heres-why-youd-run-an-immutable-linux-distro/)
+[^19]: [the-future-is-minimal-and-immutable](https://sonalake.com/latest/the-future-is-minimal-and-immutable-a-new-generation-of-operating-systems/)
+[^20]: [libostree](https://ostreedev.github.io/ostree/)
+[^21]: [stateful-vs-stateless](https://www.ninjaone.com/blog/stateful-vs-stateless-architecture/)
+[^22]: [factory-reset-stateless-systems-reproducible-systems-verifiable-systems](https://0pointer.net/blog/projects/stateless.html)
+[^23]: [stateless-linux](https://konfou.xyz/posts/stateless-linux/)
 
 ### Checksum verification
 
