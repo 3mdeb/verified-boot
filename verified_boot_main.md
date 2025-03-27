@@ -719,7 +719,7 @@ discs and recordable optical discs[^3]:
     * recordable optical discs - allow for recording data with process named
     "burning". These further split into:
         * recordable medias like CD-R and DVD-R where data can be burnt until
-        disc is full but it cannot be erased;
+        disc is full, but it cannot be erased;
         * rewritable medias like CD-RW and DVD-RW where data can be burnt and
         erased.
 
@@ -751,9 +751,9 @@ it is often associated with
 [physical storage devices](#read-only-physical-media). Read-only on the other
 hand limits data access for reading purposes only[^9].
 
-#### Mounting as readonly on Linux
+#### Mounting as read-only on Linux
 
-In context of attaching storage devices in Linux, a read-only is a storage
+In context of attaching storage devices on Linux, a read-only is a storage
 configuration mechanism that ensures no modification can be done to attached
 medium, enhancing security and integrity. Mounting a filesystem as read-only
 attaches storage with read-only configuration to Linux directory structure.
@@ -774,8 +774,9 @@ files in directory inherit that permission[^12]. It is worth noting, that each
 filesystem might handle read-only permissions differently, thus "read-only"
 should be thought of as a concept, rather how it is implemented. For example,
 NTFS supports six basic groups of permission types that include[^13]: read,
-write, list folder contents, read & execute, modify and full control. For other
-filesystems read-only might simply mean lack of write permission.
+write, list folder contents, read & execute, modify and full control. The
+permissions are granted as needed. This means that read-only is a combination
+of read permission and lack of write permission.
 
 #### Immutable storage concept
 
@@ -801,7 +802,7 @@ Immutable Linux operating systems are aimed to introduce reliable, more secure
 approach to Linux. For such systems, the core components like kernel, system
 libraries or critical system files are read-only and cannot be modified
 permanently. Any changes made to the core system components are lost when
-system reboots but user information is preserved. The advantages of
+system reboots, but user information is preserved. The advantages of
 immutability are:
 * increased security - modifications to installed system structure should not
 be possible by design,
@@ -812,9 +813,10 @@ deploying it and switching over to the new one. This process is referred to as
 "image-based-upgrade"[^16]. In immutable Linux systems, user data is preserved.
 It is achieved via various mechanisms including:
 * writable overlay layer - this is useful for system directories like `/etc` to
-make to allow modifications to various configurations in a controlled manner;
+allow modifications to various configurations in a controlled manner;
 * separate writable partitions - it is a common practice to put `/home`
 directory on separate, writable partition.
+
 These mechanisms also allow for user data to be preserved across the system
 updates[^17]. Updates are done alongside reboot, the architecture ensures that
 in case of failure in updating the system, one can easily revert system to
