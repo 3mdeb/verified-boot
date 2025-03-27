@@ -719,7 +719,7 @@ discs and recordable optical discs[^3]:
     * recordable optical discs - allow for recording data with process named
     "burning". These further split into:
         * recordable medias like CD-R and DVD-R where data can be burnt until
-        disc is full, but it cannot be erased;
+        disc is full, but it cannot be erased.
         * rewritable medias like CD-RW and DVD-RW where data can be burnt and
         erased.
 
@@ -813,7 +813,7 @@ deploying it and switching over to the new one. This process is referred to as
 "image-based-upgrade"[^16]. In immutable Linux systems, user data is preserved.
 It is achieved via various mechanisms including:
 * writable overlay layer - this is useful for system directories like `/etc` to
-allow modifications to various configurations in a controlled manner;
+allow modifications to various configurations in a controlled manner.
 * separate writable partitions - it is a common practice to put `/home`
 directory on separate, writable partition.
 
