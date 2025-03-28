@@ -1194,5 +1194,3 @@ in-place "modifications" of ISO files are possible.
 [^7]: [growisofs](https://linux.die.net/man/1/growisofs)
 [^8]: [mkisof](https://linux.die.net/man/8/mkisofs)
 
-### VMs
-- 939-946    Part 3: OS and VMs
