@@ -1096,6 +1096,14 @@ is handled directly by systemd. `Clevis` does act as an additional layer on top
 of `LUKS` and `cryptsetup`. It is an additional tool that must function at boot
 time, but its advantage is support for more unlocking methods.
 
+It should be noted that relying solely on TPM2 for volume decryption has been
+proven to be vulnerable to compromise for both `systemd-cryptenroll` and
+`clevis` based setups. Attackers were able to bypass the system by learning
+decryption method and filesystem from `initrd` in order to create matching,
+malicious LUKS partition. This was later used to make `initrd` load compromised
+`init` executable and fetch key from the TPM module. The attacks could have
+been avoided if additionall pin for unlocking TPM were used[^10].
+
 [^1]: [device-encryption](https://riseup.net/ca/security/device-security/device-encryption)
 [^2]: [disk-encryption-user-guide](https://docs.fedoraproject.org/en-US/quick-docs/encrypting-drives-using-LUKS/)
 [^3]: [what-is-luks-and-how-does-it-work](https://www.sysdevlabs.com/articles/storage-technologies/what-is-luks-and-how-does-it-work/)
@@ -1105,6 +1113,7 @@ time, but its advantage is support for more unlocking methods.
 [^7]: [systemd-cryptenroll](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptenroll.html)
 [^8]: [systemd-crypteup](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptsetup.html)
 [^9]: [clevis](https://github.com/latchset/clevis)
+[^10]: [bypassing-disk-encryption-on-systems-with-automatic-tpm2-unlock](https://oddlama.org/blog/bypassing-disk-encryption-with-tpm2-unlock/)
 
 ### ISOs
 
