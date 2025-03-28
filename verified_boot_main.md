@@ -1033,18 +1033,19 @@ module is used to perform low level encryption and decryption operations on
 user data. On the other hand, user-level operations are performed via
 `cryptsetup` utility[^2]. LUKS format can be used to encrypt partitions,
 multiple device RAID arrays, LVM partition or block devices. LUKS layout
-consists of three main components:
+consists of three main components[^3]:
 * LUKS header - stores encryption related metadata e.g. utilized algorithm or
 keys. Typically located at the beginning of the partition/storage-media, but
 it is also possible to use "detached" header and store it elsewhere. If the
-header gets damaged or lost, the data is irreversibly lost[^3].
-* "key material" area - this is where up to 8 encoded variants of the master
-key are stored. The principle of this mechanism can be compared to deposit
-boxes at a bank. Rather than using user key to decode the data, the user key is
-used to access deposit box which contains the master key used to decrypt the
-data. This ensures multiple users can have access to the data, without sharing
-the master key. A user key can either be a passphrase or a key file, which when
-stored on a external storage media, can serve as a physical key.
+header gets damaged or lost, the data is irreversibly lost.
+* "key material" area - for LUKS1 this is where up to 8 encoded variants of the
+master key are stored. For LUKS2 the number of available slots was increased to
+32[^4]. The principle of this mechanism can be compared to deposit boxes at a bank.
+Rather than using user key to decode the data, the user key is used to access
+deposit box which contains the master key used to decrypt the data. This
+ensures multiple users can have access to the data, without sharing the master
+key. A user key can either be a passphrase or a key file, which when stored on
+an external storage media, can serve as a physical key.
 * ciphered user data.
 
 #### Integrity protection with dm-integrity
@@ -1054,7 +1055,7 @@ protection. An additional integrity protection can be configured directly in
 `cryptsetup`. If it is enabled, an additional `dm-integrity` device is added to
 virtual device stack and `dm-crypt` layer is placed on top of it. The downside
 is that available storage space is reduced as it is necessary to allocate
-additional memory for integrity tags (metadata and journal)[^4].
+additional memory for integrity tags (metadata and journal)[^5].
 
 `dm-integrity` integrity is based on an "atomic-write" (all-or-nothing)
 principle. This means that in case of a system crash both data and integrity
@@ -1066,7 +1067,7 @@ target. In standalone mode it is used for silent data corruption detection that
 can be caused for e.g. by disk errors. In case of second mentioned mode, the
 `dm-crypt` is responsible for generating integrity tags. These are then passed
 to `dm-integrity`. The `dm-integrity` role is to detect data tampering, and if
-so, return I/O errors rather than the corrupted data.
+so, return I/O errors rather than the corrupted data[^6].
 
 #### TPM support
 
@@ -1075,13 +1076,13 @@ LUKS2 encryption can be combined with tools like `systemd-cryptenroll` or
 
 `systemd-cryptenroll` is a tool for enrolling hardware security tokens into
 LUKS2 encrypted storages. The tool works by storing meta-information in LUKS2
-JSON token area[^6]. The `systemd-cryptestup` service is then used to
-automatically attach and detach encrypted block devices[^7].
+JSON token area[^7]. The `systemd-cryptestup` service is then used to
+automatically attach and detach encrypted block devices[^8].
 
 `Clevis` is a pluggable framework for automated encryption and decryption of
 LUKS volumes. It uses so called PINs, a plugins that implement automated
 decryption. The PIN can be later binded to a LUKS volume so it is automatically
-unlocked via various "unlocker" types, including[^7]:
+unlocked via various "unlocker" types, including[^9]:
 * dracut - to unlock volumes during early boot.
 * initramfs - same principle as for `dracut`,
 * UDisk2 - a desktop session utility, useful when connecting external storages.
@@ -1091,18 +1092,28 @@ user intervention.
 The two encryption tools differ on how they operate. The `systemd-cryptenroll`
 is for simply enrolling TPM keys to LUKS while other systemd services handle
 unlocking. Its advantage is no need for extra tooling at boot as decryption
-is handled directly by systemd. `Celvis` does act as an additional layer on top
+is handled directly by systemd. `Clevis` does act as an additional layer on top
 of `LUKS` and `cryptsetup`. It is an additional tool that must function at boot
 time, but its advantage is support for more unlocking methods.
+
+It should be noted that relying solely on TPM2 for volume decryption has been
+proven to be vulnerable to compromise for both `systemd-cryptenroll` and
+`clevis` based setups. Attackers were able to bypass the system by learning
+decryption method and filesystem from `initrd` in order to create matching,
+malicious LUKS partition. This was later used to make `initrd` load compromised
+`init` executable and fetch key from the TPM module. The attacks could have
+been avoided if additionall pin for unlocking TPM were used[^10].
 
 [^1]: [device-encryption](https://riseup.net/ca/security/device-security/device-encryption)
 [^2]: [disk-encryption-user-guide](https://docs.fedoraproject.org/en-US/quick-docs/encrypting-drives-using-LUKS/)
 [^3]: [what-is-luks-and-how-does-it-work](https://www.sysdevlabs.com/articles/storage-technologies/what-is-luks-and-how-does-it-work/)
-[^4]: [cryptsetup](https://man7.org/linux/man-pages/man8/cryptsetup.8.html)
-[^5]: [dm-integrity](https://docs.kernel.org/admin-guide/device-mapper/dm-integrity.html)
-[^6]: [systemd-cryptenroll](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptenroll.html)
-[^7]: [systemd-crypteup](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptsetup.html)
-[^8]: [clevis](https://github.com/latchset/clevis)
+[^4]: [cryptsetup-faq](https://gitlab.com/cryptsetup/cryptsetup/-/blob/main/FAQ.md)
+[^5]: [cryptsetup](https://man7.org/linux/man-pages/man8/cryptsetup.8.html)
+[^6]: [dm-integrity](https://docs.kernel.org/admin-guide/device-mapper/dm-integrity.html)
+[^7]: [systemd-cryptenroll](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptenroll.html)
+[^8]: [systemd-crypteup](https://www.freedesktop.org/software/systemd/man/latest/systemd-cryptsetup.html)
+[^9]: [clevis](https://github.com/latchset/clevis)
+[^10]: [bypassing-disk-encryption-on-systems-with-automatic-tpm2-unlock](https://oddlama.org/blog/bypassing-disk-encryption-with-tpm2-unlock/)
 
 ### CVMs
 
