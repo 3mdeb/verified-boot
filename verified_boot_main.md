@@ -729,7 +729,8 @@ privileges (e.g. by executing `sudo` command). All locations remain writable
 including `/tmp` and `/dev/shm`.
 * `LIVE mode USER` - serves similar role to `PERSISTENT mode USER` with the
 difference that any changes made to the filesystem are not persistent and will
-be lost during reboot.
+be lost during reboot. `LIVE mode USER` is implemented via
+[Grub-live](https://www.kicksecure.com/wiki/Grub-live).
 * `PERSISTENT mode SYSMAINT` - Grants access to special system maintenance
 account, which can escalate privileges in order to perform administrative
 tasks. Provides a full persistence.
