@@ -1,5 +1,30 @@
 # Measured Boot
 
+## Table of Contents
+
+<!-- toc -->
+
+- [Measured Boot and the Trusted Platform Module](#measured-boot-and-the-trusted-platform-module)
+  * [Root of Trust for Storage](#root-of-trust-for-storage)
+    + [Password Authorization](#password-authorization)
+    + [HMAC Session Authorization](#hmac-session-authorization)
+    + [Authorization Policies](#authorization-policies)
+    + [Platform Configuration Register (PCR)](#platform-configuration-register-pcr)
+  * [Root of Trust for Reporting](#root-of-trust-for-reporting)
+  * [Not a Root of Trust for Measurements](#not-a-root-of-trust-for-measurements)
+  * [Data Sealing and Unsealing](#data-sealing-and-unsealing)
+  * [TPM Key Hierarchies](#tpm-key-hierarchies)
+    + [Endorsement Key hierarchy](#endorsement-key-hierarchy)
+    + [Platform Key hierarchy](#platform-key-hierarchy)
+    + [Storage Root Key hierarchy](#storage-root-key-hierarchy)
+- [Static and Dynamic RTM](#static-and-dynamic-rtm)
+  * [Static Root of Trust for Measurement (SRTM)](#static-root-of-trust-for-measurement-srtm)
+  * [Dynamic Root of Trust for Measurement (DRTM)](#dynamic-root-of-trust-for-measurement-drtm)
+  * [Why use SRTM and DRTM at the same time](#why-use-srtm-and-drtm-at-the-same-time)
+  * [Pros and cons of SRTM and DRTM](#pros-and-cons-of-srtm-and-drtm)
+
+<!-- tocstop -->
+
 Measured boot is a security mechanism designed to provide a cryptographic
 footprint of the firmware and software executed during the boot process
 for future validation and attestation.
