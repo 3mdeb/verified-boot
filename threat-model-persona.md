@@ -1,17 +1,20 @@
-# **Persona Overview:**
+# Persona Overview
 
-**Name:** Alex Morgan
-**Age:** 38
-**Occupation:** Security Researcher, Freelancer, and Open-Source Developer
-**Family Status:** Married, two children
+The goal of this document is to draft an example persona for
+[Threat Model](threat-model.md).
 
-**Functional Roles:**
+- **Name:** Alex Morgan
+- **Age:** 38
+- **Occupation:** Security Researcher, Freelancer, and Open-Source Developer
+- **Family Status:** Married, two children
+
+**Functional Roles**
 
 - Family Member
 - SME Owner / Freelancer
 - Security-sensitive Open-Source Developer
 
-## **Core Technical Use Cases:**
+## Core Technical Use Cases
 
 - Contracted work involving:
   - Operating System Security
@@ -22,7 +25,7 @@
   - Malware Analysis
   - Reverse Engineering
 
-## **Hardware and Infrastructure:**
+## Hardware and Infrastructure
 
 - Homelab Server (Qubes Air)
 - High-end Desktop/Workstation (Qubes OS/Kicksecure)
