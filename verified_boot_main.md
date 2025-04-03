@@ -1205,3 +1205,70 @@ in-place "modifications" of ISO files are possible.
 [^7]: [growisofs](https://linux.die.net/man/1/growisofs)
 [^8]: [mkisof](https://linux.die.net/man/8/mkisofs)
 
+### OS components: Android case
+
+Operating systems definitions are very vague and it is often hard to point out
+what could be considered a system component. Taking applications as an example,
+is debatable whether following types of applications are considered OS
+components:
+* system tools,
+* bundled software,
+* or user installed apps.
+
+This chapter will focus on how Android differentiates user level components
+from system components, and how does it compare to common Linux distributions.
+
+#### Android partitioning
+
+Android devices have storage split into multiple partitions, where each one
+serves different role. Notable partitions include[^1]:
+* Boot - contains kernel image and a ramdisk (for Android 12 or
+lower).
+* System - contains the Android framework.
+* Recovery - contains the recovery image.
+* Userdata - contains user-installed apps, data and customization data.
+
+Additionally, it should be noted that Android 10 has implemented dynamic
+partitioning scheme. The dynamic partitioning scheme relies on so-called super
+partition, which can allocate dozens of logical partitions [^2]. Android does
+not specify a partitioning system like GPT[^3].
+
+Since the majority of user data along with installed apps is stored in a single
+partition, resetting android device to factory settings is easy, and relies on
+wiping said partition[^4]. This principle ensures strong differentiation from
+system components and user components.
+
+#### Linux partitioning
+
+Majority of modern Linux distributions use multiple partitions, yet not near as
+many as Android. These can include[^5]:
+* efi partition - stores applications and drivers to be executed by UEFI
+firmware to boot operating system[^6].
+* root partition - this is where core system components, configurations and
+applications reside.
+* separate `/home` partition - for storing personal user data.
+* swap - serves as a temporary storage in case system runs out of RAM memory.
+
+Most of Linux distributions follow filesystem hierarchy standard. Following up
+on applications example, these can reside in following directories in Linux root
+tree[^7]:
+* `/bin` - for storing essential user command binaries,
+* `/opt` - add-on application software packages,
+* `/sbin` - for system binaries,
+* `/usr/bin` - primary directory of executable commands in the system.
+
+Additionally, it is also common practice to store applications in user
+directories located at `/home`[^8].
+
+The issue is this approach is that user packages mix with system bundled
+software and binaries making it even harder to differentiate system components
+from user components.
+
+[^1]: [partitions-overview](https://source.android.com/docs/core/architecture/partitions)
+[^2]: [android-dynamic-partitions](https://wiki.postmarketos.org/wiki/Android_dynamic_partitions)
+[^3]: [dynamic-partitions](https://lpc.events/event/2/contributions/225/attachments/49/56/06._Dynamic_Partitions_-_LPC_Android_MC_v2.pdf)
+[^4]: [extract-android-userdata-partition-for-recovery-and-forensics](https://www.root101.net/extract-android-userdata-partition-recovery-and-forensics)
+[^5]: [linux-partitioning-recommendations](https://averagelinuxuser.com/linux-partitioning-recommendations/)
+[^6]: [EFI-system-partition](https://wiki.archlinux.org/title/EFI_system_partition)
+[^7]: [filesystem-hierarchy-standard](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)
+[^8]: [building-and-installing-software-in-$home](https://nullprogram.com/blog/2017/06/19/)
