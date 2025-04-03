@@ -802,16 +802,17 @@ Immutable Linux operating systems are aimed to introduce reliable, more secure
 approach to Linux. For such systems, the core components like kernel, system
 libraries or critical system files are read-only and cannot be modified
 permanently. Any changes made to the core system components are lost when
-system reboots, but user information is preserved. The advantages of
-immutability are:
+system reboots, but many of immutable systems preserve user information, yet it
+is not obligatory. The advantages of immutability are:
 * increased security - modifications to installed system structure should not
 be possible by design,
 * easy maintenance - updates are made via atomic upgrades.
 
 These types of systems are updated via creating new OS instance,
 deploying it and switching over to the new one. This process is referred to as
-"image-based-upgrade"[^16]. In immutable Linux systems, user data is preserved.
-It is achieved via various mechanisms including:
+"image-based-upgrade"[^16]. For systems that do preserve user data it is
+necessary to ensure it doesn't get lost or corrupted during update.
+Such systems can implement the following:
 * writable overlay layer - this is useful for system directories like `/etc` to
 allow modifications to various configurations in a controlled manner.
 * separate writable partitions - it is a common practice to put `/home`
