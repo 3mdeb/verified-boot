@@ -68,8 +68,10 @@ Src: https://github.com/Kicksecure/kicksecure-wiki-backup/blob/6900fdfbdea8693fd
 * Boot compatibility with mainstream operating systems such as Microsoft Windows: Yes, the user-controlled verified boot feature should not restrict the user's freedom to boot any operating system, if they so confirm in their firmware. (This is useful to avoid "Linux-only motherboard" and to keep resale value higher.)
 -->
 
-2.1. The application MUST NOT restrict the ability to boot any UEFI-compliant
-     operating system.
+2.1. The application MUST NOT prevent a user from booting any UEFI-compliant
+     operating system. It MAY prompt the user to grant trust to an unknown key
+     or to disable UEFI Secure Boot for that boot, but it must always offer at
+     least one successful path.
 
 <!--
 * Support for binaries signed by multiple keys: Yes. (UEFI already supports that.) (This is important to allow the distribution or customer to cycle/replace the key in later upgrades or for planned signing key changes.)
@@ -108,9 +110,8 @@ Src: https://github.com/Kicksecure/kicksecure-wiki-backup/blob/6900fdfbdea8693fd
      keys.
 
 2.6. The firmware vendor's default UEFI Secure Boot key and certificate set
-     SHALL NOT be trusted by default, unless explicitly confirmed by the user.
-     The application SHOULD assist in configuring the default keys and
-     certificates.
+     SHALL NOT be trusted by default. Trust shall only be given to these keys
+     if explicitly confirmed by the user.
 
 <!--
 * What this is:
@@ -197,7 +198,8 @@ Src: https://github.com/Kicksecure/kicksecure-wiki-backup/blob/6900fdfbdea8693fd
      image.
 
 3.2. The application MAY be launched from a predefined location on EFI System
-     Partition (ESP).
+     Partition (ESP). The application MUST be signed with a key or possess a hash
+     trusted by the firmware if this is done.
 
 3.3. The application MUST be run on the very first power on of the system and
      on every `EFI_BOOT_MODE` set to `BOOT_WITH_DEFAULT_SETTINGS` or
