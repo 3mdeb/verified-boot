@@ -18,17 +18,14 @@ ensuring strict adherence to the [UEFI Specification Version
 
 ## 2. Application Design Overview
 
-On first launch (i.e., when no Platform Key (`PK`) is enrolled and Secure
-Boot is not yet user-controlled), the application bypasses the main menu
-and immediately begins the scanning and discovery process. It performs key
-discovery, bootloader verification, and presents the user with a sequence
-of trust decisions.
-
-Only after the Secure Boot environment is provisioned and a Platform Key is
-set does the application default to the interactive menu interface on
-subsequent invocations. This ensures a streamlined initial experience
-focused on system provisioning, while providing full transparency and
-control afterward.
+On first launch (i.e., when no Platform Key (`PK`) is enrolled and), the
+application checks if Secure Boot is enabled (i.e., when Platform Key (`PK`)
+is enrolled), if yes, it attempts to transition to `AuditMode`. Not enrolled
+`PK` is the prerequisite to modify Secure Boot variables and establish
+user-controlled trust relationships with the firmware. Then the application
+begins the scanning and discovery process. It performs key discovery,
+bootloader verification, and presents the user with a sequence of trust
+decisions.
 
 The Verified Boot Provisioning Wizard is a standalone UEFI application
 executed either from a system firmware image or from an EFI System
@@ -42,27 +39,32 @@ including but not limited to:
 
 * `EFI_SIMPLE_FILE_SYSTEM_PROTOCOL` for accessing ESPs
 * `EFI_LOADED_IMAGE_PROTOCOL` for self-inspection
-* `EFI_VARIABLE_SERVICES_PROTOCOL` for interaction with Secure Boot
-  databases (`PK`, `KEK`, `db`, `dbx`)
-* `EFI_SECURITY_ARCH_PROTOCOL` for verifying signed images
-* `EFI_BOOT_MANAGER_POLICY_PROTOCOL` for boot option configuration
+* `EFI_VARIABLE_SERVICES_PROTOCOL` for interaction with Secure Boot databases
+  (`PK`, `KEK`, `db`, `dbx`) and boot option configuration
+* `EFI_SECURITY_ARCH_PROTOCOL`/`EFI_SECURITY2_ARCH_PROTOCOL` for verifying
+  images via `EFI_BOOT_SERVICES.LoadImage()`
 
 The application executes in several stages, forming a wizard workflow. These
 stages include environment scanning, key discovery, signature validation,
 and key enrollment.
 
+Only after the Secure Boot environment is provisioned and a Platform Key is
+set does the application default to the interactive menu interface on
+subsequent invocations. This ensures a streamlined initial experience
+focused on system provisioning, while providing full transparency and
+control afterward.
+
 ## 3. Operational Phases
 
 ### 3.1 Environment Initialization
 
-Upon entry, the application uses `LocateHandleBuffer()` with `ByProtocol`
-for `gEfiSimpleFileSystemProtocolGuid`, identifying all connected
-ESP-capable volumes. Each volume is queried via `OpenVolume()` to explore
-file systems for Secure Boot material and bootloaders.
+The application can only run before `EFI_BOOT_SERVICES.ExitBootServices()` has
+been called.
 
-If `EFI_PLATFORM_INFORMATION_PROTOCOL` or equivalent vendor-defined
-mechanism is available, the application may consult platform-specific boot
-policies or heuristics for locating candidate media.
+Upon entry, the application uses `EFI_BOOT_SERVICES.LocateHandleBuffer()` with
+`ByProtocol` for `EFI_SIMPLE_FILE_SYSTEM_PROTOCOL`, identifying all connected
+ESP-capable volumes. Each volume is queried via `OpenVolume()` to explore file
+systems for Secure Boot material and bootloaders.
 
 ### 3.2 Key Discovery on Filesystems and Default Variables
 
@@ -123,10 +125,12 @@ section 3.2 to establish which keys failed verification and why. Bootloader
 paths from the table are parsed and presented to the user together with
 verification outcomes and certificate metadata.
 
-The application also validates bootloaders directly using
-`EFI_SECURITY_ARCH_PROTOCOL.VerifyImage()`. This ensures that bootloaders
-not captured in the audit log are still evaluated if located on accessible
-filesystems.
+The application also validates bootloaders using
+`EFI_BOOT_SERVICES.LoadImage()`. This ensures that bootloaders not captured in
+the audit log are still evaluated if located on accessible filesystems. The
+firmware will put the ifnormation abotu execution attempt and verification
+checks in the `EFI_IMAGE_EXECUTION_INFO_TABLE`. The application will consult
+its content to present the results.
 
 Bootloaders that pass signature checks using discovered or pre-enrolled keys
 are listed for potential trust decisions. For images with unknown but
@@ -138,7 +142,7 @@ the next section.
 For each unknown signing key discovered during verification, the application
 prompts the user with a detailed summary, including:
 
-* Image path
+* Key path
 * Certificate subject and issuer fields (if available)
 * Key fingerprint (SHA-256)
 * Origin (ESP, firmware default, audit log)
@@ -189,8 +193,6 @@ The application adheres to the security model defined in the UEFI Secure
 Boot architecture. It ensures that:
 
 * No key is trusted without explicit user action.
-* Secure Boot state changes (e.g., enabling, enrolling `PK`) are never
-  automated without user consent.
 * Bootloaders are not executed unless validated against an enrolled key and
   authorized by the user.
 * Keys recorded in audit logs are never enrolled without human review.
@@ -203,14 +205,15 @@ reside on the EFI System Partition (ESP) and be invoked by the firmware
 through a boot option, removable media path, or manually through the boot
 manager UI.
 
-The application is not a DXE driver and must not be integrated into the
-firmware volume as a DXE phase component.
+The application is not a DXE driver, but may be integrated into the firmware
+volume to ensure it is always available (recommended).
 
 Firmware implementations are encouraged to invoke the wizard:
 
-* On first boot, if `PK` is not set
+* On first boot
 * When `EFI_BOOT_MODE == BOOT_WITH_DEFAULT_SETTINGS`
-* When Secure Boot verification fails and audit mode is active
+* When Secure Boot verification fails of the previosuly trusted bootloader
+* By Boot Manager when none of the boot options work
 
 ## 6. User Interface Design
 
