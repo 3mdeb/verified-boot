@@ -20,6 +20,11 @@ application is proposed, which:
   understandable and simplified way.
 - Helps to establish the trusted keys and certificates database.
 
+The application assumes that the firmware does not implement insecure image
+verification policies allowing to bypass signature verification when UEFI
+Secure Boot is enabled. Protection against firmware vulnerabilities is out of
+scope.
+
 ## Requirements
 
 Requirement use the words defined in
@@ -111,10 +116,6 @@ Requirement use the words defined in
 
 3.4. The firmware MAY run the application if the bootloader image verification
      fails and the firmware is unable to boot the operating system.
-
-3.5. The firmware SHOULD NOT implement insecure image verification policies
-     allowing to bypass signature verification when UEFI Secure Boot is
-     enabled.
 
 ## Usecase examples
 
