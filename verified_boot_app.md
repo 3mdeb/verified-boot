@@ -61,38 +61,38 @@ Requirement use the words defined in
      Name (CN) and Organization (O) or other fields if present. Additionally,
      the key fingerprint MUST always be displayed.
 
-2.5. The firmware SHOULD include the Microsoft UEFI Secure Boot keys and
-     certificates in the firmware vendor's default set of UEFI Secure Boot
-     keys.
+2.5. Trust MUST only be given to keys/certificates if explicitly confirmed by
+     the user.
 
-2.6. The firmware vendor's default UEFI Secure Boot key and certificate set
-     SHALL NOT be trusted by default. Trust shall only be given to these keys
-     if explicitly confirmed by the user.
+2.6. The application SHALL assist in trusted key/certificate set selection.
 
-2.7. The application SHOULD assist in trusted key/certificate set selection.
+2.7. The application SHALL scan EFI System Partition (ESP) for available keys
+     and certificates.
 
-2.8. The application SHALL scan EFI System Partition (ESP) for available keys
-     and certificates. The certificates MUST be X509 DER encoded. The
-     application MAY save the list of found and usable keys and certificates
-     in a separate UEFI variable for future use.
+2.8. The certificates MUST be X509 DER encoded.
 
-2.9. The application SHALL scan EFI System Partition (ESP) for operating
-     system bootloaders.
+2.9. The application MAY save the list of found and usable keys and
+     certificates in a separate UEFI variable for future use.
 
-2.10. The keys, certificates and bootloaders MAY be stored in different
+2.10. The application SHALL scan EFI System Partition (ESP) for operating
+      system bootloaders.
+
+2.11. The keys, certificates and bootloaders MAY be stored in different
       location on ESP than the default location specified by the operating
       system.
 
-2.11. The application SHALL verify the signatures of each bootloader located
+2.12. The application SHALL verify the signatures of each bootloader located
       on ESP and match it with a key/certificate located either on the ESP or
-      the default certificate set. The application MUST display the bootloader
-      path, key information and verification result.
+      the default certificate set.
 
-2.12. The application SHALL ask the user to trust the key used to sign each
+2.13. The application MUST display the bootloader path, key information and
+      verification result.
+
+2.14. The application SHALL ask the user to trust the key used to sign each
       bootloader, if the key has been found in either ESP or firmware default
       key set and the image passes the verification.
 
-2.13. The application MAY offer to create a persistent boot option for a
+2.15. The application MAY offer to create a persistent boot option for a
       bootloader signed with a trusted key.
 
 ### Integration
