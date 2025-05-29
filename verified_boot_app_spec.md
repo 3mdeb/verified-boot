@@ -94,8 +94,8 @@ If the application is run after initial provisioning, it will read out current
 
 The application will parse the images of the bootloaders to obtain information
 about the signatures. The application will additionally validate bootloaders
-using `EFI_BOOT_SERVICES.LoadImage()`. Bootloaders that pass signature checks
-using are listed for potential trust decisions. For images with unknown but
+using cyrptographic libraries. Bootloaders that pass signature checks using
+are listed for potential trust decisions. For images with unknown but
 verifiable keys, the application initiates a trust prompt.
 
 The priority of bootloader processing is determined by `BootOrder` variable
@@ -132,8 +132,13 @@ the user decides to trust for given bootloader.
 If the bootloader is signed only by Microsoft keys/certificates the trust
 prompt is deferred for later and the application attemps to process next
 bootloader if available. Trust prompt for Microsoft keys/certificates has the
-lowest priority (ignoring `BootOrder`) in such case. Once all other options
-are exhausted, the application will prompt to trust the Microsoft
+lowest priority (ignoring `BootOrder`) in such case. The application will scan
+the current partition for files that may be alternative usable bootloaders. It
+searches recursively for files using simple heuristics, such as file name:
+`bootx64.efi`, `elilo.efi`, `grubx64.efi`, `shimx64.efi` and `bootmgfw.efi` or
+`.efi` file extension matching. If any of the files contains a signature not
+made by Microsoft keys, they are prioritized for trust prompts. Once all other
+options are exhausted, the application will prompt to trust the Microsoft
 keys/certificates if any bootloaders signed by them are found.
 
 The application may continue booting the currently processed bootloader or
