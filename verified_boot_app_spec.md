@@ -17,7 +17,7 @@ intuitive for users who are not security experts.
 ## 2. Application Design Overview
 
 The Soverign Boot Provisioning Wizard is a standalone UEFI application
-executed either from a system firmware image. It operates in the pre-boot UEFI
+executed from a system firmware image. It operates in the pre-boot UEFI
 environment, executing on first boot, or on `EFI_BOOT_MODE` set to
 `BOOT_WITH_DEFAULT_SETTINGS` or `BOOT_WITH_MFG_MODE_SETTINGS`, or as a
 fallback mechanism when UEFI Secure Boot verification fails on subsequent
@@ -45,12 +45,15 @@ Key `PK` using the platform-specific method. While in Setup Mode, the
 application removes Key Exchange Keys and trusted signature database `db` to
 guarantee a clean state for establishing trust.
 
-In the next phase the application analyzes boot options, prompts the user
-whether to trust they key used to sign the image in the boot option.
+In the next phase the application analyzes boot options, prompting the user
+whether to trust the key used to sign the selected image in the boot options.
+The image may have been explicitly selected by a user in a firmware boot menu,
+or it may have been automatically selected by the firmware during normal
+bootup.
 
-Once trusted key database is configured, the application creates ephemeral
-Platform Key `PK`, discards its private part, and enrolls the public part into
-`PK` variable to activate UEFI Secure Boot.
+Once the trusted key database is configured, the application creates an
+ephemeral Platform Key `PK`, discards its private part, and enrolls the public
+part into `PK` variable to activate UEFI Secure Boot.
 
 Only after the UEFI Secure Boot environment is provisioned and a Platform Key
 is set does the application default to the interactive menu interface on
@@ -63,8 +66,8 @@ system environment:
 
 - Current boot options and their:
   - Verification status
-  - Key fingerprint if the image is signed
-  - Key trust status
+  - Key fingerprint if the image is signed (or image hash if not signed)
+  - Trust status
 - Current trusted key database
 
 As well as options for Soverign Boot reprovisioning.
@@ -94,9 +97,9 @@ If the application is run after initial provisioning, it will read out current
 
 The application will parse the images of the bootloaders to obtain information
 about the signatures. The application will additionally validate bootloaders
-using cyrptographic libraries. Bootloaders that pass signature checks using
-are listed for potential trust decisions. For images with unknown but
-verifiable keys, the application initiates a trust prompt.
+using cryptographic libraries. Bootloaders that pass signature checks are
+listed for potential trust decisions. For images with unknown but verifiable
+keys, the application initiates a trust prompt.
 
 The priority of bootloader processing is determined by `BootOrder` variable
 prepared by the firmware before launching the application.
@@ -136,10 +139,12 @@ lowest priority (ignoring `BootOrder`) in such case. The application will scan
 the current partition for files that may be alternative usable bootloaders. It
 searches recursively for files using simple heuristics, such as file name:
 `bootx64.efi`, `elilo.efi`, `grubx64.efi`, `shimx64.efi` and `bootmgfw.efi` or
-`.efi` file extension matching. If any of the files contains a signature not
-made by Microsoft keys, they are prioritized for trust prompts. Once all other
-options are exhausted, the application will prompt to trust the Microsoft
-keys/certificates if any bootloaders signed by them are found.
+`.efi` file extension matching. If available, the application will look at
+shim's fallback mechanism with `boot.csv` file and investigate its content for
+potential alternative bootloaders. If any of the files contains a signature
+not made by Microsoft keys, they are prioritized for trust prompts. Once all
+other options are exhausted, the application will prompt to trust the
+Microsoft keys/certificates if any bootloaders signed by them are found.
 
 The application may continue booting the currently processed bootloader or
 proceed to check next bootloader and continue with trust prompts until all
@@ -151,9 +156,9 @@ restriction ensures that the platform's trust anchors and ownership state are
 not altered prematurely.
 
 At the end of the provisioning workflow (once trusted key database is
-configured), the application creates ephemeral Platform Key `PK`, discards its
-private part, and enrolls the public part into `PK` variable. Enrolling the
-`PK` while UEFI Secure Boot is in Setup Mode will cause the firmware to
+configured), the application creates an ephemeral Platform Key `PK`, discards
+its private part, and enrolls the public part into `PK` variable. Enrolling
+the `PK` while UEFI Secure Boot is in Setup Mode will cause the firmware to
 transition the UEFI Secure Boot to User Mode and activate enforced image
 verification (enable UEFI Secure Boot).
 
@@ -178,11 +183,9 @@ architecture. The application is designed with adhering to the following
 rules:
 
 * No key is trusted without explicit user action. The rule applies only to the
-  bootloader executed directly by the application. If the bootloader
-  introduces another key into the trust chain, it is out of scope of the
-  application.
-* Bootloaders are not executed unless validated against an enrolled key and
-  authorized by the user.
+  bootloader executed directly by the application or the firmware.
+* Bootloaders are not executed unless validated against an enrolled key or
+  hash and authorized by the user.
 * The application is only responsible for continuing the chain of trust by
   verifying the bootloader directly executed by the application. Further chain
   of trust continuation is the bootloader's responsibility and is out of scope
@@ -206,8 +209,8 @@ Firmware implementations are encouraged to invoke the wizard:
 * By Boot Manager when none of the boot options work. If there are no boot
   options on disks, then the firmware should fall back to firmware setup or
   any other platform-specific fallback boot option.
-* Manually by the firmware through the firmware setup menu if user requests to
-  do so.
+* If the user explicitly attempts to boot a bootloader that is not yet trusted
+  via the boot menu or "boot from file" functionality.
 
 The firmware setup menu must also offer an option to disable/omit the Soverign
 Boot Wizard in the boot flow to restore regular firmware behavior.
@@ -259,6 +262,7 @@ the system.
 When user decides to trust the key, the application must confirm user's
 decision with second prompt:
 
+```
 +------------------------------------------------------------+
 |       Confirm Trust Decision for Key Fingerprint           |
 +------------------------------------------------------------+
@@ -279,6 +283,7 @@ decision with second prompt:
 |   Use Enter to confirm selection.                          |
 |   Use ESC to go back to previous menu.                     |
 +------------------------------------------------------------+
+```
 
 ### 6.2 Interactive Mode
 
