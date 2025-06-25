@@ -1,4 +1,4 @@
-# Soverign Boot Provisioning Wizard
+# Sovereign Boot Provisioning Wizard
 
 ## 1. Introduction
 
@@ -16,7 +16,7 @@ intuitive for users who are not security experts.
 
 ## 2. Application Design Overview
 
-The Soverign Boot Provisioning Wizard is a standalone UEFI application
+The Sovereign Boot Provisioning Wizard is a standalone UEFI application
 executed from a system firmware image. It operates in the pre-boot UEFI
 environment, executing on first boot, or on `EFI_BOOT_MODE` set to
 `BOOT_WITH_DEFAULT_SETTINGS` or `BOOT_WITH_MFG_MODE_SETTINGS`, or as a
@@ -39,38 +39,76 @@ and key enrollment.
 
 ![](images/app_flow.png)
 
-On first launch or during boot with default settings, the application ensures
-that UEFI Secure Boot is in setup mode, and if not it deletes current Platform
-Key `PK` using the platform-specific method. While in Setup Mode, the
-application removes Key Exchange Keys and trusted signature database `db` to
-guarantee a clean state for establishing trust.
+On first launch or during boot with default settings, the application shows a
+welcome windows where the user may select the UEFI Secure Boot scheme to be
+used:
 
-In the next phase the application analyzes boot options, prompting the user
-whether to trust the key used to sign the selected image in the boot options.
-The image may have been explicitly selected by a user in a firmware boot menu,
-or it may have been automatically selected by the firmware during normal
-bootup.
+* Sovereign Boot - the mode where the user explicitly configures trusted keys
+  and the wizard assists with the process
+* Standard UEFI Secure Boot - the mode where firmware default or current keys
+  are used and the wizard does not do any modification to the UEFI Secure Boot
+  settings.
+
+When Sovereign Boot is selected, the application ensures that UEFI Secure Boot
+is in setup mode, and if not it deletes current Platform Key `PK` using the
+platform-specific method. While in Setup Mode, the application removes Key
+Exchange Keys and trusted signature database `db` to guarantee a clean state
+for establishing trust. The Sovereign Boot prohibits trusting the Microsoft
+UEFI Secure Boot keys and certificates, that is why the application adds these
+certificates to the forbidden signature database `dbx`, to ensure these keys
+will never be trusted nor any image signed by these keys will be ever
+executed. The application does not modify the default `dbx` content as it
+contains signatures of vulnerable images and revoked certificates. The default
+`dbx` entries must be listed as a single `EFI_SIGNATURE_LIST`. The application
+will only append new `EFI_SIGNATURE_LIST`s for every untrusted key and
+Microsoft keys, and only the signature lists except the first (default) one
+are allowed to be modified by the application.
+
+In the next phase the application analyzes current boot options, prompting the
+user whether to trust the key used to sign the selected image in the boot
+options. The image may have been explicitly selected by a user in a firmware
+boot menu, or it may have been automatically selected by the firmware during
+normal bootup.
+
+The boot options created by the firmware may not always be Sovereign Boot
+compatible (signed by keys different than Microsoft's) thus they may not be
+showed up for trust decisions. That is why the application does additional
+scanning for potential boot options and bootloaders on available EFI System
+Partitions. If a hypothetical Sovereign Boot compatible EFI image is found, it
+is presented to the user for trust decision.
+
+1. The application will prioritize `shimx64.efi` files, as `shim` is required
+   to maintain the UEFI Secure Boot verification.
+2. Additionally the application may look at `BOOT.CSV` file accompanying the
+   `shimx64.efi` in search for fallback boot options for given distribution.
+3. At last the application will list other EFI executables discovered on the
+   EFI System Partitions that were not yet listed.
+4. From the list of all boot option and bootloaders, those signed by
+   Microsoft's keys will be filtered out and skipped form trust prompts.
 
 Once the trusted key database is configured, the application creates an
 ephemeral Platform Key `PK`, discards its private part, and enrolls the public
-part into `PK` variable to activate UEFI Secure Boot.
+part into `PK` variable to activate UEFI Secure Boot. The application
+transitions the system into an provisioned state and proceeds with booting the
+trusted image.
 
 Only after the UEFI Secure Boot environment is provisioned and a Platform Key
 is set does the application default to the interactive menu interface on
-subsequent invocations. This ensures a streamlined initial experience focused
-on system provisioning, while providing full transparency and control
-afterward.
+subsequent application invocations. This ensures a streamlined initial
+experience focused on system provisioning, while providing full transparency
+and control afterward.
 
 The interactive menu interface is designed to provide detailed view on current
 system environment:
 
-- Current boot options and their:
+- All discovered and Sovereign Boot compatible boot options and
+  their:
   - Verification status
   - Key fingerprint if the image is signed (or image hash if not signed)
   - Trust status
 - Current trusted key database
 
-As well as options for Soverign Boot reprovisioning.
+As well as options for Sovereign Boot augmenting and modifications.
 
 ## 3. Operational Phases
 
@@ -86,12 +124,14 @@ The application locates all necessary protocols for its operation:
 - Runtime Services (for Variable services and possibly other API)
 - crypto libraries (for parsing the certificates and signature verification in
   the images)
+- HII (Human Interface Infrastructure) protocols (for displaying the forms and
+  processing user inputs)
 
 The application also consults the `Boot####` and `BootOrder` variables to
 determine the available boot options and priority of bootloader processing.
 
 If the application is run after initial provisioning, it will read out current
-`PK` and `db` and parse its content.
+`PK`,`db`, `dbx` and parse its content.
 
 ### 3.3 Bootloader Identification and Verification
 
@@ -106,114 +146,104 @@ prepared by the firmware before launching the application.
 
 The information about the bootloader should include:
 
-* The EFI image device path
+* Description (the disk name where the file is located)
+* The disk device path
+* The file path on the disk
 * Status of image verification
 * Associated certificates/keys fingerprints
 
 ### 3.4 Trust Decision and Key Enrollment
 
 The application parses the certificates embedded inside the PE/COFF image
-format as described in the UEFI specification. For each newly encountered
-signing key fingerprint/certificate discovered during bootloader verification,
-the application prompts the user whether to trust the key/certificate. The
-prompt must include the key/certificate fingerprint. The prompt may display
-additional information:
-
-* Certificate subject (if available)
-* Certificate issuer fields (if available)
+format as described in the UEFI and [Microsoft's
+Authenticode](https://download.microsoft.com/download/9/c/5/9c5b2167-8017-4bae-9fde-d599bac8184a/authenticode_pe.docx)
+specification. For each newly encountered signing key fingerprint/certificate
+discovered during bootloader verification, the application prompts the user
+whether to trust the key/certificate. The prompt must include the
+key/certificate fingerprint.
 
 With explicit user consent and double confirmation, the application enrolls
-the certificate fingerprint into the trusted signature database `db` using
+the certificate into the trusted signature database `db` using
 `SetVariable()`. Since the application operates in UEFI Secure Boot Setup Mode
 at this point, authenticated write access is not required.
 
 If the bootloader has more than one signature, the application will prompt to
 trust each unique key found in the image, for which trust decision was not yet
-made. The application will stop prompting on the first key/certificate that
-the user decides to trust for given bootloader.
-
-If the bootloader is signed only by Microsoft keys/certificates the trust
-prompt is deferred for later and the application attemps to process next
-bootloader if available. Trust prompt for Microsoft keys/certificates has the
-lowest priority (ignoring `BootOrder`) in such case. The application will scan
-the current partition for files that may be alternative usable bootloaders. It
-searches recursively for files using simple heuristics, such as file name:
-`bootx64.efi`, `elilo.efi`, `grubx64.efi`, `shimx64.efi` and `bootmgfw.efi` or
-`.efi` file extension matching. If available, the application will look at
-shim's fallback mechanism with `boot.csv` file and investigate its content for
-potential alternative bootloaders. If any of the files contains a signature
-not made by Microsoft keys, they are prioritized for trust prompts. Once all
-other options are exhausted, the application will prompt to trust the
-Microsoft keys/certificates if any bootloaders signed by them are found.
+made. If the bootloader is signed only by Microsoft keys/certificates, it is
+being ignored and the application attempts to process next bootloader if
+available.
 
 The application may continue booting the currently processed bootloader or
 proceed to check next bootloader and continue with trust prompts until all
 options are exhausted or user decides to continue booting.
 
-Only the `db` (permitted image signers) may be updated during this phase. No
-changes to `PK` are performed until the end of the provisioning workflow. This
-restriction ensures that the platform's trust anchors and ownership state are
-not altered prematurely.
+Only the `db` (trusted signature database) and `dbx` (forbidden signature
+database) may be updated during this phase. No changes to `PK` are performed
+until the end of the provisioning workflow. This restriction ensures that the
+platform's trust anchors and ownership state are not altered prematurely.
 
-At the end of the provisioning workflow (once trusted key database is
-configured), the application creates an ephemeral Platform Key `PK`, discards
-its private part, and enrolls the public part into `PK` variable. Enrolling
-the `PK` while UEFI Secure Boot is in Setup Mode will cause the firmware to
-transition the UEFI Secure Boot to User Mode and activate enforced image
-verification (enable UEFI Secure Boot).
+At the end of the provisioning workflow (once all trust decisions are made or
+the user decides to boot a trusted bootloader), the application creates an
+ephemeral Platform Key `PK`, discards its private part, and enrolls the public
+part into `PK` variable. Enrolling the `PK` while UEFI Secure Boot is in Setup
+Mode will cause the firmware to transition the UEFI Secure Boot to User Mode
+and activate enforced image verification (enable UEFI Secure Boot).
 
 ### 3.5 Boot Option Modifications
 
 When trusted key database is configured. `PK` is enrolled and UEFI Secure Boot
 is enabled, the application will proceed with booting the selected option.
-However, if user chose to trust a key/certificate of an option that was not the
-top priority in the `BootOrder` variable, the application will update the
-`BootOrder` variable to ensure the trusted bootloader is prioritized
+However, if user chose to trust a key/certificate of an option that was not
+the top priority in the `BootOrder` variable, the application will create a
+boot option (if bootloader is not found in any `Boot####` variable) and update
+the `BootOrder` variable to ensure the trusted bootloader is prioritized
 appropriately.
 
-When the application is not launched for the first time, it is in the
-interactive menu mode. The menu may offer a possibility to add new options
-from discovered bootloaders and modify bootorder if the user decides to extend
-the trusted key database by new keys/certificate or bootloaders.
+When the application is not launched for the first time, it operates in the
+interactive menu mode. This menu offers a possibility to add new options from
+discovered bootloaders and modify bootorder if the user decides to extend the
+trusted key database by new keys/certificate or bootloaders.
 
 ## 4. Security Model
 
 The application adheres to the security model defined in the UEFI Secure Boot
-architecture. The application is designed with adhering to the following
-rules:
+architecture. The application is also designed to obey the following rules:
 
-* No key is trusted without explicit user action. The rule applies only to the
-  bootloader executed directly by the application or the firmware.
-* Bootloaders are not executed unless validated against an enrolled key or
-  hash and authorized by the user.
+* No key or image is trusted without explicit user action. The rule applies
+  only to the first EFI image executed directly by the application or the
+  firmware boot manager.
+* Bootloaders are not executed unless validated against a trusted key or hash
+  authorized by the user.
 * The application is only responsible for continuing the chain of trust by
   verifying the bootloader directly executed by the application. Further chain
   of trust continuation is the bootloader's responsibility and is out of scope
   of the application.
 * The application is not responsible for protecting UEFI Secure Boot
   configuration. Unauthorized modifications to Secure Boot via firmware setup
-  should be prevent with firmware setup password feature.
+  should be prevented with firmware setup password feature.
 
 ## 5. Integration Considerations
 
-This application is a standard UEFI application and must be deployed as an
-executable PE32+ image conforming to the UEFI application format. It shall
-reside integrated into the firmware volume to ensure it is always available.
+The Sovereign Boot Wizard application is a standard UEFI application and must
+be deployed as an executable PE32+ image conforming to the UEFI application
+format. It shall reside integrated into the firmware volume to ensure it is
+always available.
 
 Firmware implementations are encouraged to invoke the wizard:
 
-* On first boot
-* When `EFI_BOOT_MODE == BOOT_WITH_DEFAULT_SETTINGS`
-* When UEFI Secure Boot verification fails of the previously trusted
-  bootloader
+* On the very first boot.
+* When `EFI_BOOT_MODE == BOOT_WITH_DEFAULT_SETTINGS` or
+  `EFI_BOOT_MODE == BOOT_WITH_MFG_MODE_SETTINGS`.
+* When UEFI Secure Boot fails to verify the image attempted to be executed by
+  the firmware boot manager.
 * By Boot Manager when none of the boot options work. If there are no boot
-  options on disks, then the firmware should fall back to firmware setup or
+  options available, then the firmware should fall back to firmware setup or
   any other platform-specific fallback boot option.
 * If the user explicitly attempts to boot a bootloader that is not yet trusted
   via the boot menu or "boot from file" functionality.
 
-The firmware setup menu must also offer an option to disable/omit the Soverign
-Boot Wizard in the boot flow to restore regular firmware behavior.
+The firmware setup menu must also offer an option to disable/skip the
+Sovereign Boot Wizard in the boot flow to restore regular firmware behavior.
 
 ## 6. User Interface Design
 
@@ -225,11 +255,14 @@ mode is to provide straightforward and easy experience of provisioning UEFI
 Secure Boot feature and establishing trust relationships between the user and
 the system.
 
+Proposed look of the windows are presented below. They may differ in the final
+state of the application.
+
 ### 6.1.1 Welcome window
 
 ```
 +------------------------------------------------------------+
-|            Soverign Boot Provisioning Wizard               |
+|            Sovereign Boot Provisioning Wizard               |
 +------------------------------------------------------------+
 |   This system has been booted for the first time or has    |
 |   restored default settings. The wizard will assist in     |
@@ -288,16 +321,16 @@ decision with second prompt:
 ### 6.2 Interactive Mode
 
 The Interactive Mode is an alternative mode of operation of the application
-once the Soverign Boot has already been configured on the system. It omits
+once the Sovereign Boot has already been provisioned on the system. It omits
 wizard-like behavior and presents a menu windows allowing for adjustment of
-the Soverign Boot. This mode of operation is much information-rich and offer
-flexible management of trusted key database.
+the Sovereign Boot settings. This mode of operation is much information-rich
+and offer flexible management of trusted key database.
 
 #### 6.2.1 Interactive Mode Main Menu
 
 ```
 +------------------------------------------------------------+
-|             Soverign Boot Provisioning Wizard              |
+|             Sovereign Boot Provisioning Wizard              |
 +------------------------------------------------------------+
 |                                                            |
 | > Modify Trusted Key Database                              |
@@ -452,8 +485,9 @@ methods have been shown below with possible risks.
 1. Booting GRUB:
 
    GRUB may break the chain of trust being unable to verify initrd. The Linux
-   kernel has to enabled EFI stub. Passing command line parameters is
-   questionable without UKI.
+   kernel has to enable EFI stub. Passing command line parameters is
+   questionable without UKI. Also GRUB may not be able to boot Linux if shim
+   lock protocol is not found.
 
    ![](images/booting_grub.png)
 
@@ -554,54 +588,7 @@ Selecting a bootloader from the list opens a detailed view:
 +------------------------------------------------------------+
 ```
 
-### 9.2 Bootloader Identification and Verification
-
-The application scans all discovered ESPs for files that may be usable
-bootloaders. It searches recursively for files using simple heuristics, such
-as file name: `bootx64.efi`, `elilo.efi`, `grubx64.efi`, `shimx64.efi` and
-`bootmgfw.efi` or `.efi` file extension matching.
-
-In the interactive mode additionally discovered bootloaders could be listed
-for evaluation.
-
-```
-+------------------------------------------------------------+
-|                  Discovered Bootloaders                    |
-+------------------------------------------------------------+
-|                                                            |
-| > SATA SSD #1 ESP: /EFI/ubuntu/grubx64.efi                 |
-| > NVMe0n1p1: /EFI/Microsoft/Boot/bootmgfw.efi              |
-| > SATA SSD #1 ESP: /EFI/boot/bootx64.efi                   |
-|                                                            |
-+------------------------------------------------------------+
-|   Use ↑↓ to navigate.                                      |
-|   Use Enter to confirm selection.                          |
-|   Use ESC to go back to previous menu.                     |
-+------------------------------------------------------------+
-```
-
-Selecting a bootloader from the list opens a detailed view:
-
-```
-+------------------------------------------------------------+
-|                     Bootloader Details                     |
-+------------------------------------------------------------+
-| Path: /EFI/ubuntu/grubx64.efi                              |
-| Location: SATA SSD #1 ESP                                  |
-| Signature: Verified                                        |
-| Signed by: SHA256:1ACD... (CN=Vendor OS Cert)              |
-| Key status: (Un)Trusted                                    |
-+------------------------------------------------------------+
-| [(Un)trust This Key]                                       |
-| [Create Boot Entry]                                        |
-+------------------------------------------------------------+
-|   Use ↑↓ to navigate.                                      |
-|   Use Enter to confirm selection.                          |
-|   Use ESC to go back to previous menu.                     |
-+------------------------------------------------------------+
-```
-
-### 9.3 Supporting different security models
+### 9.2 Supporting different security models
 
 Using UEFI Secure Boot may not be the only way of securing the system. The
 application could be extended in the future to support more security models,
@@ -613,7 +600,7 @@ e.g:
 
 ```
 +------------------------------------------------------------+
-|            Soverign Boot Provisioning Wizard               |
+|            Sovereign Boot Provisioning Wizard               |
 +------------------------------------------------------------+
 |   This system has been booted for the first time or has    |
 |   restored default settings. The wizard will assist in     |
@@ -623,7 +610,7 @@ e.g:
 |   Select one of below security/thread models for more      |
 |   information:                                             |
 |                                                            |
-| > Soverign Boot - UEFI Secure Boot and setup password      |
+| > Sovereign Boot - UEFI Secure Boot and setup password      |
 | > Dynamic Root of Trust with TrenchBoot                    |
 | > Disk encryption with TOTP and GPG verification           |
 | > Two Factor Authentication boot protection                |
