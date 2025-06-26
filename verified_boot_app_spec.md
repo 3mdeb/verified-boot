@@ -1,5 +1,13 @@
 # Sovereign Boot Provisioning Wizard
 
+> Revision: v0.1.0
+
+## Changelog
+
+| Revision | Descrpition | Date |
+| :------: | :---------- | :--: |
+| v0.1.0 | Initial version | 26.06.2025 |
+
 ## 1. Introduction
 
 This document specifies the behavior and architecture of a UEFI application
