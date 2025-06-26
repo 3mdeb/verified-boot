@@ -84,7 +84,7 @@ is presented to the user for trust decision.
 3. At last the application will list other EFI executables discovered on the
    EFI System Partitions that were not yet listed.
 4. From the list of all boot option and bootloaders, those signed by
-   Microsoft's keys will be filtered out and skipped form trust prompts.
+   Microsoft's keys will be filtered out and skipped from trust prompts.
 
 Once the trusted key database is configured, the application creates an
 ephemeral Platform Key `PK`, discards its private part, and enrolls the public
@@ -101,8 +101,7 @@ and control afterward.
 The interactive menu interface is designed to provide detailed view on current
 system environment:
 
-- All discovered and Sovereign Boot compatible boot options and
-  their:
+- All discovered and Sovereign Boot compatible boot options and their:
   - Verification status
   - Key fingerprint if the image is signed (or image hash if not signed)
   - Trust status
