@@ -28,7 +28,7 @@ approaches, their advantages, and potential areas for improvement.
 
 While the initial goal is to document and review existing Verified Boot
 mechanisms, the long-term objective is to design or select a robust Verified
-Boot solution, that can be adopted by Linux-based Operating Systams, such as
+Boot solution, that can be adopted by Linux-based Operating Systems, such as
 [Kicksecure](https://www.kicksecure.com/).
 
 ## Dream Goal
